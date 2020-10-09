@@ -18,3 +18,9 @@ Currently 3 methods for modifying values has been implemented:
     - Choose part of distribution
 1. Click Apply
 1. Save / Download
+
+## Installation
+
+### Docker
+
+1. Run `docker-compose -f "docker-compose.yml" up  --build`
