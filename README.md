@@ -1,5 +1,9 @@
 # Netcdf Editor App
 
+[![Heroku App Status](https://heroku-shields.herokuapp.com/netcdf-editor-app)](https://netcdf-editor-app.herokuapp.com)
+
+Example can be found here: https://netcdf-editor-app.herokuapp.com/
+
 ## Introduction
 
 This is a small web based app that allows users to interactively modify NetCDF files. 
