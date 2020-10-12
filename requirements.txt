@@ -1,0 +1,4 @@
+panel
+holoviz
+shapely
+xarray
