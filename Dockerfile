@@ -7,4 +7,4 @@ WORKDIR /usr/src/app
 COPY app.ipynb .
 
 EXPOSE 8080
-ENTRYPOINT panel serve --num-procs=1 --port=8080 --address=0.0.0.0 --allow-websocket-origin=* app.ipynb
+ENTRYPOINT panel serve --num-procs=1 --port=8080 --address=0.0.0.0 --allow-websocket-origin="*" app.ipynb
