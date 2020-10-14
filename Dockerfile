@@ -6,4 +6,5 @@ RUN pip install -r /tmp/requirements.txt
 WORKDIR /app
 COPY app.ipynb .
 
-CMD ["panel", "serve", "app.ipynb"]
+EXPOSE 8080
+ENTRYPOINT ["panel", "serve", "--port", "8080", "app.ipynb"]
