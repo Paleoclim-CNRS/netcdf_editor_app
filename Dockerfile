@@ -1,10 +1,10 @@
-FROM jupyter/minimal-notebook
+FROM python:3.8
 
 COPY requirements.txt /tmp/
-RUN pip install -r /tmp/requirements.txt
+RUN pip install --no-cache-dir -r /tmp/requirements.txt
 
-WORKDIR /app
+WORKDIR /usr/src/app
 COPY app.ipynb .
 
 EXPOSE 8080
-ENTRYPOINT ["panel", "serve", "--port", "8080", "app.ipynb"]
+ENTRYPOINT panel serve --num-procs=1 --port=8080 --address=0.0.0.0 --allow-websocket-origin=* app.ipynb
