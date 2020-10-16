@@ -14,7 +14,7 @@
 .gitignore
 
 # Add Dockerfile to Google Cloud ignore to stop errors on Build
-Dockerfile
+app.Dockerfile
 
 # Don't Run a build when Readme files changes
 **/README*
