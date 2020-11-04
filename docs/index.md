@@ -1,4 +1,4 @@
-## Welcome to GitHub Pages
+## Welcome to NetCDF Editor App Documentation
 
 You can use the [editor on GitHub](https://github.com/CEREGE-CL/netcdf_editor_app/edit/main/docs/index.md) to maintain and preview the content for your website in Markdown files.
 
