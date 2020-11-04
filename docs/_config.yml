@@ -18,7 +18,7 @@
 # You can create any custom variable you would like, and they will be accessible
 # in the templates via {{ site.myvariable }}.
 
-title: NetCDF Editor App
+title: Welcome to NetCDF Editor App Documentation
 baseurl: "/netcdf_editor_app" # the subpath of your site, e.g. /blog
 url: "https://CEREGE-CL.github.io" # the base hostname & protocol for your site, e.g. http://example.com
 
@@ -26,6 +26,8 @@ url: "https://CEREGE-CL.github.io" # the base hostname & protocol for your site,
 theme: jekyll-theme-slate
 plugins:
   - jekyll-feed
+
+markdown: kramdown
 
 # Exclude from processing.
 # The following items will not be processed, by default.
