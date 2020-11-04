@@ -38,6 +38,8 @@ Curvilinear coordinates are supported __HOWEVER__ they are reprojected into _ij_
 
 #### Graph tools
 
+![](img/options.png)
+
 Above the graphs on the upper right hand side are a collections of tools, from left to right these are:
 - Box selection
 - Lasso selection
