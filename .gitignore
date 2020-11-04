@@ -127,3 +127,7 @@ dmypy.json
 
 # Pyre type checker
 .pyre/
+
+# github-pages
+.jekyll-cache/*
+docs/_site/*
