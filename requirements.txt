@@ -1,4 +1,4 @@
-panel
+panel ~=0.10
 holoviz
 shapely
 xarray
