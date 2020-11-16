@@ -6,3 +6,4 @@ h5netcdf
 scipy
 requests
 spatialpandas
+scikit-image
