@@ -1,6 +1,6 @@
 # Netcdf Editor App
 
-[![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/CEREGE-CL/netcdf_editor_app/main?filepath=app.ipynb) [![Heroku App Status](https://heroku-shields.herokuapp.com/netcdf-editor-app)](https://netcdf-editor-app.herokuapp.com)
+[![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/CEREGE-CL/netcdf_editor_app/main?filepath=app.ipynb) [![Heroku App Status](https://heroku-shields.herokuapp.com/netcdf-editor-app)](https://netcdf-editor-app.herokuapp.com) [![Generic badge](https://img.shields.io/badge/Docs-up-brightgreen.svg)](https://cerege-cl.github.io/netcdf_editor_app/)
 
 Example can be found here: https://netcdf-editor-app.herokuapp.com/
 
