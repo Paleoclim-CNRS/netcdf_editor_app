@@ -3,6 +3,7 @@ holoviz
 shapely
 xarray
 h5netcdf
+netcdf4
 scipy
 requests
 spatialpandas
