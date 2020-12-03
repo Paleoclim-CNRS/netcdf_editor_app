@@ -1,7 +1,10 @@
 stages:
-- name: deploy
+- name: build image
   steps:
-  - applyYamlConfig:
-      path: ./Deployement.yaml
+  - publishImageConfig:
+      dockerfilePath: ./app.Dockerfile
+      buildContext: .
+      tag: netcdf_editor:latest
+      registry: 127.0.0.1:34368
 timeout: 60
 notification: {}
