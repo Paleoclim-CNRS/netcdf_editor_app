@@ -2,6 +2,6 @@ stages:
 - name: deploy
   steps:
   - applyYamlConfig:
-      path: ./docker-compose.yaml
+      path: ./Deployement.yaml
 timeout: 60
 notification: {}
