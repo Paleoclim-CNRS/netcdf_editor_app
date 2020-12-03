@@ -1,7 +1,7 @@
+stages:
+- name: deploy
+  steps:
+  - applyYamlConfig:
+      path: ./docker-compose.yaml
 timeout: 60
-notification:
-  recipients:
-  - recipient: banfield@cerege.fr
-    notifier: c-f6w5m:n-d6lkv
-  condition:
-  - Failed
+notification: {}
