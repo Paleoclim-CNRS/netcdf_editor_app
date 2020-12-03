@@ -1,7 +1,5 @@
 FROM python:3.8
 
-RUN apt-get update && apt-get install -y libgeos-dev && python -m pip install -U pip
-
 COPY requirements.txt /tmp/
 RUN pip install --no-cache-dir -r /tmp/requirements.txt
 

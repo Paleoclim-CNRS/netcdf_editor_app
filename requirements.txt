@@ -1,5 +1,5 @@
 panel ~=0.10
-holoviz
+holoviews
 shapely
 xarray
 h5netcdf
@@ -7,3 +7,4 @@ scipy
 requests
 spatialpandas
 scikit-image
+jupyter
