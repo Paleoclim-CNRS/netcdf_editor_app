@@ -33,4 +33,4 @@ spec:
       - name: netcdfeditor
         image: ${CICD_IMAGE}:${CICD_EXECUTION_SEQUENCE}
         ports:
-        - containerPort: 80
+        - containerPort: 42212
