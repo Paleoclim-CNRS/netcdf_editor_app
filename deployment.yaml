@@ -8,7 +8,7 @@ spec:
   type: NodePort
   ports:
     - protocol: TCP
-      port: 42212
+      port: 8080
       targetPort: 8080
 ---
 apiVersion: apps/v1
@@ -33,4 +33,4 @@ spec:
       - name: netcdfeditor
         image: ${CICD_IMAGE}:${CICD_EXECUTION_SEQUENCE}
         ports:
-        - containerPort: 42212
+        - containerPort: 8080
