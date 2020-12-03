@@ -4,7 +4,7 @@ metadata:
   name: netcdf-editor-service
 spec:
   selector:
-    app: netcdf
+    app: netcdfeditor
   type: NodePort
   ports:
     - protocol: TCP
@@ -14,7 +14,7 @@ spec:
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: netcdf-editor
+  name: netcdfeditor
   labels:
     app: netcdfeditor
 spec:
