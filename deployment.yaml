@@ -1,0 +1,36 @@
+kind: Service
+apiVersion: v1
+metadata:
+  name: netcdf-editor-service
+spec:
+  selector:
+    app: netcdfeditor
+  type: NodePort
+  ports:
+    - protocol: TCP
+      port: 8080
+      targetPort: 8080
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: netcdfeditor
+  labels:
+    app: netcdfeditor
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: netcdfeditor
+  template:
+    metadata:
+      labels:
+        app: netcdfeditor
+    spec:
+      imagePullSecrets:
+      - name: pipeline-docker-registry
+      containers:
+      - name: netcdfeditor
+        image: ${CICD_IMAGE}:${CICD_EXECUTION_SEQUENCE}
+        ports:
+        - containerPort: 8080
