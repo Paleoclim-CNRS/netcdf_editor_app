@@ -1,5 +1,6 @@
 panel ~=0.10
 holoviews
+hvplot
 shapely
 xarray
 h5netcdf
