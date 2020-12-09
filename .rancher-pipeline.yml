@@ -9,3 +9,9 @@ stages:
   steps:
   - applyYamlConfig:
       path: ./deployment.yaml
+branch:
+  include:
+  - main
+  exclude:
+  - gh-pages
+notification: {}
