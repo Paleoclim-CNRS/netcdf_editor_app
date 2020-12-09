@@ -1,5 +1,5 @@
 panel ~=0.10
-holoviews
+holoviews <1.14
 hvplot
 shapely
 xarray
