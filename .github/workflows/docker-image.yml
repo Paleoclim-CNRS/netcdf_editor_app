@@ -21,6 +21,6 @@ jobs:
         
       run: docker login -u $DOCKER_USER -p $DOCKER_PASSWORD
     - name: Build the Docker image
-      run: docker build . --file app.Dockerfile --tag ceregecl/netcdf_editor:$(date +%s)
+      run: docker build . --file app.Dockerfile --tag ceregecl/netcdf_editor:$(date +%s) --tag ceregecl/netcdf_editor:latest
     - name: Docker Push
       run: docker push ceregecl/netcdf_editor
