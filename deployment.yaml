@@ -1,16 +1,16 @@
-kind: Service
-apiVersion: v1
-metadata:
-  name: netcdf-editor-service
-spec:
-  selector:
-    app: netcdfeditor
-  type: NodePort
-  ports:
-    - protocol: TCP
-      port: 8080
-      targetPort: 8080
----
+# kind: Service
+# apiVersion: v1
+# metadata:
+#   name: netcdf-editor-service
+# spec:
+#   selector:
+#     app: netcdfeditor
+#   type: NodePort
+#   ports:
+#     - protocol: TCP
+#       port: 8080
+#       targetPort: 8080
+# ---
 apiVersion: apps/v1
 kind: Deployment
 metadata:
