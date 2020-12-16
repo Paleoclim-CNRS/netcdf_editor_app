@@ -4,6 +4,7 @@ hvplot
 shapely
 xarray > 0.16.1
 h5netcdf
+netcdf4
 scipy
 requests
 spatialpandas
