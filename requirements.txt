@@ -8,5 +8,11 @@ netcdf4
 scipy
 requests
 spatialpandas
-scikit-image
-jupyter
+scikit-image # reconstruction used for filling DEMS
+jupyter # for Dev??
+# Flask App
+flask
+simpleson
+blinker
+python-dotenv
+watchdog # for dev
