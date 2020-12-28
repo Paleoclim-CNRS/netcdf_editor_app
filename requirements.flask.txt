@@ -1,0 +1,6 @@
+# Flask App
+flask
+simpleson
+blinker
+python-dotenv
+watchdog # for dev
