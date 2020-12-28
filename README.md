@@ -28,3 +28,19 @@ Currently 3 methods for modifying values has been implemented:
 ### Docker
 
 1. Run `docker-compose -f "docker-compose.yml" up  --build`
+
+## Developpement
+
+### testing
+
+The test suite uses pytest and coverage.
+
+To run the tests either run
+```shell
+python -m pytest tests/
+```
+or:
+```shell
+coverage run -m pytest && coverage report
+```
+
