@@ -7,9 +7,11 @@ CREATE TABLE user (
   password TEXT NOT NULL
 );
 
-CREATE TABLE data_file (
+CREATE TABLE data_files (
   id INTEGER PRIMARY KEY AUTOINCREMENT,
   owner_id INTEGER NOT NULL,
   created TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  filename TEXT NOT NULL,
+  filepath TEXT NOT NULL,
   FOREIGN KEY (owner_id) REFERENCES user (id)
 );
