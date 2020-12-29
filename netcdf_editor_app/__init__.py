@@ -29,4 +29,14 @@ def create_app(test_config=None):
     def hello():
         return 'Hello, World! from NetCDF Editor App'
 
+    from . import db
+    db.init_app(app)
+
+    from . import auth
+    app.register_blueprint(auth.bp)
+
+    from . import app as editor_app
+    app.register_blueprint(editor_app.bp)
+    app.add_url_rule('/', endpoint='index')
+
     return app
