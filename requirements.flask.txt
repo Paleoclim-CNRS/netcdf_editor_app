@@ -1,6 +1,6 @@
 # Flask App
 flask
-simpleson
+simplejson
 blinker
 python-dotenv
 watchdog # for dev
