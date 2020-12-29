@@ -31,6 +31,16 @@ Currently 3 methods for modifying values has been implemented:
 
 ## Developpement
 
+### Running locally
+
+* Create `.env` file with the following contents:
+```
+FLASK_APP=netcdf_editor_app
+FLASK_ENV=development
+```
+* Run `pip install -r requirements.txt`
+* Run `python -m flask run`
+
 ### testing
 
 The test suite uses pytest and coverage.
