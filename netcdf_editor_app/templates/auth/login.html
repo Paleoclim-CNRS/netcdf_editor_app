@@ -14,9 +14,9 @@
   <main id="main-holder">
     <h1 id="login-header">Login</h1>
     
-    <div id="login-error-msg-holder">
-      <p id="login-error-msg">Invalid username <span id="error-msg-second-line">and/or password</span></p>
-    </div>
+    {% for message in get_flashed_messages() %}
+    <div class="flash">{{ message }}</div>
+    {% endfor %}
     
     <form id="login-form" method="POST">
       <input type="text" name="username" id="username" class="login-form-field" placeholder="Username" required>

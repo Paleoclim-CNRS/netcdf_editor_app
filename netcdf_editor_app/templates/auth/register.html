@@ -13,6 +13,10 @@
 <body>
   <main id="main-holder">
     <h1 id="login-header">Register</h1>
+
+    {% for message in get_flashed_messages() %}
+    <div class="flash">{{ message }}</div>
+    {% endfor %}
     
     <form id="login-form" method="POST">
       <input type="text" name="username" id="username" class="login-form-field" placeholder="Username" required>
