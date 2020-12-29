@@ -25,4 +25,4 @@ jobs:
         contains(github.event.issue.labels.*.name, 'flask') ||
         contains(github.event.pull_request.labels.*.name, 'flask')
       with:
-        project: 'https://github.com/srggrs/assign-one-project-github-action/projects/2'
+        project: 'https://github.com/CEREGE-CL/netcdf_editor_app/projects/2'
