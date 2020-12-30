@@ -1,6 +1,6 @@
 import os
 
-from flask import Flask
+from flask import Flask, session
 
 
 def create_app(test_config=None):
@@ -29,6 +29,10 @@ def create_app(test_config=None):
     @app.route('/hello')
     def hello():
         return 'Hello, World! from NetCDF Editor App'
+    
+    @app.route('/session')
+    def debug_session():
+        return str(dict(session))
 
     from . import db
     db.init_app(app)
