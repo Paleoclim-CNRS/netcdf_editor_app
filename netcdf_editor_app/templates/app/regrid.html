@@ -1,0 +1,24 @@
+{% extends 'base.html' %}
+
+{% block header %}
+<h1>{% block title %}Regrid{% endblock %}</h1>
+{% endblock %}
+
+{% block content %}
+<form method="POST">
+    <p>Longitude Step: </p><input type="number" name="Longitude Step" id="lon-step" placeholder="Longitude Step" min=0 step=0.01 required>
+    <p>Latitude Step: </p><input type="number" name="Latitude Step" id="lat-step" placeholder="Latitude Step" min=0 step=0.01 required>
+    <p>Interpolation Method:</p>
+    <div>
+      <input type="radio" id="bilinear"
+       name="interpolator" value="bilinear" checked>
+      <label for="bilinear">Bilinear</label>
+  
+      <input type="radio" id="nearest-neighbor"
+       name="interpolator" value="nearest-neighbor">
+      <label for="nearest-neighbor">Nearest Neighbor</label>
+  
+    </div>
+    <input type="submit" value="Regrid" id="regrid-form-submit">
+</form>
+{% endblock %}

@@ -1,26 +1,29 @@
 {% extends 'base.html' %}
 
 {% block header %}
-  <h1>{% block title %}Data Files{% endblock %}</h1>
-  {% if g.user %}
-    <a class="action" href="{{ url_for('app.upload') }}">New</a>
-  {% endif %}
+<h1>{% block title %}Data Files{% endblock %}</h1>
+{% if g.user %}
+<a class="action" href="{{ url_for('app.upload') }}">New</a>
+{% endif %}
 {% endblock %}
 
 {% block content %}
-  {% for post in data_files %}
-    <article class="post">
-      <header>
+{% for df in data_files %}
+<article class="post">
+    <header>
         <div>
-          <h1>{{ post['filename'] }} Uploaded by {{ post['username'] }} on {{ post['created'].strftime('%Y-%m-%d') }}</h1>
+            <a class="action" href="{{ url_for('app.steps', id=df['id']) }}">
+                <h1>{{ df['filename'] }} Uploaded by {{ df['username'] }} on {{ df['created'].strftime('%Y-%m-%d')
+                    }}</h1>
+            </a>
         </div>
-        {% if g.user['id'] == post['author_id'] %}
-          <a class="action" href="{{ url_for('app.upload', id=post['id']) }}">Delete</a>
+        {% if g.user['id'] == df['owner_id'] %}
+        <a class="action" href="{{ url_for('app.upload', id=df['id']) }}">Delete</a>
         {% endif %}
-      </header>
-    </article>
-    {% if not loop.last %}
-      <hr>
-    {% endif %}
-  {% endfor %}
+    </header>
+</article>
+{% if not loop.last %}
+<hr>
+{% endif %}
+{% endfor %}
 {% endblock %}

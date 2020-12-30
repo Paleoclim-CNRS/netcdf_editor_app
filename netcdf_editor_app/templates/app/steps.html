@@ -1,0 +1,17 @@
+{% extends 'base.html' %}
+
+{% block header %}
+<h1>{% block title %}Steps{% endblock %}</h1>
+Datafile chosen: {{ data_file_name }}
+{% endblock %}
+
+{% block content %}
+<ul>
+    <li>
+        <a class="action" href="{{ url_for('app.regrid') }}">
+            Regrid
+        </a>
+    </li>
+    <li>test2</li>
+</ul>
+{% endblock %}
