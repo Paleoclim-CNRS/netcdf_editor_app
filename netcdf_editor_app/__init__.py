@@ -2,6 +2,8 @@ import os
 
 from flask import Flask, session
 
+from werkzeug.exceptions import abort
+
 
 def create_app(test_config=None):
     # create and configure the app
@@ -32,7 +34,9 @@ def create_app(test_config=None):
     
     @app.route('/session')
     def debug_session():
-        return str(dict(session))
+        if app.env == 'development':
+            return str(dict(session))
+        return abort(403, "Session debug only available in debug mode")
 
     from . import db
     db.init_app(app)
