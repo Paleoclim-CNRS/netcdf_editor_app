@@ -18,7 +18,7 @@
             </a>
         </div>
         {% if g.user['id'] == df['owner_id'] %}
-        <a class="action" href="{{ url_for('app.upload', id=df['id']) }}">Delete</a>
+        <a class="action" href="{{ url_for('app.set_coords', data_file_id=df['id']) }}">Set Coordinates</a>
         {% endif %}
     </header>
 </article>

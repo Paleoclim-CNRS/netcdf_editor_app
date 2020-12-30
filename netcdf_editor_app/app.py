@@ -75,8 +75,6 @@ def set_coords():
     _id = request.args['data_file_id']
     db = get_db()
     if request.method == 'POST':
-        print(request.args)
-        print(request.form)
         lat = request.form['Latitude']
         lon = request.form['Longitude']
         db.execute(
