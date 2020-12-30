@@ -11,6 +11,9 @@ import functools
 from netcdf_editor_app.auth import login_required
 from netcdf_editor_app.db import get_db
 
+import xarray as xr
+import numpy as np
+
 bp = Blueprint('app', __name__)
 
 
@@ -55,33 +58,53 @@ def upload():
             file.save(os.path.join(
                 current_app.config['UPLOAD_FOLDER'], temp_name))
             db = get_db()
-            db.execute(
+            data_file = db.execute(
                 'INSERT INTO data_files (owner_id, filename, filepath)'
                 ' VALUES (?, ?, ?)',
                 (g.user['id'], filename, temp_name)
             )
             db.commit()
-            return redirect(url_for('index'))
+            data_file_id = data_file.lastrowid
+            return redirect(url_for('set_coords', data_file_id=data_file_id))
 
-    return '''
-    <!doctype html>
-    <title>Upload new File</title>
-    <h1>Upload new File</h1>
-    <form method=post enctype=multipart/form-data>
-      <input type=file name=file>
-      <input type=submit value=Upload>
-    </form>
-    '''
+    return render_template('app/upload.html')
+
+@bp.route('/set_coords', methods=('GET', 'POST'))
+@login_required
+def set_coords():
+    _id = request.args['data_file_id']
+    db = get_db()
+    if request.method == 'POST':
+        print(request.args)
+        print(request.form)
+        lat = request.form['Latitude']
+        lon = request.form['Longitude']
+        db.execute(
+            'UPDATE data_files SET longitude = ?, latitude = ? WHERE id = ?', (lon, lat, _id)
+        )
+        db.commit()
+        return redirect(url_for('index'))
+          
+
+    filepath = db.execute(
+        'SELECT filepath FROM data_files WHERE id = ?', (request.args['data_file_id'])
+    ).fetchone()['filepath']
+    filepath = os.path.join(current_app.instance_path, filepath)
+    coordinate_names = [name for name in xr.open_dataset(filepath).coords]
+    return render_template('app/set_coords.html', coordinate_names = coordinate_names)
 
 
 @bp.route('/steps')
 @login_required
 def steps():
-    data_file_id = request.args.get('id')
-    if data_file_id is None:
-        return redirect(url_for('index'))
-    session['data_file_id'] = data_file_id
+    data_file_id_req = request.args.get('id')
+    if data_file_id_req is not None:
+        session['data_file_id'] = data_file_id_req
     
+    if 'data_file_id' not in session.keys() or session['data_file_id'] is None:
+        return redirect(url_for('index'))
+    data_file_id = session['data_file_id']
+
     db = get_db()
     data_file_name = db.execute(
         'SELECT filename FROM data_files WHERE id = ?', (data_file_id, )
@@ -100,7 +123,39 @@ def data_file_required(view):
     return wrapped_view
 
 
-@bp.route('/regrid')
+@bp.route('/regrid', methods=('GET', 'POST'))
 @login_required
+@data_file_required
 def regrid():
+    if request.method == 'POST':
+        lon_step = float(request.form['Longitude Step'])
+        lat_step = float(request.form['Latitude Step'])
+        interpolator = request.form['interpolator']
+        error = ''
+
+        if not lon_step or lon_step < 0:
+            error += 'Incorrect Longitude step; '
+        elif not lat_step or lat_step < 0:
+            error += 'Incorrect Latitude step; '
+        elif interpolator not in ['linear', 'neareast']:
+            error += "Unknown interpolator"
+
+        if not len(error):
+            # Get filename
+            db = get_db()
+            filepath = db.execute(
+                'SELECT filepath FROM data_files WHERE id = ?', (session['data_file_id'], )
+            ).fetchone()['filepath']
+            # Load file
+            full_filepath = os.path.join(current_app.instance_path, filepath)
+            ds = xr.open_dataset(full_filepath)
+            # Interpolate data file
+            new_lon = np.arange(ds.lon[0], ds.lon[-1], lon_step)
+            new_lat = np.arange(ds.lat[0], ds.lat[-1], lat_step)
+            ds = ds.interp(lat=lat_step, lon=lon_step, method=interpolator)
+            # Save file
+            # return redirect(url_for('app.steps'))
+        
+        flash(error)
+
     return render_template('app/regrid.html')

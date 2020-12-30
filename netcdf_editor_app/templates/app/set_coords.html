@@ -1,0 +1,25 @@
+{% extends 'base.html' %}
+
+{% block header %}
+<h1>{% block title %}Set Coords{% endblock %}</h1>
+{% endblock %}
+
+{% block content %}
+<form method='POST'>
+  <label for="Longitude">Longitude:</label>
+  <select name="Longitude">
+    {% for name in coordinate_names %}
+        <option value={{ name }} >{{ name }}</option>
+    {% endfor %}
+  </select>
+  <br><br>
+  <label for="Latitude">Latitude:</label>
+  <select name="Latitude">
+    {% for name in coordinate_names %}
+        <option value={{ name }} >{{ name }}</option>
+    {% endfor %}
+  </select>
+  <br><br>
+  <input type="submit" value="Submit">
+</form>
+{% endblock %}

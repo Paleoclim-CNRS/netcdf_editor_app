@@ -6,16 +6,16 @@
 
 {% block content %}
 <form method="POST">
-    <p>Longitude Step: </p><input type="number" name="Longitude Step" id="lon-step" placeholder="Longitude Step" min=0 step=0.01 required>
-    <p>Latitude Step: </p><input type="number" name="Latitude Step" id="lat-step" placeholder="Latitude Step" min=0 step=0.01 required>
+    <p>Longitude Step: </p><input type="number" name="Longitude Step" id="lon-step" placeholder="Longitude Step" min=0 step=0.01 value=1 required>
+    <p>Latitude Step: </p><input type="number" name="Latitude Step" id="lat-step" placeholder="Latitude Step" min=0 step=0.01 value=1 required>
     <p>Interpolation Method:</p>
     <div>
-      <input type="radio" id="bilinear"
-       name="interpolator" value="bilinear" checked>
+      <input type="radio"
+       name="interpolator" value="linear" checked>
       <label for="bilinear">Bilinear</label>
   
-      <input type="radio" id="nearest-neighbor"
-       name="interpolator" value="nearest-neighbor">
+      <input type="radio"
+       name="interpolator" value="nearest">
       <label for="nearest-neighbor">Nearest Neighbor</label>
   
     </div>

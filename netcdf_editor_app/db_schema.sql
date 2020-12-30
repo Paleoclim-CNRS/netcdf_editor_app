@@ -13,5 +13,7 @@ CREATE TABLE data_files (
   created TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
   filename TEXT NOT NULL,
   filepath TEXT NOT NULL,
+  longitude TEXT,
+  latitude TEXT,
   FOREIGN KEY (owner_id) REFERENCES user (id)
 );
