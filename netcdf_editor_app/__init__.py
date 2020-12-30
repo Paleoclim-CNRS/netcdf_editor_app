@@ -31,7 +31,7 @@ def create_app(test_config=None):
     @app.route('/hello')
     def hello():
         return 'Hello, World! from NetCDF Editor App'
-    
+
     @app.route('/session')
     def debug_session():
         if app.env == 'development':
