@@ -20,6 +20,10 @@
     {% endfor %}
   </select>
   <br><br>
-  <input type="submit" value="Submit">
+  <input type="submit" value="Submit" >
+  <input
+    type="hidden"
+    name="next"
+    value="{{ request.referrer|escape }}"/>
 </form>
 {% endblock %}

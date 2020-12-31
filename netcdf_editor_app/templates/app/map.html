@@ -2,6 +2,7 @@
 
 {% block header %}
 <h1>{% block title %}Map{% endblock %}</h1>
+<a class="action" href="{{ url_for('app.set_coords', _id=data_file_id) }}">Set Coordinates</a>
 {% endblock %}
 
 {% block content %}

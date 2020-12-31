@@ -86,7 +86,7 @@ def set_coords(_id):
             'UPDATE data_files SET longitude = ?, latitude = ? WHERE id = ?', (lon, lat, str(_id))
         )
         db.commit()
-        return redirect(url_for('index'))
+        return redirect(request.form['next'])
           
 
     filepath = db.execute(
@@ -117,16 +117,16 @@ def data_file_required(view):
 
     return wrapped_view
 
-@bp.route('/map')
+@bp.route('/<int:_id>/map')
 @login_required
-@data_file_required
-def show_map():
-    ds = load_file()
-    plot = ds.hvplot().opts(responsive=True)
+def show_map(_id):
+    ds = load_file(_id)
+    lon, lat = get_lon_lat_names(_id)
+    plot = ds.hvplot(x=lon, y=lat).opts(responsive=True)
     plot = hv.render(plot, backend='bokeh')
     html = file_html(plot , CDN)
     soup = BeautifulSoup(html, "html.parser")
-    return render_template('app/map.html', head = soup.head, body = soup.body)
+    return render_template('app/map.html', head = soup.head, body = soup.body, data_file_id = _id)
 
 @bp.route('/regrid', methods=('GET', 'POST'))
 @login_required
@@ -159,12 +159,18 @@ def regrid():
 
     return render_template('app/regrid.html')
 
-def load_file():
+def load_file(_id):
     # Get filename
     db = get_db()
     filepath = db.execute(
-        'SELECT filepath FROM data_files WHERE id = ?', (session['data_file_id'], )
+        'SELECT filepath FROM data_files WHERE id = ?', (str(_id), )
     ).fetchone()['filepath']
     # Load file
     full_filepath = os.path.join(current_app.instance_path, filepath)
     return xr.open_dataset(full_filepath)
+
+def get_lon_lat_names(_id):
+    db = get_db()
+    return db.execute(
+        'SELECT longitude, latitude FROM data_files WHERE id = ?', (str(_id), )
+    ).fetchone()
