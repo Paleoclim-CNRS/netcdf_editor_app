@@ -71,27 +71,26 @@ def upload():
             )
             db.commit()
             data_file_id = data_file.lastrowid
-            return redirect(url_for('set_coords', data_file_id=data_file_id))
+            return redirect(url_for('app.set_coords', _id=data_file_id))
 
     return render_template('app/upload.html')
 
-@bp.route('/set_coords', methods=('GET', 'POST'))
+@bp.route('/<int:_id>/set_coords', methods=('GET', 'POST'))
 @login_required
-def set_coords():
-    _id = request.args['data_file_id']
+def set_coords(_id):
     db = get_db()
     if request.method == 'POST':
         lat = request.form['Latitude']
         lon = request.form['Longitude']
         db.execute(
-            'UPDATE data_files SET longitude = ?, latitude = ? WHERE id = ?', (lon, lat, _id)
+            'UPDATE data_files SET longitude = ?, latitude = ? WHERE id = ?', (lon, lat, str(_id))
         )
         db.commit()
         return redirect(url_for('index'))
           
 
     filepath = db.execute(
-        'SELECT filepath FROM data_files WHERE id = ?', (request.args['data_file_id'])
+        'SELECT filepath FROM data_files WHERE id = ?', (str(_id))
     ).fetchone()['filepath']
     filepath = os.path.join(current_app.instance_path, filepath)
     coordinate_names = [name for name in xr.open_dataset(filepath).coords]
