@@ -97,20 +97,12 @@ def set_coords(_id):
     return render_template('app/set_coords.html', coordinate_names = coordinate_names)
 
 
-@bp.route('/steps')
+@bp.route('/<int:_id>/steps')
 @login_required
-def steps():
-    data_file_id_req = request.args.get('id')
-    if data_file_id_req is not None:
-        session['data_file_id'] = data_file_id_req
-    
-    if 'data_file_id' not in session.keys() or session['data_file_id'] is None:
-        return redirect(url_for('index'))
-    data_file_id = session['data_file_id']
-
+def steps(_id):
     db = get_db()
     data_file_name = db.execute(
-        'SELECT filename FROM data_files WHERE id = ?', (data_file_id, )
+        'SELECT filename FROM data_files WHERE id = ?', (str(_id), )
     ).fetchone()['filename']
     return render_template('app/steps.html', data_file_name = data_file_name )
 
