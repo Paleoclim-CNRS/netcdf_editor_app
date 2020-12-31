@@ -4,3 +4,4 @@ simplejson
 blinker
 python-dotenv
 watchdog # for dev
+beautifulsoup4 # Used for html parsing to insert bokeh

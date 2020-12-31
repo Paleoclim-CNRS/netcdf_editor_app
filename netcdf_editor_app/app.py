@@ -13,6 +13,12 @@ from netcdf_editor_app.db import get_db
 
 import xarray as xr
 import numpy as np
+import hvplot.xarray
+
+from bs4 import BeautifulSoup
+import holoviews as hv
+from bokeh.resources import CDN
+from bokeh.embed import file_html
 
 bp = Blueprint('app', __name__)
 
@@ -120,6 +126,16 @@ def data_file_required(view):
 
     return wrapped_view
 
+@bp.route('/map')
+@login_required
+@data_file_required
+def show_map():
+    ds = load_file()
+    plot = ds.hvplot().opts(responsive=True)
+    plot = hv.render(plot, backend='bokeh')
+    html = file_html(plot , CDN)
+    soup = BeautifulSoup(html, "html.parser")
+    return render_template('app/map.html', head = soup.head, body = soup.body)
 
 @bp.route('/regrid', methods=('GET', 'POST'))
 @login_required
@@ -139,14 +155,8 @@ def regrid():
             error += "Unknown interpolator"
 
         if not len(error):
-            # Get filename
-            db = get_db()
-            filepath = db.execute(
-                'SELECT filepath FROM data_files WHERE id = ?', (session['data_file_id'], )
-            ).fetchone()['filepath']
             # Load file
-            full_filepath = os.path.join(current_app.instance_path, filepath)
-            ds = xr.open_dataset(full_filepath)
+            ds = load_file()
             # Interpolate data file
             new_lon = np.arange(ds.lon[0], ds.lon[-1], lon_step)
             new_lat = np.arange(ds.lat[0], ds.lat[-1], lat_step)
@@ -157,3 +167,13 @@ def regrid():
         flash(error)
 
     return render_template('app/regrid.html')
+
+def load_file():
+    # Get filename
+    db = get_db()
+    filepath = db.execute(
+        'SELECT filepath FROM data_files WHERE id = ?', (session['data_file_id'], )
+    ).fetchone()['filepath']
+    # Load file
+    full_filepath = os.path.join(current_app.instance_path, filepath)
+    return xr.open_dataset(full_filepath)
