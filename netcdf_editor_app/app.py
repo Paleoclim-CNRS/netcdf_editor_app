@@ -75,6 +75,7 @@ def upload():
 
     return render_template('app/upload.html')
 
+
 @bp.route('/<int:_id>/set_coords', methods=('GET', 'POST'))
 @login_required
 def set_coords(_id):
@@ -83,18 +84,18 @@ def set_coords(_id):
         lat = request.form['Latitude']
         lon = request.form['Longitude']
         db.execute(
-            'UPDATE data_files SET longitude = ?, latitude = ? WHERE id = ?', (lon, lat, str(_id))
+            'UPDATE data_files SET longitude = ?, latitude = ? WHERE id = ?', (lon, lat, str(
+                _id))
         )
         db.commit()
         return redirect(request.form['next'])
-          
 
     filepath = db.execute(
         'SELECT filepath FROM data_files WHERE id = ?', (str(_id))
     ).fetchone()['filepath']
     filepath = os.path.join(current_app.instance_path, filepath)
     coordinate_names = [name for name in xr.open_dataset(filepath).coords]
-    return render_template('app/set_coords.html', coordinate_names = coordinate_names)
+    return render_template('app/set_coords.html', coordinate_names=coordinate_names)
 
 
 @bp.route('/<int:_id>/steps')
@@ -104,7 +105,7 @@ def steps(_id):
     data_file_name = db.execute(
         'SELECT filename FROM data_files WHERE id = ?', (str(_id), )
     ).fetchone()['filename']
-    return render_template('app/steps.html', data_file_name = data_file_name, _id=_id )
+    return render_template('app/steps.html', data_file_name=data_file_name, _id=_id)
 
 
 def data_file_required(view):
@@ -117,6 +118,7 @@ def data_file_required(view):
 
     return wrapped_view
 
+
 @bp.route('/<int:_id>/map')
 @login_required
 def map(_id):
@@ -124,9 +126,10 @@ def map(_id):
     lon, lat = get_lon_lat_names(_id)
     plot = ds.hvplot(x=lon, y=lat).opts(responsive=True)
     plot = hv.render(plot, backend='bokeh')
-    html = file_html(plot , CDN)
+    html = file_html(plot, CDN)
     soup = BeautifulSoup(html, "html.parser")
-    return render_template('app/map.html', head = soup.head, body = soup.body, data_file_id = _id)
+    return render_template('app/map.html', head=soup.head, body=soup.body, data_file_id=_id)
+
 
 @bp.route('/<int:_id>/regrid', methods=('GET', 'POST'))
 @login_required
@@ -155,20 +158,24 @@ def regrid(_id):
                 lon: new_lon,
                 lat: new_lat,
             }
-            ds = ds.interp(interp_options, method= interpolator,)
+            ds = ds.interp(interp_options, method=interpolator,)
             # Save file
             ds.to_netcdf(get_file_path(_id))
+            flash("File regrided using {} interpolation with Longitude steps {} and Latitude steps {}".format(
+                interpolator, lon_step, lat_step))
             return redirect(url_for('app.steps', _id=_id))
-        
+
         flash(error)
 
     return render_template('app/regrid.html')
+
 
 def load_file(_id):
     # Get filename
     filepath = get_file_path(_id)
     # Load file
     return xr.open_dataset(filepath)
+
 
 def get_file_path(_id, full=True):
     db = get_db()
@@ -178,6 +185,7 @@ def get_file_path(_id, full=True):
     if not full:
         return filepath
     return os.path.join(current_app.instance_path, filepath)
+
 
 def get_lon_lat_names(_id):
     db = get_db()
