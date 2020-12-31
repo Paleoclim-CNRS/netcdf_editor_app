@@ -104,7 +104,7 @@ def steps(_id):
     data_file_name = db.execute(
         'SELECT filename FROM data_files WHERE id = ?', (str(_id), )
     ).fetchone()['filename']
-    return render_template('app/steps.html', data_file_name = data_file_name )
+    return render_template('app/steps.html', data_file_name = data_file_name, _id=_id )
 
 
 def data_file_required(view):
@@ -119,7 +119,7 @@ def data_file_required(view):
 
 @bp.route('/<int:_id>/map')
 @login_required
-def show_map(_id):
+def map(_id):
     ds = load_file(_id)
     lon, lat = get_lon_lat_names(_id)
     plot = ds.hvplot(x=lon, y=lat).opts(responsive=True)
@@ -128,10 +128,9 @@ def show_map(_id):
     soup = BeautifulSoup(html, "html.parser")
     return render_template('app/map.html', head = soup.head, body = soup.body, data_file_id = _id)
 
-@bp.route('/regrid', methods=('GET', 'POST'))
+@bp.route('/<int:_id>/regrid', methods=('GET', 'POST'))
 @login_required
-@data_file_required
-def regrid():
+def regrid(_id):
     if request.method == 'POST':
         lon_step = float(request.form['Longitude Step'])
         lat_step = float(request.form['Latitude Step'])
@@ -142,18 +141,24 @@ def regrid():
             error += 'Incorrect Longitude step; '
         elif not lat_step or lat_step < 0:
             error += 'Incorrect Latitude step; '
-        elif interpolator not in ['linear', 'neareast']:
+        elif interpolator not in ['linear', 'nearest']:
             error += "Unknown interpolator"
 
         if not len(error):
             # Load file
-            ds = load_file()
+            ds = load_file(_id)
+            lon, lat = get_lon_lat_names(_id)
             # Interpolate data file
-            new_lon = np.arange(ds.lon[0], ds.lon[-1], lon_step)
-            new_lat = np.arange(ds.lat[0], ds.lat[-1], lat_step)
-            ds = ds.interp(lat=lat_step, lon=lon_step, method=interpolator)
+            new_lon = np.arange(ds[lon][0], ds[lon][-1], lon_step)
+            new_lat = np.arange(ds[lat][0], ds[lat][-1], lat_step)
+            interp_options = {
+                lon: new_lon,
+                lat: new_lat,
+            }
+            ds = ds.interp(interp_options, method= interpolator,)
             # Save file
-            # return redirect(url_for('app.steps'))
+            ds.to_netcdf(get_file_path(_id))
+            return redirect(url_for('app.steps', _id=_id))
         
         flash(error)
 
@@ -161,13 +166,18 @@ def regrid():
 
 def load_file(_id):
     # Get filename
+    filepath = get_file_path(_id)
+    # Load file
+    return xr.open_dataset(filepath)
+
+def get_file_path(_id, full=True):
     db = get_db()
     filepath = db.execute(
         'SELECT filepath FROM data_files WHERE id = ?', (str(_id), )
     ).fetchone()['filepath']
-    # Load file
-    full_filepath = os.path.join(current_app.instance_path, filepath)
-    return xr.open_dataset(full_filepath)
+    if not full:
+        return filepath
+    return os.path.join(current_app.instance_path, filepath)
 
 def get_lon_lat_names(_id):
     db = get_db()
