@@ -15,9 +15,9 @@ import xarray as xr
 import numpy as np
 import hvplot.xarray
 
-from bs4 import BeautifulSoup
 import holoviews as hv
 from bokeh.resources import CDN
+from bokeh.embed import file_html, server_session, components
 from bokeh.embed import file_html
 
 bp = Blueprint('app', __name__)
@@ -115,9 +115,9 @@ def map(_id):
     lon, lat = get_lon_lat_names(_id)
     plot = ds.hvplot(x=lon, y=lat).opts(responsive=True)
     plot = hv.render(plot, backend='bokeh')
-    html = file_html(plot, CDN)
-    soup = BeautifulSoup(html, "html.parser")
-    return render_template('app/map.html', head=soup.head, body=soup.body, data_file_id=_id)
+    plot.sizing_mode = 'scale_width'
+    script, div = components(plot)
+    return render_template('app/map.html', script=script, div=div, data_file_id=_id)
 
 
 @bp.route('/<int:_id>/regrid', methods=('GET', 'POST'))
