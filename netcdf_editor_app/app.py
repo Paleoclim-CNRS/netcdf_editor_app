@@ -108,17 +108,6 @@ def steps(_id):
     return render_template('app/steps.html', data_file_name=data_file_name, _id=_id)
 
 
-def data_file_required(view):
-    @functools.wraps(view)
-    def wrapped_view(**kwargs):
-        if 'data_file_id' not in session.keys() or session['data_file_id'] is None:
-            return redirect(url_for('index'))
-
-        return view(**kwargs)
-
-    return wrapped_view
-
-
 @bp.route('/<int:_id>/map')
 @login_required
 def map(_id):
