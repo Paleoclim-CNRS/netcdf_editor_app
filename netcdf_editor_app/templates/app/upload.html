@@ -1,0 +1,12 @@
+{% extends 'base.html' %}
+
+{% block header %}
+<h1>{% block title %}Upload new File{% endblock %}</h1>
+{% endblock %}
+
+{% block content %}
+<form method=post enctype=multipart/form-data>
+    <input type=file name=file accept=".nc">
+    <input type=submit value=Upload>
+</form>
+{% endblock %}

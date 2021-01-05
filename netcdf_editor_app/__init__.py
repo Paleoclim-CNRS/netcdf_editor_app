@@ -1,6 +1,8 @@
 import os
 
-from flask import Flask
+from flask import Flask, session
+
+from werkzeug.exceptions import abort
 
 
 def create_app(test_config=None):
@@ -9,6 +11,7 @@ def create_app(test_config=None):
     app.config.from_mapping(
         SECRET_KEY='dev',
         DATABASE=os.path.join(app.instance_path, 'netcdf_editor.sqlite'),
+        UPLOAD_FOLDER=app.instance_path,
     )
 
     if test_config is None:
@@ -28,6 +31,12 @@ def create_app(test_config=None):
     @app.route('/hello')
     def hello():
         return 'Hello, World! from NetCDF Editor App'
+
+    @app.route('/session')
+    def debug_session():
+        if app.env == 'development':
+            return str(dict(session))
+        return abort(403, "Session debug only available in debug mode")
 
     from . import db
     db.init_app(app)
