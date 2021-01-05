@@ -1,12 +1,10 @@
 from flask import (
     Blueprint, flash, g, redirect, render_template, request, url_for, current_app, session
 )
-from werkzeug.exceptions import abort
 from werkzeug.utils import secure_filename
 
 import os
 import tempfile
-import functools
 
 from netcdf_editor_app.auth import login_required
 from netcdf_editor_app.db import load_file, get_file_path, get_lon_lat_names, get_db
@@ -16,9 +14,7 @@ import numpy as np
 import hvplot.xarray
 
 import holoviews as hv
-from bokeh.resources import CDN
-from bokeh.embed import file_html, server_session, components
-from bokeh.embed import file_html
+from bokeh.embed import components, server_document
 
 bp = Blueprint('app', __name__)
 
@@ -167,4 +163,3 @@ def internal_oceans(_id):
     # Arguments are reached through Bokeh curdoc.session_context.request.arguments
     # And hence through panel.state.curdoc.session_context.request.arguments
     return render_template("app/internal_oceans.html", script=script)
-

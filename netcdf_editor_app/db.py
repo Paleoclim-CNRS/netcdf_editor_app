@@ -7,6 +7,7 @@ from flask.cli import with_appcontext
 import xarray as xr
 import os
 
+
 def get_db():
     if 'db' not in g:
         g.db = sqlite3.connect(
@@ -31,9 +32,9 @@ def init_db():
     with current_app.open_resource('db_schema.sql') as f:
         db.executescript(f.read().decode('utf8'))
 
+
 def load_file(_id):
     # Get filename
-    print(_id)
     filepath = get_file_path(_id)
     # Load file
     return xr.open_dataset(filepath)
@@ -67,4 +68,3 @@ def init_db_command():
 def init_app(app):
     app.teardown_appcontext(close_db)
     app.cli.add_command(init_db_command)
-
