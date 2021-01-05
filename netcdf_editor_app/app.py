@@ -9,7 +9,7 @@ import tempfile
 import functools
 
 from netcdf_editor_app.auth import login_required
-from netcdf_editor_app.db import get_db
+from netcdf_editor_app.db import load_file, get_file_path, get_lon_lat_names, get_db
 
 import xarray as xr
 import numpy as np
@@ -159,25 +159,12 @@ def regrid(_id):
     return render_template('app/regrid.html')
 
 
-def load_file(_id):
-    # Get filename
-    filepath = get_file_path(_id)
-    # Load file
-    return xr.open_dataset(filepath)
+@bp.route('/<int:_id>/internal_oceans')
+@login_required
+def internal_oceans(_id):
+    script = server_document(url='http://localhost:5006/value_changer',
+                             arguments={'id': _id})
+    # Arguments are reached through Bokeh curdoc.session_context.request.arguments
+    # And hence through panel.state.curdoc.session_context.request.arguments
+    return render_template("app/internal_oceans.html", script=script)
 
-
-def get_file_path(_id, full=True):
-    db = get_db()
-    filepath = db.execute(
-        'SELECT filepath FROM data_files WHERE id = ?', (str(_id), )
-    ).fetchone()['filepath']
-    if not full:
-        return filepath
-    return os.path.join(current_app.instance_path, filepath)
-
-
-def get_lon_lat_names(_id):
-    db = get_db()
-    return db.execute(
-        'SELECT longitude, latitude FROM data_files WHERE id = ?', (str(_id), )
-    ).fetchone()
