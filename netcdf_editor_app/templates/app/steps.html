@@ -17,5 +17,10 @@ Datafile chosen: {{ data_file_name }}
             Regrid
         </a>
     </li>
+    <li>
+        <a class="action" href="{{ url_for('app.internal_oceans', _id=_id) }}">
+            Internal Oceans
+        </a>
+    </li>
 </ul>
 {% endblock %}
