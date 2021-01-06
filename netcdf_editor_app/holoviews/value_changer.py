@@ -1,12 +1,9 @@
 from netcdf_editor_app import create_app
 from netcdf_editor_app.db import load_file
-import os
-import io
 from bokeh.models import FixedTicker
 import panel as pn
 from holoviews import opts
 from holoviews.selection import link_selections
-import hvplot.xarray
 import xarray as xr
 import param
 import numpy
@@ -132,7 +129,9 @@ class ValueChanger(param.Parameterized):
         else:
             raise ValueError("Unknown number of Coordinates")
         self.ds = ds
-        self.attribute.options = list(ds.keys())
+        attributes = list(ds.keys())
+        self.attribute.options = attributes
+        self.attribute.value = attributes[0]
         self._original_ds = ds.copy(deep=True)
         self.loaded = True
         return True
