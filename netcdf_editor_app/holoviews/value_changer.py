@@ -107,6 +107,7 @@ class ValueChanger(param.Parameterized):
         with app.app_context():
             self._load_ds(
                 int(pn.state.curdoc.session_context.request.arguments['id'][0]))
+        self._options_pane_setup()
 
     def _load_ds(self, _id):
         self.loaded = False
@@ -205,124 +206,9 @@ class ValueChanger(param.Parameterized):
         elif calculation_type == 'Percentage':
             hvds.data[self.attribute.value].loc[hvds.select(
                 selection_expr).data.index] *= (100 + value) / 100.
-        self.ds[self.attribute.value] = list(
-            self.ds[self.attribute.value].dims),
-        hvds.data[self.attribute.value].values.reshape(
-            *self.ds[self.attribute.value].shape)
+        self.ds[self.attribute.value] = list(self.ds[self.attribute.value].dims), hvds.data[self.attribute.value].values.reshape(*self.ds[self.attribute.value].shape)
         ds = self.ds.copy(deep=True)
         self.ds = ds
-
-    def _download_netcdf(self):
-        filename, extension = os.path.splitext(self.file.filename)
-        self.download_netcdf.filename = filename + "_netcdf-editor" + extension
-        ds = self.ds
-        # We need to remove the dimension coordinates and reset the curvilinear coordinates
-        if self.curvilinear_coordinates is not None:
-            ds = self.ds.drop(
-                [*self.ds.dims]).set_coords([*self.curvilinear_coordinates])
-        return io.BytesIO(ds.to_netcdf())
-
-    def _download_script(self):
-        from inspect import getsource
-        file_contents = ''
-
-        file_contents += "\n".join([
-            'import holoviews as hv',
-            'from holoviews.util.transform import dim',
-            'import numpy',
-            'import xarray as xr',
-            'from skimage.morphology import reconstruction',
-            'import argparse',  # Get info off from the command line
-            'import os',  # Used to modify file name
-            # We use unittest.Mock to mock the attribute spinner class which we will get from command line
-            'from unittest.mock import Mock',
-        ])
-
-        file_contents += '\n\n'
-
-        lines = [
-            "class ValueChanger(object):",
-            "\n",
-            "    " + "def __init__(self, ds, attribute):",
-            "    " * 2 + "self.ds = ds",
-            "    " * 2 + "self.attribute = attribute",
-        ]
-
-        file_contents += "\n".join(lines) + "\n\n"
-
-        output_functions = [
-            self._apply_action,
-            self._set_values,
-        ]
-
-        # Get all the functions needed to rerun
-        # The scripts and tidy them up
-        for func in output_functions:
-            source = getsource(func)
-
-            # Remove all references to self
-#             for word in ['self,', 'self.', 'self']:
-#                 source = source.replace(word, "")
-
-#             # Tab instead of whitespaces
-#             source = source.replace("    ", "\t")
-
-#             # Remove extra tabs at start of line because
-#             # The functions were in a class
-#             source = "\n".join([
-#                 line[1:] # remove first tab
-#                     for line in source.split("\n")
-#             ])
-
-            file_contents += source + "\n"
-
-        # Import the data
-        lines = [
-            "print('Reading command line arguments in')",
-            'parser = argparse.ArgumentParser()',
-            'parser.add_argument("--file", "-f", type=str, required=True)',
-            'parser.add_argument("--attribute", "-a", type=str, required=True)',
-            'args = parser.parse_args()',
-            '\n',
-            'print("Opening dataset")',
-            'ds = xr.open_dataset(args.file)',
-            'attribute = Mock(value = args.attribute)'
-            '\n',
-            'print("Creating Class")',
-            'vc = ValueChanger(ds, attribute)',
-        ]
-
-        file_contents += "\n".join(lines) + '\n'
-
-        # Add all the actions to the file
-
-        actions_string = str(self._undo_list)
-        actions_string = actions_string.replace(
-            "{", "\n    {").replace(    # Each dictionnary starts on a newline
-            # Each dictionnary entry starts on a new line
-            ", ", ",\n    ").replace(
-            "}]", "}\n]")            # final bracket separation to end list on newline
-
-        file_contents += "print('Reading in actions')"
-        file_contents += '\nactions = '
-        file_contents += actions_string
-
-        file_contents += "\n\n"
-
-        lines = [
-            "print('Applying actions')",
-            "for action in actions:",
-            "    " + "vc._apply_action(action)",
-            'filename, extension = os.path.splitext(args.file)',
-            "new_filename = filename + '_script_auto_generated' + extension",
-            "print(f'writing to new file: {new_filename}')",
-            "vc.ds.to_netcdf(new_filename)",
-            "print('done')",
-        ]
-
-        file_contents += "\n".join(lines)
-
-        return io.StringIO(file_contents)
 
     def undo(self, event):
         # Nothing in the undo list
@@ -461,23 +347,20 @@ class ValueChanger(param.Parameterized):
 
         return potential_points
 
-    @pn.depends("file.filename", watch=True)
-    def _toggle_options_pane(self):
+    def _options_pane_setup(self):
         self.options_pane.clear()
-        if self.file.filename is not None:
-            self.options_pane.extend([
-                pn.pane.Markdown('''### Variable'''),
-                pn.Column(self.attribute),
-                pn.pane.Markdown('''### Colormaps'''),
-                pn.Column(self.colormap, pn.Column(pn.Row(self.colormap_min, pn.layout.HSpacer(
-                ), self.colormap_max), self.colormap_range_slider), self.colormap_delta),
-                pn.pane.Markdown('''### Mask'''),
-                pn.Row(self.mask, self.mask_value),
-                pn.pane.Markdown('''### Change Values'''),
-                pn.Column(self.calculation_type, self.spinner, self.apply,
-                          self.fill_depressions_button, pn.Row(self.undo_button, self.redo_button)),
-                pn.Column(self.download_netcdf, self.download_script),
-            ])
+        self.options_pane.extend([
+            pn.pane.Markdown('''### Variable'''),
+            pn.Column(self.attribute),
+            pn.pane.Markdown('''### Colormaps'''),
+            pn.Column(self.colormap, pn.Column(pn.Row(self.colormap_min, pn.layout.HSpacer(
+            ), self.colormap_max), self.colormap_range_slider), self.colormap_delta),
+            pn.pane.Markdown('''### Mask'''),
+            pn.Row(self.mask, self.mask_value),
+            pn.pane.Markdown('''### Change Values'''),
+            pn.Column(self.calculation_type, self.spinner, self.apply,
+                        pn.Row(self.undo_button, self.redo_button)),
+        ])
 
     def get_grid_style(self):
         # Calculate Ticks
@@ -603,18 +486,19 @@ class ValueChanger(param.Parameterized):
         )
         return internal_oceans_image
 
+    def _get_graphs(self):
+        return hv.DynamicMap(self.load_attribute_map).apply(self._opts).opts(
+            clipping_colors={'min': 'lightgray', 'max': 'black'},
+            tools=['hover']
+        )
+
     @pn.depends('loaded',
                 watch=True)
     def get_plots(self):
         if not self.loaded:
             return
 
-        attribute_image = hv.DynamicMap(self.load_attribute_map).apply(self._opts).opts(
-            clipping_colors={'min': 'lightgray', 'max': 'black'},
-            tools=['hover']
-        )
-
-        graphs = attribute_image
+        graphs = self._get_graphs()
 
         layout = self.selection(
             graphs + self.ds[self.attribute.value].hvplot.hist())
@@ -627,7 +511,7 @@ class ValueChanger(param.Parameterized):
                 gridstyle=self.get_grid_style(),
                 alpha=0.75
             )
-        ).cols(2)
+        ).cols(1)
 
         self.graph_pane.clear()
         self.graph_pane.append(
@@ -651,6 +535,7 @@ class ValueChanger(param.Parameterized):
         template.main.append(self.graph_pane)
         return template
 
-
-vc = ValueChanger()
-vc.plot().servable('NetCDF Editor')
+print(__name__)
+if 'bokeh_app' in __name__:
+    vc = ValueChanger()
+    vc.plot().servable('NetCDF Editor')

@@ -158,7 +158,7 @@ def regrid(_id):
 @bp.route('/<int:_id>/internal_oceans')
 @login_required
 def internal_oceans(_id):
-    script = server_document(url='http://localhost:5006/value_changer',
+    script = server_document(url='http://localhost:5006/internal_oceans',
                              arguments={'id': _id})
     # Arguments are reached through Bokeh curdoc.session_context.request.arguments
     # And hence through panel.state.curdoc.session_context.request.arguments
