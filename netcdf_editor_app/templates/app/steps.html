@@ -22,5 +22,10 @@ Datafile chosen: {{ data_file_name }}
             Internal Oceans
         </a>
     </li>
+    <li>
+        <a class="action" href="{{ url_for('app.passage_problems', _id=_id) }}">
+            Passage Problems
+        </a>
+    </li>
 </ul>
 {% endblock %}

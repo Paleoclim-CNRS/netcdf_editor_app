@@ -11,6 +11,7 @@ import numpy
 from scipy.ndimage import measurements
 from scipy.signal import convolve2d
 
+import hvplot.xarray
 import holoviews as hv
 colormaps = hv.plotting.list_cmaps()
 
