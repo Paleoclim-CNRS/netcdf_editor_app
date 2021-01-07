@@ -91,10 +91,13 @@ def set_coords(_id):
                 _id))
         )
         db.commit()
-        return redirect(request.form['next'])
+        next_page = request.form['next']
+        if '/upload' in next_page:
+            next_page = url_for('index')
+        return redirect(next_page)
 
     filepath = db.execute(
-        'SELECT filepath FROM data_files WHERE id = ?', (str(_id))
+        'SELECT filepath FROM data_files WHERE id = ?', (str(_id), )
     ).fetchone()['filepath']
     filepath = os.path.join(current_app.instance_path, filepath)
     coordinate_names = [name for name in xr.open_dataset(filepath).coords]
