@@ -162,7 +162,7 @@ def internal_oceans(_id):
                              arguments={'id': _id})
     # Arguments are reached through Bokeh curdoc.session_context.request.arguments
     # And hence through panel.state.curdoc.session_context.request.arguments
-    return render_template("app/internal_oceans.html", script=script)
+    return render_template("app/panel_app.html", script=script, title="Internal Oceans")
 
 
 @bp.route('/<int:_id>/passage_problems')
@@ -172,4 +172,4 @@ def passage_problems(_id):
                              arguments={'id': _id})
     # Arguments are reached through Bokeh curdoc.session_context.request.arguments
     # And hence through panel.state.curdoc.session_context.request.arguments
-    return render_template("app/passage_problems.html", script=script)
+    return render_template("app/panel_app.html", script=script, title="Passage Problems")
