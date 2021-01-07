@@ -151,15 +151,15 @@ def regrid(_id):
             ds = load_file(_id)
             lon, lat = get_lon_lat_names(_id)
             # Interpolate data file
-            new_lon = np.arange(ds[lon][0], ds[lon][-1], lon_step)
-            new_lat = np.arange(ds[lat][0], ds[lat][-1], lat_step)
+            new_lon = np.arange(ds[lon][0].min(), ds[lon][-1].max() + lon_step, lon_step)
+            new_lat = np.arange(ds[lat][0].min(), ds[lat][-1].max() + lat_step, lat_step)
             interp_options = {
                 lon: new_lon,
                 lat: new_lat,
             }
             ds = ds.interp(interp_options, method=interpolator,)
             # Save file
-            ds.to_netcdf(get_file_path(_id))
+            ds.to_netcdf(get_file_path(_id), engine='scipy')
             flash("File regrided using {} interpolation with Longitude steps {} and Latitude steps {}".format(
                 interpolator, lon_step, lat_step))
             return redirect(url_for('app.steps', _id=_id))
