@@ -433,10 +433,7 @@ class ValueChanger(param.Parameterized):
             [*self._get_ordered_coordinate_dimension_names()])
 
     def _get_graphs(self):
-        return hv.DynamicMap(self.load_attribute_map).apply(self._opts).opts(
-            clipping_colors={'min': 'lightgray', 'max': 'black'},
-            tools=['hover']
-        )
+        return hv.DynamicMap(self.load_attribute_map).apply(self._opts)
 
     @pn.depends('loaded',
                 watch=True)
