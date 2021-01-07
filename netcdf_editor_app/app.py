@@ -103,6 +103,10 @@ def steps(_id):
     ).fetchone()['filename']
     return render_template('app/steps.html', data_file_name=data_file_name, _id=_id)
 
+@bp.route('/<int:_id>')
+@login_required
+def redirect_steps(_id):
+    return redirect(url_for('app.steps', _id=_id))
 
 @bp.route('/<int:_id>/map')
 @login_required
