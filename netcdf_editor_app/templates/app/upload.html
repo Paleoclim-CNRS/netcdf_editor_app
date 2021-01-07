@@ -7,6 +7,8 @@
 {% block content %}
 <form method=post enctype=multipart/form-data>
     <input type=file name=file accept=".nc">
-    <input type=submit value=Upload>
+    <form action="{{ url_for('app.upload') }}" method="POST">
+        <button type="submit" class="btn btn-primary btn-lg"><i class="fas fa-upload"></i> Upload</button>
+    </form>
 </form>
 {% endblock %}
