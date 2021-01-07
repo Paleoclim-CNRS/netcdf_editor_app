@@ -7,7 +7,7 @@ import os
 import tempfile
 
 from netcdf_editor_app.auth import login_required
-from netcdf_editor_app.db import load_file, get_file_path, get_lon_lat_names, get_db
+from netcdf_editor_app.db import load_file, get_file_path, get_lon_lat_names, get_db, remove_data_file
 
 import xarray as xr
 import numpy as np
@@ -31,7 +31,7 @@ def index():
         ' ORDER BY created DESC'
     ).fetchall()
 
-    return render_template('app/index.html', data_files=data_files)
+    return render_template('app/datafiles.html', data_files=data_files)
 
 
 def allowed_file(filename):
@@ -71,6 +71,13 @@ def upload():
 
     return render_template('app/upload.html')
 
+@bp.route('/<int:_id>/delete', methods=('GET', 'POST'))
+@login_required
+def delete(_id):
+    if request.method == 'POST':
+        remove_data_file(_id)
+        flash("File deleted with id: {}".format(_id))
+    return redirect(url_for('index'))
 
 @bp.route('/<int:_id>/set_coords', methods=('GET', 'POST'))
 @login_required

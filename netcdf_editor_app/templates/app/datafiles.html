@@ -3,7 +3,9 @@
 {% block header %}
 <h1>{% block title %}Data Files{% endblock %}</h1>
 {% if g.user %}
-<a class="action" href="{{ url_for('app.upload') }}">New</a>
+<form action="{{ url_for('app.upload') }}" method="POST">
+    <button type="submit" class="btn btn-primary btn-lg"><i class="fas fa-upload"></i> Upload</button>
+</form>
 {% endif %}
 {% endblock %}
 
@@ -19,6 +21,9 @@
         </div>
         {% if g.user['id'] == df['owner_id'] %}
             <a class="action" href="{{ url_for('app.set_coords', _id=df['id']) }}">Set Coordinates</a>
+            <form action="{{ url_for('app.delete', _id=df['id']) }}" method="POST">
+                <button type="submit" class="btn btn-danger btn-sm"><i class="fas fa-trash"></i> DELETE</button>
+            </form>
         {% endif %}
     </header>
 </article>

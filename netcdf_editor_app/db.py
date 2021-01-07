@@ -49,6 +49,18 @@ def get_file_path(_id, full=True):
         return filepath
     return os.path.join(current_app.instance_path, filepath)
 
+def remove_data_file(_id):
+    # Get filepath
+    filepath = get_file_path(_id)
+    # Remove entry from DB
+    db = get_db()
+    db.execute(
+        'DELETE FROM data_files WHERE id = ?', (str(_id), )
+    )
+    db.commit()
+    # Delete file
+    os.remove(filepath)
+
 
 def get_lon_lat_names(_id):
     db = get_db()
