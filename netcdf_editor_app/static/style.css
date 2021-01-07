@@ -8,6 +8,7 @@ body {
   max-width: 80vw;
   margin: 0 auto;
   background: white;
+  padding-top: 4.5rem;
 }
 
 .login {
