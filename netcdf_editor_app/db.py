@@ -43,9 +43,11 @@ def load_file(_id):
     ds = xr.open_dataset(filepath)
     return ds
 
+
 def get_coord_names(_id):
     ds = load_file(_id)
     return [name for name in ds.coords]
+
 
 def set_data_file_coords(_id, longitude, latitude):
     db = get_db()
@@ -54,6 +56,7 @@ def set_data_file_coords(_id, longitude, latitude):
             _id))
     )
     db.commit()
+
 
 def upload_file(file):
     filename = secure_filename(file.filename)
@@ -80,12 +83,13 @@ def upload_file(file):
 
     return data_file_id
 
+
 def save_revision(_id, ds):
     temp_name = next(tempfile._get_candidate_names()) + ".nc"
     # Save the file to the file system
     ds.to_netcdf(os.path.join(
         current_app.config['UPLOAD_FOLDER'], temp_name))
-        # ADD the file to the revisions table
+    # ADD the file to the revisions table
     db = get_db()
     # Get latest revision
     query = 'SELECT revision FROM revisions WHERE data_file_id = ? ORDER BY revision DESC LIMIT 0, 1'
@@ -97,8 +101,9 @@ def save_revision(_id, ds):
     )
     db.commit()
 
+
 def get_latest_file_versions():
-    query =  'SELECT created, filename, username, owner_id, df.id FROM' +\
+    query = 'SELECT created, filename, username, owner_id, df.id FROM' +\
         ' (SELECT created, data_file_id FROM revisions ORDER BY id DESC LIMIT 0, 1) as r' +\
         ' JOIN data_files df ON r.data_file_id = df.id' +\
         ' JOIN user u ON df.owner_id = u.id' +\
@@ -112,11 +117,13 @@ def get_latest_file_versions():
 def get_file_path(_id, full=True):
     db = get_db()
     filepath = db.execute(
-        'SELECT filepath FROM revisions WHERE data_file_id = ? ORDER BY revision DESC LIMIT 0, 1', (str(_id), )
+        'SELECT filepath FROM revisions WHERE data_file_id = ? ORDER BY revision DESC LIMIT 0, 1', (str(
+            _id), )
     ).fetchone()['filepath']
     if not full:
         return filepath
     return os.path.join(current_app.instance_path, filepath)
+
 
 def get_all_file_paths(_id, full=True):
     db = get_db()
@@ -127,6 +134,7 @@ def get_all_file_paths(_id, full=True):
     if not full:
         return filepath
     return [os.path.join(current_app.instance_path, fp) for fp in filepath]
+
 
 def remove_data_file(_id):
     # Get filepath

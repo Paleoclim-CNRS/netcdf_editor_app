@@ -40,7 +40,6 @@ class ValueChanger(param.Parameterized):
     # Used to store when inital data is loaded
     loaded = param.Parameter()
 
-
     def __init__(self, **params):
         # How we are going to modify the values
         # Absolute => Set to that value
@@ -64,14 +63,16 @@ class ValueChanger(param.Parameterized):
         self.mask_value = pn.widgets.IntInput(name='Mask Value', value=0)
 
         # Store the variable we want to look at and modify
-        self.attribute = pn.widgets.Select(name='Variable', max_width=200, align='end')
+        self.attribute = pn.widgets.Select(
+            name='Variable', max_width=200, align='end')
         # Choose colormap
         self.colormap = pn.widgets.Select(
             name='Colormap', options=colormaps, value='terrain', max_width=200, align='start')
         self.colormap_min = pn.widgets.IntInput(name='Min Value', width=100)
         self.colormap_max = pn.widgets.IntInput(
             name='Max Value', width=100, align='end')
-        self.colormap_range_slider = pn.widgets.RangeSlider(width=400, show_value=False)
+        self.colormap_range_slider = pn.widgets.RangeSlider(
+            width=400, show_value=False)
         self.colormap_delta = pn.widgets.IntInput(
             name='Delta between values', value=0, align='end')
         # Link the viewing of multiple graphs together
@@ -85,7 +86,7 @@ class ValueChanger(param.Parameterized):
         self.param.ds.default = xr.Dataset()
         self.param.loaded.default = False
         super().__init__(**params)
-        
+
         self.apply.on_click(self._apply_values)
         self.undo_button.on_click(self.undo)
         self.redo_button.on_click(self.redo)
@@ -205,7 +206,8 @@ class ValueChanger(param.Parameterized):
         elif calculation_type == 'Percentage':
             hvds.data[self.attribute.value].loc[hvds.select(
                 selection_expr).data.index] *= (100 + value) / 100.
-        self.ds[self.attribute.value] = list(self.ds[self.attribute.value].dims), hvds.data[self.attribute.value].values.reshape(*self.ds[self.attribute.value].shape)
+        self.ds[self.attribute.value] = list(self.ds[self.attribute.value].dims), hvds.data[self.attribute.value].values.reshape(
+            *self.ds[self.attribute.value].shape)
         ds = self.ds.copy(deep=True)
         self.ds = ds
 
@@ -358,7 +360,7 @@ class ValueChanger(param.Parameterized):
             pn.Row(self.mask, self.mask_value),
             pn.pane.Markdown('''### Change Values'''),
             pn.Column(self.calculation_type, self.spinner, self.apply,
-                        pn.Row(self.undo_button, self.redo_button)),
+                      pn.Row(self.undo_button, self.redo_button)),
         ])
 
     def get_grid_style(self):

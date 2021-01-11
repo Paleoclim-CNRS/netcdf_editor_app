@@ -1,15 +1,11 @@
 from flask import (
-    Blueprint, flash, g, redirect, render_template, request, url_for, current_app, session
+    Blueprint, flash, redirect, render_template, request, url_for, session
 )
-from werkzeug.utils import secure_filename
 
-import os
-import tempfile
 
 from netcdf_editor_app.auth import login_required
-from netcdf_editor_app.db import load_file, get_file_path, get_lon_lat_names, get_db, remove_data_file, get_latest_file_versions, upload_file, get_coord_names, set_data_file_coords, save_revision
+from netcdf_editor_app.db import get_coord_names, get_db, get_latest_file_versions, get_lon_lat_names, load_file, remove_data_file, save_revision, set_data_file_coords, upload_file
 
-import xarray as xr
 import numpy as np
 import hvplot.xarray
 
@@ -55,6 +51,7 @@ def upload():
 
     return render_template('app/upload.html')
 
+
 @bp.route('/<int:_id>/delete', methods=('GET', 'POST'))
 @login_required
 def delete(_id):
@@ -62,6 +59,7 @@ def delete(_id):
         remove_data_file(_id)
         flash("File deleted with id: {}".format(_id))
     return redirect(url_for('index'))
+
 
 @bp.route('/<int:_id>/set_coords', methods=('GET', 'POST'))
 @login_required
@@ -89,10 +87,12 @@ def steps(_id):
     ).fetchone()['filename']
     return render_template('app/steps.html', data_file_name=data_file_name, _id=_id)
 
+
 @bp.route('/<int:_id>')
 @login_required
 def redirect_steps(_id):
     return redirect(url_for('app.steps', _id=_id))
+
 
 @bp.route('/<int:_id>/map')
 @login_required
@@ -131,8 +131,10 @@ def regrid(_id):
             for coord, step in zip([lon, lat], [lon_step, lat_step]):
                 # Get sorted values
                 sorted_vals = np.sort(np.unique(ds[coord]))
-                min_val = ds[coord].min() - (sorted_vals[1] - sorted_vals[0]) / 2. + step / 2.
-                max_val = ds[coord].max() + (sorted_vals[-1] - sorted_vals[-2]) / 2. + step / 2.
+                min_val = ds[coord].min() - (sorted_vals[1] -
+                                             sorted_vals[0]) / 2. + step / 2.
+                max_val = ds[coord].max() + (sorted_vals[-1] -
+                                             sorted_vals[-2]) / 2. + step / 2.
                 new_values.append(np.arange(min_val, max_val, step))
             # Interpolate data file
             interp_options = {
