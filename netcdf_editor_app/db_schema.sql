@@ -10,10 +10,17 @@ CREATE TABLE user (
 CREATE TABLE data_files (
   id INTEGER PRIMARY KEY AUTOINCREMENT,
   owner_id INTEGER NOT NULL,
-  created TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
   filename TEXT NOT NULL,
-  filepath TEXT NOT NULL,
   longitude TEXT,
   latitude TEXT,
   FOREIGN KEY (owner_id) REFERENCES user (id)
+);
+
+CREATE TABLE revisions (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  data_file_id INTEGER NOT NULL,
+  created TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  filepath TEXT NOT NULL,
+  revision INTEGER NOT NULL,
+  FOREIGN KEY (data_file_id) REFERENCES data_files (id)
 );

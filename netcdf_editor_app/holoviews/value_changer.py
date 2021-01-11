@@ -1,5 +1,5 @@
 from netcdf_editor_app import create_app
-from netcdf_editor_app.db import load_file
+from netcdf_editor_app.db import load_file, save_revision
 from bokeh.models import FixedTicker
 import panel as pn
 from holoviews import opts
@@ -35,61 +35,64 @@ pn.config.sizing_mode = 'stretch_width'
 
 class ValueChanger(param.Parameterized):
 
-    # How we are going to modify the values
-    # Absolute => Set to that value
-    # Relatif => Base value + new value
-    # Percentage => Base value + percentage
-    calculation_type = pn.widgets.RadioButtonGroup(
-        options=['Absolute', 'Relatif', 'Percentage'], align='end')
-    # Replacement value
-    spinner = pn.widgets.IntInput(
-        name='Replacement Value', value=0, align='start')
-
-    # Buttons
-    apply = pn.widgets.Button(
-        name='\u2713 Apply', align='end', button_type='primary')
-    undo_button = pn.widgets.Button(
-        name='\u21B6 Undo', align='end', button_type='warning')
-    redo_button = pn.widgets.Button(
-        name='Redo \u21B7', align='end', button_type='warning')
-    # Mask
-    mask = pn.widgets.Checkbox(name='Mask', max_width=100)
-    mask_value = pn.widgets.IntInput(name='Mask Value', value=0)
-
-    # Store the variable we want to look at and modify
-    attribute = pn.widgets.Select(name='Variable', max_width=200, align='end')
-    # Load the file from disk
-    file = param.Parameter()
-    # Choose colormap
-    colormap = pn.widgets.Select(
-        name='Colormap', options=colormaps, value='terrain', max_width=200, align='start')
-    colormap_min = pn.widgets.IntInput(name='Min Value', width=100)
-    colormap_max = pn.widgets.IntInput(
-        name='Max Value', width=100, align='end')
-    colormap_range_slider = pn.widgets.RangeSlider(width=400, show_value=False)
-    colormap_delta = pn.widgets.IntInput(
-        name='Delta between values', value=0, align='end')
     # Holoviews.DataSet => Data
     ds = param.Parameter()
-    # Link the viewing of multiple graphs together
-    selection = link_selections.instance(unselected_alpha=0.4)
-
     # Used to store when inital data is loaded
     loaded = param.Parameter()
 
-    # Parts of the display
-    file_pane = pn.Column()
-    graph_pane = pn.Column()
-    options_pane = pn.Column()
-
     def __init__(self, **params):
-        self.param.file.default = pn.widgets.FileInput(max_width=200)
+        # How we are going to modify the values
+        # Absolute => Set to that value
+        # Relatif => Base value + new value
+        # Percentage => Base value + percentage
+        self.calculation_type = pn.widgets.RadioButtonGroup(
+            options=['Absolute', 'Relatif', 'Percentage'], align='end')
+        # Replacement value
+        self.spinner = pn.widgets.IntInput(
+            name='Replacement Value', value=0, align='start')
+
+        # Buttons
+        self.apply = pn.widgets.Button(
+            name='\u2713 Apply', align='end', button_type='primary')
+        self.undo_button = pn.widgets.Button(
+            name='\u21B6 Undo', align='end', button_type='warning')
+        self.redo_button = pn.widgets.Button(
+            name='Redo \u21B7', align='end', button_type='warning')
+        self.save_button = pn.widgets.Button(
+            name='Save', align='end', button_type='success')
+        # Mask
+        self.mask = pn.widgets.Checkbox(name='Mask', max_width=100)
+        self.mask_value = pn.widgets.IntInput(name='Mask Value', value=0)
+
+        # Store the variable we want to look at and modify
+        self.attribute = pn.widgets.Select(
+            name='Variable', max_width=200, align='end')
+        # Choose colormap
+        self.colormap = pn.widgets.Select(
+            name='Colormap', options=colormaps, value='terrain', max_width=200, align='start')
+        self.colormap_min = pn.widgets.IntInput(name='Min Value', width=100)
+        self.colormap_max = pn.widgets.IntInput(
+            name='Max Value', width=100, align='end')
+        self.colormap_range_slider = pn.widgets.RangeSlider(
+            width=400, show_value=False)
+        self.colormap_delta = pn.widgets.IntInput(
+            name='Delta between values', value=0, align='end')
+        # Link the viewing of multiple graphs together
+        self.selection = link_selections.instance(unselected_alpha=0.4)
+
+        # Parts of the display
+        self.file_pane = pn.Column()
+        self.graph_pane = pn.Column()
+        self.options_pane = pn.Column()
+
         self.param.ds.default = xr.Dataset()
         self.param.loaded.default = False
         super().__init__(**params)
+
         self.apply.on_click(self._apply_values)
         self.undo_button.on_click(self.undo)
         self.redo_button.on_click(self.redo)
+        self.save_button.on_click(self.save)
         self._auto_update_cmap_min = True
         self._auto_update_cmap_max = True
 
@@ -101,15 +104,15 @@ class ValueChanger(param.Parameterized):
         self.colormap_max.param.watch(self._colormap_callback, 'value')
         self.colormap_range_slider.param.watch(
             self._colormap_callback, 'value')
-        app = create_app()
-        with app.app_context():
-            self._load_ds(
-                int(pn.state.curdoc.session_context.request.arguments['id'][0]))
+        self.app = create_app()
+        self.data_file_id = int(pn.state.curdoc.session_context.request.arguments['id'][0])
+        self._load_ds(self.data_file_id)
         self._options_pane_setup()
 
     def _load_ds(self, _id):
         self.loaded = False
-        ds = load_file(_id)
+        with self.app.app_context():
+            ds = load_file(_id)
         self.curvilinear_coordinates = None
 
         number_coordinates_in_system = len(
@@ -206,7 +209,8 @@ class ValueChanger(param.Parameterized):
         elif calculation_type == 'Percentage':
             hvds.data[self.attribute.value].loc[hvds.select(
                 selection_expr).data.index] *= (100 + value) / 100.
-        self.ds[self.attribute.value] = list(self.ds[self.attribute.value].dims), hvds.data[self.attribute.value].values.reshape(*self.ds[self.attribute.value].shape)
+        self.ds[self.attribute.value] = list(self.ds[self.attribute.value].dims), hvds.data[self.attribute.value].values.reshape(
+            *self.ds[self.attribute.value].shape)
         ds = self.ds.copy(deep=True)
         self.ds = ds
 
@@ -253,6 +257,10 @@ class ValueChanger(param.Parameterized):
         self._apply_action(redo_action)
         # Add the action to the list of undo actions
         self._undo_list.append(redo_action)
+    
+    def save(self, event):
+        with self.app.app_context():
+            save_revision(self.data_file_id, self.ds)
 
     def _apply_action(self, action):
         if action['calculation_type'] in ['Absolute', 'Percentage', 'Relatif']:
@@ -359,7 +367,7 @@ class ValueChanger(param.Parameterized):
             pn.Row(self.mask, self.mask_value),
             pn.pane.Markdown('''### Change Values'''),
             pn.Column(self.calculation_type, self.spinner, self.apply,
-                        pn.Row(self.undo_button, self.redo_button)),
+                      pn.Row(self.undo_button, self.redo_button)),
         ])
 
     def get_grid_style(self):
@@ -433,64 +441,8 @@ class ValueChanger(param.Parameterized):
             self.ds[self.attribute.value],
             [*self._get_ordered_coordinate_dimension_names()])
 
-    @pn.depends('ds', 'attribute.value')
-    def load_passage_problems(self):
-        passage_problems = self._calculate_passage_problems()
-        number_passage_problems = numpy.sum(
-            passage_problems[passage_problems == 2])
-
-        # Make sure the array shapes line up
-        coordinates_shapes = tuple(self.ds.coords.dims.values())
-        if passage_problems.shape == coordinates_shapes:
-            passage_problems = xr.DataArray(passage_problems, self.ds.coords)
-        elif passage_problems.T.shape == coordinates_shapes:
-            passage_problems = xr.DataArray(passage_problems.T, self.ds.coords)
-        else:
-            raise ValueError("Unknown array size of passage problem")
-
-        passage_problems_image = hv.Image(
-            passage_problems,
-            [*self._get_ordered_coordinate_dimension_names()],
-            group='Passage_problems',
-            label=f"Number Diffusive Passage cells: {number_passage_problems}"
-        )
-        return passage_problems_image
-
-    @pn.depends('ds', 'attribute.value')
-    def load_internal_oceans(self):
-        internal_oceans = self._calculate_internal_oceans()
-        number_oceans = numpy.nanmax(internal_oceans)
-
-        # Lets counts the number of times each ocean appears this can then be used to
-        # Filter out and find the bigger oceans
-        nbs, counts = numpy.unique(internal_oceans[~numpy.isnan(
-            internal_oceans.astype(float))], return_counts=True)
-
-        # Replace the biggest body of water with -1 this will show it as the default body of water
-        internal_oceans[internal_oceans == nbs[numpy.argmax(counts)]] = -1
-
-        # Make sure the array shapes line up
-        coordinates_shapes = tuple(self.ds.coords.dims.values())
-        if internal_oceans.shape == coordinates_shapes:
-            internal_oceans = xr.DataArray(internal_oceans, self.ds.coords)
-        elif internal_oceans.T.shape == coordinates_shapes:
-            internal_oceans = xr.DataArray(internal_oceans.T, self.ds.coords)
-        else:
-            raise ValueError("Unknown array size of passage problem")
-
-        internal_oceans_image = hv.Image(
-            internal_oceans,
-            [*self._get_ordered_coordinate_dimension_names()],
-            group="Internal_Oceans",
-            label=f'Number Internal Oceans: {number_oceans - 1}'
-        )
-        return internal_oceans_image
-
     def _get_graphs(self):
-        return hv.DynamicMap(self.load_attribute_map).apply(self._opts).opts(
-            clipping_colors={'min': 'lightgray', 'max': 'black'},
-            tools=['hover']
-        )
+        return hv.DynamicMap(self.load_attribute_map).apply(self._opts)
 
     @pn.depends('loaded',
                 watch=True)
@@ -520,9 +472,6 @@ class ValueChanger(param.Parameterized):
         self._auto_update_cmap_min = True
         self._auto_update_cmap_max = True
 
-    def __repr__(self):
-        return self.name
-
     def plot(self):
         template = pn.template.MaterialTemplate(
             title='NetCDF Editor App',
@@ -533,9 +482,10 @@ class ValueChanger(param.Parameterized):
         template.sidebar.append(self.file_pane)
         template.sidebar.append(self.options_pane)
         template.main.append(self.graph_pane)
+        template.main.append(self.save_button)
         return template
 
-print(__name__)
+
 if 'bokeh_app' in __name__:
     vc = ValueChanger()
     vc.plot().servable('NetCDF Editor')

@@ -66,7 +66,8 @@ class InternalOceans(ValueChanger):
         internal_oceans = hv.DynamicMap(self.load_internal_oceans).opts(
             hv.opts.Image(
                 "Internal_Oceans",
-                clipping_colors={"NaN": "#dedede", "max": "red", "min": "#ffffff"},
+                clipping_colors={"NaN": "#dedede",
+                                 "max": "red", "min": "#ffffff"},
                 clim=(1.2, 1.5),
                 colorbar=False,
                 tools=[],

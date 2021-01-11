@@ -1,15 +1,11 @@
 from flask import (
-    Blueprint, flash, g, redirect, render_template, request, url_for, current_app, session
+    Blueprint, flash, redirect, render_template, request, url_for, session
 )
-from werkzeug.utils import secure_filename
 
-import os
-import tempfile
 
 from netcdf_editor_app.auth import login_required
-from netcdf_editor_app.db import load_file, get_file_path, get_lon_lat_names, get_db
+from netcdf_editor_app.db import get_coord_names, get_db, get_latest_file_versions, get_lon_lat_names, load_file, remove_data_file, save_revision, set_data_file_coords, upload_file
 
-import xarray as xr
 import numpy as np
 import hvplot.xarray
 
@@ -24,14 +20,9 @@ bp = Blueprint('app', __name__)
 def index():
     # Remove the datafile if we go back to datafile selection screen
     session.pop('data_file_id', None)
-    db = get_db()
-    data_files = db.execute(
-        'SELECT created, filename, username, owner_id, df.id'
-        ' FROM data_files df JOIN user u ON df.owner_id = u.id'
-        ' ORDER BY created DESC'
-    ).fetchall()
+    data_files = get_latest_file_versions()
 
-    return render_template('app/index.html', data_files=data_files)
+    return render_template('app/datafiles.html', data_files=data_files)
 
 
 def allowed_file(filename):
@@ -55,42 +46,35 @@ def upload():
             flash('No selected file')
             return redirect(request.url)
         if file and allowed_file(file.filename):
-            filename = secure_filename(file.filename)
-            temp_name = next(tempfile._get_candidate_names()) + ".nc"
-            file.save(os.path.join(
-                current_app.config['UPLOAD_FOLDER'], temp_name))
-            db = get_db()
-            data_file = db.execute(
-                'INSERT INTO data_files (owner_id, filename, filepath)'
-                ' VALUES (?, ?, ?)',
-                (g.user['id'], filename, temp_name)
-            )
-            db.commit()
-            data_file_id = data_file.lastrowid
+            data_file_id = upload_file(file)
             return redirect(url_for('app.set_coords', _id=data_file_id))
 
     return render_template('app/upload.html')
 
 
+@bp.route('/<int:_id>/delete', methods=('GET', 'POST'))
+@login_required
+def delete(_id):
+    if request.method == 'POST':
+        remove_data_file(_id)
+        flash("File deleted with id: {}".format(_id))
+    return redirect(url_for('index'))
+
+
 @bp.route('/<int:_id>/set_coords', methods=('GET', 'POST'))
 @login_required
 def set_coords(_id):
-    db = get_db()
     if request.method == 'POST':
         lat = request.form['Latitude']
         lon = request.form['Longitude']
-        db.execute(
-            'UPDATE data_files SET longitude = ?, latitude = ? WHERE id = ?', (lon, lat, str(
-                _id))
-        )
-        db.commit()
-        return redirect(request.form['next'])
+        set_data_file_coords(_id, longitude=lon, latitude=lat)
 
-    filepath = db.execute(
-        'SELECT filepath FROM data_files WHERE id = ?', (str(_id))
-    ).fetchone()['filepath']
-    filepath = os.path.join(current_app.instance_path, filepath)
-    coordinate_names = [name for name in xr.open_dataset(filepath).coords]
+        next_page = request.form['next']
+        if '/upload' in next_page:
+            next_page = url_for('index')
+        return redirect(next_page)
+
+    coordinate_names = get_coord_names(_id)
     return render_template('app/set_coords.html', coordinate_names=coordinate_names)
 
 
@@ -104,12 +88,18 @@ def steps(_id):
     return render_template('app/steps.html', data_file_name=data_file_name, _id=_id)
 
 
+@bp.route('/<int:_id>')
+@login_required
+def redirect_steps(_id):
+    return redirect(url_for('app.steps', _id=_id))
+
+
 @bp.route('/<int:_id>/map')
 @login_required
 def map(_id):
     ds = load_file(_id)
     lon, lat = get_lon_lat_names(_id)
-    plot = ds.hvplot(x=lon, y=lat).opts(responsive=True)
+    plot = ds.hvplot(x=lon, y=lat).opts(responsive=True, cmap='terrain')
     plot = hv.render(plot, backend='bokeh')
     plot.sizing_mode = 'scale_width'
     script, div = components(plot)
@@ -136,16 +126,24 @@ def regrid(_id):
             # Load file
             ds = load_file(_id)
             lon, lat = get_lon_lat_names(_id)
+            # Extremities
+            new_values = []
+            for coord, step in zip([lon, lat], [lon_step, lat_step]):
+                # Get sorted values
+                sorted_vals = np.sort(np.unique(ds[coord]))
+                min_val = ds[coord].min() - (sorted_vals[1] -
+                                             sorted_vals[0]) / 2. + step / 2.
+                max_val = ds[coord].max() + (sorted_vals[-1] -
+                                             sorted_vals[-2]) / 2. + step / 2.
+                new_values.append(np.arange(min_val, max_val, step))
             # Interpolate data file
-            new_lon = np.arange(ds[lon][0], ds[lon][-1], lon_step)
-            new_lat = np.arange(ds[lat][0], ds[lat][-1], lat_step)
             interp_options = {
-                lon: new_lon,
-                lat: new_lat,
+                lon: new_values[0],
+                lat: new_values[1],
             }
             ds = ds.interp(interp_options, method=interpolator,)
             # Save file
-            ds.to_netcdf(get_file_path(_id))
+            save_revision(_id, ds)
             flash("File regrided using {} interpolation with Longitude steps {} and Latitude steps {}".format(
                 interpolator, lon_step, lat_step))
             return redirect(url_for('app.steps', _id=_id))
@@ -162,7 +160,7 @@ def internal_oceans(_id):
                              arguments={'id': _id})
     # Arguments are reached through Bokeh curdoc.session_context.request.arguments
     # And hence through panel.state.curdoc.session_context.request.arguments
-    return render_template("app/internal_oceans.html", script=script)
+    return render_template("app/panel_app.html", script=script, title="Internal Oceans")
 
 
 @bp.route('/<int:_id>/passage_problems')
@@ -172,4 +170,4 @@ def passage_problems(_id):
                              arguments={'id': _id})
     # Arguments are reached through Bokeh curdoc.session_context.request.arguments
     # And hence through panel.state.curdoc.session_context.request.arguments
-    return render_template("app/passage_problems.html", script=script)
+    return render_template("app/panel_app.html", script=script, title="Passage Problems")
