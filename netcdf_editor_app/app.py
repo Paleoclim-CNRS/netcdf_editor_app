@@ -7,7 +7,7 @@ import os
 import tempfile
 
 from netcdf_editor_app.auth import login_required
-from netcdf_editor_app.db import load_file, get_file_path, get_lon_lat_names, get_db, remove_data_file
+from netcdf_editor_app.db import load_file, get_file_path, get_lon_lat_names, get_db, remove_data_file, get_latest_file_versions, upload_file, get_coord_names, set_data_file_coords, save_revision
 
 import xarray as xr
 import numpy as np
@@ -24,12 +24,7 @@ bp = Blueprint('app', __name__)
 def index():
     # Remove the datafile if we go back to datafile selection screen
     session.pop('data_file_id', None)
-    db = get_db()
-    data_files = db.execute(
-        'SELECT created, filename, username, owner_id, df.id'
-        ' FROM data_files df JOIN user u ON df.owner_id = u.id'
-        ' ORDER BY created DESC'
-    ).fetchall()
+    data_files = get_latest_file_versions()
 
     return render_template('app/datafiles.html', data_files=data_files)
 
@@ -55,18 +50,7 @@ def upload():
             flash('No selected file')
             return redirect(request.url)
         if file and allowed_file(file.filename):
-            filename = secure_filename(file.filename)
-            temp_name = next(tempfile._get_candidate_names()) + ".nc"
-            file.save(os.path.join(
-                current_app.config['UPLOAD_FOLDER'], temp_name))
-            db = get_db()
-            data_file = db.execute(
-                'INSERT INTO data_files (owner_id, filename, filepath)'
-                ' VALUES (?, ?, ?)',
-                (g.user['id'], filename, temp_name)
-            )
-            db.commit()
-            data_file_id = data_file.lastrowid
+            data_file_id = upload_file(file)
             return redirect(url_for('app.set_coords', _id=data_file_id))
 
     return render_template('app/upload.html')
@@ -82,25 +66,17 @@ def delete(_id):
 @bp.route('/<int:_id>/set_coords', methods=('GET', 'POST'))
 @login_required
 def set_coords(_id):
-    db = get_db()
     if request.method == 'POST':
         lat = request.form['Latitude']
         lon = request.form['Longitude']
-        db.execute(
-            'UPDATE data_files SET longitude = ?, latitude = ? WHERE id = ?', (lon, lat, str(
-                _id))
-        )
-        db.commit()
+        set_data_file_coords(_id, longitude=lon, latitude=lat)
+
         next_page = request.form['next']
         if '/upload' in next_page:
             next_page = url_for('index')
         return redirect(next_page)
 
-    filepath = db.execute(
-        'SELECT filepath FROM data_files WHERE id = ?', (str(_id), )
-    ).fetchone()['filepath']
-    filepath = os.path.join(current_app.instance_path, filepath)
-    coordinate_names = [name for name in xr.open_dataset(filepath).coords]
+    coordinate_names = get_coord_names(_id)
     return render_template('app/set_coords.html', coordinate_names=coordinate_names)
 
 
@@ -150,16 +126,22 @@ def regrid(_id):
             # Load file
             ds = load_file(_id)
             lon, lat = get_lon_lat_names(_id)
+            # Extremities
+            new_values = []
+            for coord, step in zip([lon, lat], [lon_step, lat_step]):
+                # Get sorted values
+                sorted_vals = np.sort(np.unique(ds[coord]))
+                min_val = ds[coord].min() - (sorted_vals[1] - sorted_vals[0]) / 2. + step / 2.
+                max_val = ds[coord].max() + (sorted_vals[-1] - sorted_vals[-2]) / 2. + step / 2.
+                new_values.append(np.arange(min_val, max_val, step))
             # Interpolate data file
-            new_lon = np.arange(ds[lon][0].min(), ds[lon][-1].max() + lon_step, lon_step)
-            new_lat = np.arange(ds[lat][0].min(), ds[lat][-1].max() + lat_step, lat_step)
             interp_options = {
-                lon: new_lon,
-                lat: new_lat,
+                lon: new_values[0],
+                lat: new_values[1],
             }
             ds = ds.interp(interp_options, method=interpolator,)
             # Save file
-            ds.to_netcdf(get_file_path(_id), engine='scipy')
+            save_revision(_id, ds)
             flash("File regrided using {} interpolation with Longitude steps {} and Latitude steps {}".format(
                 interpolator, lon_step, lat_step))
             return redirect(url_for('app.steps', _id=_id))
