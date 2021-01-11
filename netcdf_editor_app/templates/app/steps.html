@@ -13,6 +13,11 @@ Datafile chosen: {{ data_file_name }}
         </a>
     </li>
     <li>
+        <a class="action" href="{{ url_for('app.variable_explorer', _id=_id) }}">
+            Variable Explorer
+        </a>
+    </li>
+    <li>
         <a class="action" href="{{ url_for('app.regrid', _id=_id) }}">
             Regrid
         </a>

@@ -105,6 +105,14 @@ def map(_id):
     script, div = components(plot)
     return render_template('app/map.html', script=script, div=div, data_file_id=_id)
 
+@bp.route('/<int:_id>/variable_explorer')
+@login_required
+def variable_explorer(_id):
+    script = server_document(url='http://localhost:5006/value_changer',
+                             arguments={'id': _id})
+    # Arguments are reached through Bokeh curdoc.session_context.request.arguments
+    # And hence through panel.state.curdoc.session_context.request.arguments
+    return render_template("app/panel_app.html", script=script, title="Variable Explorer")
 
 @bp.route('/<int:_id>/regrid', methods=('GET', 'POST'))
 @login_required
