@@ -15,7 +15,7 @@
     <header>
         <div>
             <a class="action" href="{{ url_for('app.steps', _id=df['id']) }}">
-                <h1>{{ df['filename'] }} Uploaded by {{ df['username'] }} on {{ df['created'].strftime('%Y-%m-%d')
+                <h1>{{ df['filename'] }} Last Modified on {{ df['created'].strftime('%Y-%m-%d')
                     }}</h1>
             </a>
         </div>

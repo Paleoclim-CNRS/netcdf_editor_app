@@ -103,8 +103,8 @@ def save_revision(_id, ds):
 
 
 def get_latest_file_versions():
-    query = 'SELECT created, filename, username, owner_id, df.id FROM' +\
-        ' (SELECT created, data_file_id FROM revisions ORDER BY id DESC LIMIT 0, 1) as r' +\
+    query = 'SELECT created, filename, df.id FROM' +\
+        ' (SELECT MAX(revision) as revision, created, data_file_id FROM revisions GROUP BY data_file_id) as r' +\
         ' JOIN data_files df ON r.data_file_id = df.id' +\
         ' JOIN user u ON df.owner_id = u.id' +\
         ' ORDER BY created DESC'
