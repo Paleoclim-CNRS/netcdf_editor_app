@@ -1,5 +1,5 @@
 from netcdf_editor_app import create_app
-from netcdf_editor_app.db import load_file
+from netcdf_editor_app.db import load_file, save_revision
 from bokeh.models import FixedTicker
 import panel as pn
 from holoviews import opts
@@ -58,6 +58,8 @@ class ValueChanger(param.Parameterized):
             name='\u21B6 Undo', align='end', button_type='warning')
         self.redo_button = pn.widgets.Button(
             name='Redo \u21B7', align='end', button_type='warning')
+        self.save_button = pn.widgets.Button(
+            name='Save', align='end', button_type='success')
         # Mask
         self.mask = pn.widgets.Checkbox(name='Mask', max_width=100)
         self.mask_value = pn.widgets.IntInput(name='Mask Value', value=0)
@@ -90,6 +92,7 @@ class ValueChanger(param.Parameterized):
         self.apply.on_click(self._apply_values)
         self.undo_button.on_click(self.undo)
         self.redo_button.on_click(self.redo)
+        self.save_button.on_click(self.save)
         self._auto_update_cmap_min = True
         self._auto_update_cmap_max = True
 
@@ -101,15 +104,15 @@ class ValueChanger(param.Parameterized):
         self.colormap_max.param.watch(self._colormap_callback, 'value')
         self.colormap_range_slider.param.watch(
             self._colormap_callback, 'value')
-        app = create_app()
-        with app.app_context():
-            self._load_ds(
-                int(pn.state.curdoc.session_context.request.arguments['id'][0]))
+        self.app = create_app()
+        self.data_file_id = int(pn.state.curdoc.session_context.request.arguments['id'][0])
+        self._load_ds(self.data_file_id)
         self._options_pane_setup()
 
     def _load_ds(self, _id):
         self.loaded = False
-        ds = load_file(_id)
+        with self.app.app_context():
+            ds = load_file(_id)
         self.curvilinear_coordinates = None
 
         number_coordinates_in_system = len(
@@ -254,6 +257,10 @@ class ValueChanger(param.Parameterized):
         self._apply_action(redo_action)
         # Add the action to the list of undo actions
         self._undo_list.append(redo_action)
+    
+    def save(self, event):
+        with self.app.app_context():
+            save_revision(self.data_file_id, self.ds)
 
     def _apply_action(self, action):
         if action['calculation_type'] in ['Absolute', 'Percentage', 'Relatif']:
@@ -475,6 +482,7 @@ class ValueChanger(param.Parameterized):
         template.sidebar.append(self.file_pane)
         template.sidebar.append(self.options_pane)
         template.main.append(self.graph_pane)
+        template.main.append(self.save_button)
         return template
 
 
