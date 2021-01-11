@@ -99,7 +99,7 @@ def redirect_steps(_id):
 def map(_id):
     ds = load_file(_id)
     lon, lat = get_lon_lat_names(_id)
-    plot = ds.hvplot(x=lon, y=lat).opts(responsive=True)
+    plot = ds.hvplot(x=lon, y=lat).opts(responsive=True, cmap='terrain')
     plot = hv.render(plot, backend='bokeh')
     plot.sizing_mode = 'scale_width'
     script, div = components(plot)
