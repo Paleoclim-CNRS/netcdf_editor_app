@@ -110,8 +110,13 @@ def get_latest_file_versions():
         ' ORDER BY created DESC'
     db = get_db()
     data_files = db.execute(query).fetchall()
-    # fgdgfsd
     return data_files
+
+
+def get_filename(_id):
+    query = 'SELECT filename FROM data_files WHERE id = ?', (str(_id), )
+    db = get_db()
+    return db.execute(query).fetchone()['filename']
 
 
 def get_file_path(_id, full=True):

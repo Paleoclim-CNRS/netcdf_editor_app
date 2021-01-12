@@ -4,7 +4,7 @@ from flask import (
 
 
 from netcdf_editor_app.auth import login_required
-from netcdf_editor_app.db import get_coord_names, get_db, get_latest_file_versions, get_lon_lat_names, load_file, remove_data_file, save_revision, set_data_file_coords, upload_file
+from netcdf_editor_app.db import get_coord_names, get_latest_file_versions, get_lon_lat_names, load_file, remove_data_file, save_revision, set_data_file_coords, upload_file, get_filename
 
 import numpy as np
 import hvplot.xarray
@@ -81,10 +81,7 @@ def set_coords(_id):
 @bp.route('/<int:_id>/steps')
 @login_required
 def steps(_id):
-    db = get_db()
-    data_file_name = db.execute(
-        'SELECT filename FROM data_files WHERE id = ?', (str(_id), )
-    ).fetchone()['filename']
+    data_file_name = get_filename(_id)
     return render_template('app/steps.html', data_file_name=data_file_name, _id=_id)
 
 
@@ -105,6 +102,7 @@ def map(_id):
     script, div = components(plot)
     return render_template('app/map.html', script=script, div=div, data_file_id=_id)
 
+
 @bp.route('/<int:_id>/variable_explorer')
 @login_required
 def variable_explorer(_id):
@@ -113,6 +111,7 @@ def variable_explorer(_id):
     # Arguments are reached through Bokeh curdoc.session_context.request.arguments
     # And hence through panel.state.curdoc.session_context.request.arguments
     return render_template("app/panel_app.html", script=script, title="Variable Explorer")
+
 
 @bp.route('/<int:_id>/regrid', methods=('GET', 'POST'))
 @login_required
