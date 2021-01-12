@@ -13,6 +13,11 @@ Datafile chosen: {{ data_file_name }}
         </a>
     </li>
     <li>
+        <a class="action" href="{{ url_for('app.revision_comparison', _id=_id) }}">
+            Revision Comparison
+        </a>
+    </li>
+    <li>
         <a class="action" href="{{ url_for('app.variable_explorer', _id=_id) }}">
             Variable Explorer
         </a>

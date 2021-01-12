@@ -105,6 +105,19 @@ def map(_id):
     script, div = components(plot)
     return render_template('app/map.html', script=script, div=div, data_file_id=_id)
 
+@bp.route('/<int:_id>/revision_comparison')
+@login_required
+def revision_comparison(_id):
+    ds_latest = load_file(_id, -1)
+    ds_previous = load_file(_id, -2)
+    ds = ds_latest - ds_previous
+    lon, lat = get_lon_lat_names(_id)
+    plot = ds.hvplot(x=lon, y=lat).opts(responsive=True, cmap='terrain')
+    plot = hv.render(plot, backend='bokeh')
+    plot.sizing_mode = 'scale_width'
+    script, div = components(plot)
+    return render_template('app/map.html', script=script, div=div, data_file_id=_id)
+
 @bp.route('/<int:_id>/variable_explorer')
 @login_required
 def variable_explorer(_id):
