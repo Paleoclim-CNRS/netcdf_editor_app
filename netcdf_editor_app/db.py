@@ -112,6 +112,11 @@ def get_latest_file_versions():
     data_files = db.execute(query).fetchall()
     return data_files
 
+def get_filename(_id):
+    query = 'SELECT filename FROM data_files WHERE id = ?'
+    db = get_db()
+    return db.execute(query, (str(_id), )).fetchone()['filename']
+
 
 def get_file_path(_id, full=True, revision=-1):
     db = get_db()

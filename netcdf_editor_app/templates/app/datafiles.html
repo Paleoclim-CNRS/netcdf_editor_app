@@ -19,12 +19,10 @@
                     }}</h1>
             </a>
         </div>
-        {% if g.user['id'] == df['owner_id'] %}
-            <a class="action" href="{{ url_for('app.set_coords', _id=df['id']) }}">Set Coordinates</a>
-            <form action="{{ url_for('app.delete', _id=df['id']) }}" method="POST">
-                <button type="submit" class="btn btn-danger btn-sm"><i class="fas fa-trash"></i> DELETE</button>
-            </form>
-        {% endif %}
+        <a class="action" href="{{ url_for('app.set_coords', _id=df['id']) }}">Set Coordinates</a>
+        <form action="{{ url_for('app.delete', _id=df['id']) }}" method="POST">
+            <button type="submit" class="btn btn-danger btn-sm"><i class="fas fa-trash"></i> DELETE</button>
+        </form>
     </header>
 </article>
 {% if not loop.last %}
