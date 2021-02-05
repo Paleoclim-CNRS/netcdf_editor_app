@@ -1,6 +1,6 @@
 FROM python:3.8
 
-COPY requirements.txt /tmp/
+COPY requirements.*txt /tmp/
 RUN pip install --no-cache-dir -r /tmp/requirements.txt
 
 WORKDIR /usr/src/app
