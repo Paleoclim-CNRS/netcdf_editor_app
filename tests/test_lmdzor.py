@@ -1,7 +1,16 @@
 from netcdf_editor_app.utils import lmdzor
 
 import numpy
+import xarray as xr
+
 import pytest
+
+# This is the input file which holds the base topography
+ds_input = xr.open_dataset('./tests/data/input.nc')
+
+# This file has the cmsk to test against and the corrected 
+# Trip values (rtm)
+ds_runoff = xr.open_dataset('./tests/data/runoff.nc')
 
 def test_trip_values():
     assert numpy.all(lmdzor.trip_values == numpy.array([1,2,3,4,5,6,7,8]))
@@ -38,3 +47,11 @@ def test_get_adjacent_values(i, j, arr, res):
 def test_get_padded_array(arr, ensure_gradient, res):
     padded = lmdzor.get_padded_array(arr, ensure_gradient)
     assert numpy.all(padded == res)
+
+def test_cmsk():
+    topo, latitudes = ds_input.topo.values, ds_input.lat.values
+    topo = lmdzor.fix_topo(topo, latitudes)
+    orog = lmdzor.calculate_orog(topo)
+    omsk = lmdzor.calculate_omsk(topo)
+    cmsk = lmdzor.calculate_cmsk(omsk)
+    assert numpy.all(cmsk == ds_runoff.cmsk.values)

@@ -611,7 +611,6 @@ def run_routines(topo, latitudes):
     orog = calculate_orog(topo)
     omsk = calculate_omsk(topo)
     cmsk = calculate_cmsk(omsk)
-    continents = calculate_continents(topo, omsk)
     trip = calculate_trip(topo, omsk)
     rlon, rlat = calculate_curvilinear_coordinates()
     area = calculate_area(rlat)
