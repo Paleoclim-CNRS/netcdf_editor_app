@@ -10,9 +10,9 @@ def test_get_close_db(app):
         assert db is get_db()
 
     with pytest.raises(sqlite3.ProgrammingError) as e:
-        db.execute('SELECT 1')
+        db.execute("SELECT 1")
 
-    assert 'closed' in str(e.value)
+    assert "closed" in str(e.value)
 
 
 def test_init_db_command(runner, monkeypatch):
@@ -22,7 +22,7 @@ def test_init_db_command(runner, monkeypatch):
     def fake_init_db():
         Recorder.called = True
 
-    monkeypatch.setattr('netcdf_editor_app.db.init_db', fake_init_db)
-    result = runner.invoke(args=['init-db'])
-    assert 'Initialized' in result.output
+    monkeypatch.setattr("netcdf_editor_app.db.init_db", fake_init_db)
+    result = runner.invoke(args=["init-db"])
+    assert "Initialized" in result.output
     assert Recorder.called
