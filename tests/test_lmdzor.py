@@ -17,15 +17,15 @@ ds_runoff = xr.open_dataset("./tests/data/runoff.nc")
 # nav_lon
 # orog
 # basins
-# flength 
+# flength
 ds_pre_stn = xr.open_dataset("./tests/data/pre_stn.nc")
 
 ds_stn = xr.open_dataset("./tests/data/stn.nc")
 
 
-def nan_equal(a,b):
+def nan_equal(a, b):
     try:
-        numpy.testing.assert_equal(a,b)
+        numpy.testing.assert_equal(a, b)
     except AssertionError:
         return False
     return True
@@ -137,14 +137,18 @@ def test_cmsk():
     cmsk = lmdzor.calculate_cmsk(omsk)
     assert numpy.all(cmsk == ds_runoff.cmsk.values)
 
+
 def assert_curvilinear_coordinates(rlon, rlat):
     assert numpy.all(rlon == ds_pre_stn.nav_lon)
     assert numpy.all(rlat == ds_pre_stn.nav_lat)
 
+
 def assert_basins(basins):
     dicts = []
     for basin_values in [basins, ds_pre_stn.basins.values]:
-        vals, counts = numpy.unique(basin_values[numpy.where(~numpy.isnan(basin_values))], return_counts=True)
+        vals, counts = numpy.unique(
+            basin_values[numpy.where(~numpy.isnan(basin_values))], return_counts=True
+        )
         d = {}
         for v, c in zip(vals, counts):
             d[v] = c
@@ -157,20 +161,28 @@ def assert_basins(basins):
     for key in dicts[0].keys():
         assert dicts[0][key] == dicts[1][key]
 
+
 def assert_river_lengths(river_length):
-    assert numpy.nanmax(numpy.abs(river_length - ds_pre_stn.flength.values[::-1])) < 10e-3
+    assert (
+        numpy.nanmax(numpy.abs(river_length - ds_pre_stn.flength.values[::-1])) < 10e-3
+    )
+
 
 def assert_distbox(distbox):
-    assert  numpy.nanmax(numpy.abs(distbox - ds_stn.riverl.values[::-1])) < 10e3
+    assert numpy.nanmax(numpy.abs(distbox - ds_stn.riverl.values[::-1])) < 10e3
+
 
 def assert_updated_trip(trip):
     assert nan_equal(ds_stn.trip.values[::-1], trip)
 
+
 def assert_dzz(dzz):
     assert numpy.nanmax(numpy.abs(ds_stn.hdiff.values[::-1] - dzz)) < 100
 
+
 def assert_topo_index(topo_index):
     assert numpy.nanmax(numpy.abs(ds_stn.topoind.values[::-1] - topo_index)) < 10e4
+
 
 def test_pre_stn():
     # use trip values provides to test if from trip values we get same values
@@ -194,7 +206,9 @@ def test_pre_stn():
     assert_distbox(distbox)
 
     outflow_points = lmdzor.calculate_outflow_points(basins, trip)
-    trip = lmdzor.calculate_trip_outflow_values(trip, outflow_points, basins, omsk, rlat)
+    trip = lmdzor.calculate_trip_outflow_values(
+        trip, outflow_points, basins, omsk, rlat
+    )
     assert_updated_trip(trip)
 
     dzz = lmdzor.calculate_dzz(topo, trip, distbox, omsk)
