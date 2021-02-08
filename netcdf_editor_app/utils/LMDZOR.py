@@ -1,4 +1,4 @@
-import numpy 
+import numpy
 
 from scipy.signal import convolve2d
 from scipy.ndimage import measurements
@@ -26,10 +26,10 @@ def get_adjacent_coords(i, j, arr):
         jm1 = jmax - 1
     else:
         jm1 = j - 1
-        
+
     ip1 = numpy.min((i + 1, imax - 1))
     im1 = numpy.max((0, i - 1))
-    
+
     return numpy.array(numpy.meshgrid([im1, i, ip1], [jm1, j, jp1], indexing='ij')).reshape(2, -1).T
 
 def get_adjacent_values(i, j, arr):
@@ -54,10 +54,10 @@ def _fill_depressions_in_topo(dem):
         # We increment the value slightly to ensure it is not flat
         dem[0] = numpy.max(dem[:2], axis = 0) + 1.
         # Copy the map to either side for east - west periodicity
-        # Rather than hard coding the periodicity as the array is small and 
+        # Rather than hard coding the periodicity as the array is small and
         # the function runs quickly we fix the topography aligned 3 times next to each other
         dem = numpy.hstack((dem, dem, dem))
-        
+
         # Create a pad of one all the way around the dem and set to max value
         # Scipy reconstruction works bby eroding awy the values
         # See here: https://scikit-image.org/docs/dev/auto_examples/features_detection/plot_holes_and_peaks.html#sphx-glr-auto-examples-features-detection-plot-holes-and-peaks-py
@@ -74,7 +74,7 @@ def _fill_depressions_in_topo(dem):
         # Take the middle array (we stacked 3 of them next to each other)
         filled = filled[: , int(filled.shape[1] / 3) : 2 * int(filled.shape[1] / 3)]
         return filled
-    
+
 def _migrate_front_across_flats(front, arrays, trip_values, iterations, iteration):
     """
     Recursive function to propagate values across a front. We use recursion rather than a while loop
@@ -86,7 +86,7 @@ def _migrate_front_across_flats(front, arrays, trip_values, iterations, iteratio
     # if there are no more cells with adjacent flat cells then stop the recursion
     if not len(flat_coords):
         return
-    
+
     # Get the adjacent cell coordinates by using where the flat cell is in comparison to the each cell on the front
     # Downstream cells points to the combination of -1, 0, 1 in each direction that needs adding
     next_cells = next_downstream_cell[trip_values[flat_coords[:, 1]]] + front.T[flat_coords[:, 0]]
@@ -96,19 +96,19 @@ def _migrate_front_across_flats(front, arrays, trip_values, iterations, iteratio
     # Replace values that go off the end with 0
     next_cells[:, 1] = numpy.where(next_cells[:, 1] == iterations.shape[1], 0, next_cells[:, 1])
 
-    # Remove duplicate cells that can be found from multiple routes 
-    # This takes the first occurence each time -> means that the trip values aren't going to be random 
+    # Remove duplicate cells that can be found from multiple routes
+    # This takes the first occurence each time -> means that the trip values aren't going to be random
     # They are probably ordered in the following order 6, 5, 4, 7, 0, 3, 8, 1, 2 (trip values order)
     next_cells, unique_ids = numpy.unique(next_cells, axis=0, return_index=True)
     # Add the trip values to the next cells this is for consitent filtering
     next_cells = numpy.hstack((next_cells, trip_values[flat_coords[unique_ids, 1]].reshape(-1, 1)))
-    # Make sure we don't have any values that go outside the array 
+    # Make sure we don't have any values that go outside the array
     #TODO this may be casuing problems ??? but hopefully isn't being hit
     next_cells = next_cells[(next_cells[:, 0] >= 0) & (next_cells[:, 0] < iterations.shape[0]) & (next_cells[:, 1] >= 0) & (next_cells[:, 1] < iterations.shape[1])]
     # only take values that haven't already been seen
     # We do this by checking if a value for the cell has been set -> this means it has been seen in another layer of the recursion
     # trip values are 1-> 8 this means that anythin 0 or below hasn't been seen
-    next_cells = next_cells[iterations[next_cells[:, 0], next_cells[:, 1]] <= 0] 
+    next_cells = next_cells[iterations[next_cells[:, 0], next_cells[:, 1]] <= 0]
     # Change the values of the next cells to their correct trip values (calculated where they came from)
     iterations[next_cells[:, 0], next_cells[:, 1]] = iteration
     # Redo this function as many times as necessary
@@ -123,20 +123,20 @@ def get_differences_with_neighbors(array, ensure_gradient=False):
     # Calculate rowwise differnces -> EW differences
     EW = (arr[:, :-1] - arr[:, 1:])
     # Calculate diagonals
-    NESW = arr[1:, 1:] - arr[:-1, :-1] 
+    NESW = arr[1:, 1:] - arr[:-1, :-1]
     SENW = arr[1:, :-1] - arr[:-1, 1:]
-    
+
     # Put it all into a multidimensional array
     # Because we calculated differences in different directions we need to take parts of each array
     # Also because we calculated the difference in one direction the value in the other direction is the symmetric (*-1)
     # Big positive values means the biggest differences -> direction of descent
     arrays = numpy.array([
                             NS[1:, 1:-1] * -1 ,
-                            NESW[1:, 1:] * -1, 
+                            NESW[1:, 1:] * -1,
                             EW[1:-1, 1:],
                             SENW[:-1, 1:],
                             NS[:-1, 1:-1],
-                            NESW[:-1, :-1], 
+                            NESW[:-1, :-1],
                             EW[1:-1, :-1] * -1,
                             SENW[1:, :-1] * -1,
                           ])
@@ -147,7 +147,7 @@ def _add_gradient_to_flats(topo):
     calculate trip values using matrices rather than loops
     """
     arrays = get_differences_with_neighbors(topo, ensure_gradient=True)
-    
+
     # Fix the values on flats
     is_pas = numpy.sum(arrays > 0, axis=0) > 0 # There is at least one cell where the water can flow downwards pas is like in the mountains not quite a col but like a suspended glacial valley
     # A pas has a least one value that is greater than 0 -> downwards flow
@@ -159,7 +159,7 @@ def _add_gradient_to_flats(topo):
 
     # Exit points from flat basins are defined as the points that have the same altitude as a neighbor cell (is_flat) and at least one downward cell (is_pas)
     exit_points = numpy.array(numpy.where((is_pas == True) & (is_flat == True)))
-    
+
     # Store an array of when the cell was seen for the first time
     # This is passed to our recursively function and filled over time
     iterations = numpy.zeros(topo.shape)
@@ -178,12 +178,12 @@ def _add_gradient_to_flats(topo):
     iterations[ones] = 1
     increment = 1. / (100 * iterations.max())
     topo += iterations * increment
-    
+
     return topo
 
 def _ensure_south_up(topo, latitudes):
     if latitudes[0] < 0:
-        assert latitudes[-1] > 0 
+        assert latitudes[-1] > 0
         return topo
     if latitudes[-1] < 0:
         assert latitudes[0] > 0
@@ -210,7 +210,7 @@ def calculate_omsk(topo):
 def calculate_cmsk(omsk):
     template = numpy.ones(9).reshape(3,3)
     # pad the array so we don't have to worry about edge cases
-    
+
     is_water = get_padded_array(omsk).astype(bool)
     # Calculate the convolution
     conv = convolve2d(is_water, template, 'same')
@@ -224,7 +224,7 @@ def calculate_cmsk(omsk):
     return res
 
 def calculate_continents(topo, omsk):
-    
+
     # Calculate the continents measurements returns a list of distinct objects in the image
     continents = measurements.label(~omsk.astype(bool))[0]
     # Take a look at the edges and see where continents are different and should be the same due to cyclicite
@@ -259,21 +259,21 @@ def calculate_trip(topo, omsk):
     calculate trip values using matrices rather than loops
     """
     arrays = get_differences_with_neighbors(topo, ensure_gradient=True)
-    
+
     # Find the index of the biggest value -> direction of descent if multiple values occur it takes the smallest (first seen)
-    ind = numpy.argmax(arrays, axis=0) 
+    ind = numpy.argmax(arrays, axis=0)
     # Convert indexs to trip values
     rtm = trip_values[ind].astype(float)
     # only take rtm values on land
     rtm[omsk == True] = numpy.nan
-    
+
     # TODO we probably need to ensure topo always has the south Up
     # The first row (Antartic) is considered to be the pole so say everything goes north from there
     rtm[0] = numpy.where(~numpy.isnan(rtm[0]), 1, numpy.NaN)
-    
+
     # The last row (Artic) is considered to be the pole so say everything goes South from there
     rtm[-1] = numpy.where(~numpy.isnan(rtm[-1]), 5, numpy.NaN)
-    
+
     return rtm
 
 def calculate_curvilinear_coordinates():
@@ -324,7 +324,7 @@ def get_next_cell(cells, temp_array, trip):
     # We have already come across this cell lets see if we can find a different output
     if next_cell in cells:
         return cells, 'infinite_loop', next_cell
-    
+
     cells.append(next_cell)
     return get_next_cell(cells, temp_array, trip)
 
@@ -382,12 +382,12 @@ def calculate_ocean_distances(trip, rlat):
         dx,
         numpy.sqrt(dx ** 2 + dy ** 2),
     ])
-    
+
     temp_trip = numpy.where(~numpy.isnan(trip), trip.astype(int), 0)
     xx, yy = numpy.ix_(numpy.arange(trip.shape[0]), numpy.arange(trip.shape[1]))
     distances = trip_distances[temp_trip, xx, yy]
     distances[distances == 0] = numpy.nan
-    
+
     return distances
 
 def calculate_outflow_points(basins, trip):
@@ -464,7 +464,7 @@ def calculate_river_lengths(topo, trip, ocean_distances, omsk):
 def calculate_distbox(flength, trip):
     # Set the distance to ocean inside the ocean to 0
     tmp_flength = numpy.where(~numpy.isnan(flength), flength, 0)
-    
+
     diffs = get_differences_with_neighbors(tmp_flength, ensure_gradient=True)
 
     xx, yy = numpy.ix_(numpy.arange(trip.shape[0]), numpy.arange(trip.shape[1]))
@@ -477,7 +477,7 @@ def calculate_distbox(flength, trip):
 def calculate_trip_outflow_values(trip, outflow_points, basins, omsk, rlat):
     trip = trip.copy()
     trip[outflow_points[:, 0],outflow_points[:, 1]] = 9
-    
+
     x, y = outflow_points.T
 
     for k in range(len(x)):
@@ -521,7 +521,7 @@ def calculate_trip_outflow_values(trip, outflow_points, basins, omsk, rlat):
                 trip[ip1, j] = 6
                 trip[ip1, jp1] = 7
                 trip[i, jp1] = 9
-                
+
     # We have modified the outflow points in the last part of code so outflow points are no longer correct
     # We need to find trip values equal to 9
     x, y = numpy.where(trip == 9)
@@ -559,18 +559,18 @@ def calculate_trip_outflow_values(trip, outflow_points, basins, omsk, rlat):
                 trip[i, j] = 97
         # Not sure we every hit this?
         else:
-            raise AssertinError("We have an ouflow point but we can not say if it is return flow or flow to the ocean")
-            print("We have an ouflow point but we can not say if it is return flow or flow to the ocean")        
+            raise AssertionError("We have an ouflow point but we can not say if it is return flow or flow to the ocean")
+            print("We have an ouflow point but we can not say if it is return flow or flow to the ocean")
             print(i, j)
             print(omsk_bx)
             print(trip_bx)
-            
+
     return trip
 
 def calculate_dzz(topo, trip, distbox, omsk):
 
     height_differences = get_differences_with_neighbors(topo, ensure_gradient=True)
-    
+
     xx, yy = numpy.ix_(numpy.arange(trip.shape[0]), numpy.arange(trip.shape[1]))
     # For trip values in the 1 -> range we calculate the difference between the cell and the nexy downstream cell
     dzz = height_differences[numpy.where(trip < 50, trip - 1, 0).astype(int), xx, yy]
@@ -581,7 +581,7 @@ def calculate_dzz(topo, trip, distbox, omsk):
     # Replace ocean values with 0
     dzz = numpy.where(omsk == 0, dzz, 0)
     return dzz
-    
+
 def calculate_topo_index(distbox, dzz, omsk):
     topoindex = numpy.sqrt(distbox**3. / (dzz * 10 ** 6))
     topoindex = numpy.where(omsk == 0, topoindex, numpy.nan)
