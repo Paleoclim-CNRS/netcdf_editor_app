@@ -132,3 +132,6 @@ dmypy.json
 # github-pages
 .jekyll-cache/*
 docs/_site/*
+
+# Mac
+.DS_STORE
