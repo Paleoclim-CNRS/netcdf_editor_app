@@ -1,0 +1,21 @@
+{% extends 'base.html' %}
+
+{% block header %}
+<h1>{% block title %}LMDZOR{% endblock %}</h1>
+{% endblock %}
+
+
+{% block content %}
+<div style="display: flex; align-items: center; justify-content: center;">
+    <div id="loading" style="display: none; padding: 10vh;">
+        <div class="loader"></div>
+        <p>This Generally takes a few moments</p>
+    </div>
+</div>
+<div id="proc_btn" class="center">
+    <form method=post>
+        <input type=submit value='Start Processing' name='submit_btn'
+            onclick="$('#loading').show();$('#proc_btn').hide();">
+    </form>
+</div>
+{% endblock %}

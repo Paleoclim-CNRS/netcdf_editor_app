@@ -206,6 +206,51 @@ def internal_oceans(_id):
     # And hence through panel.state.curdoc.session_context.request.arguments
     return render_template("app/panel_app.html", script=script, title="Internal Oceans")
 
+@bp.route("/<int:_id>/lmdzor", methods=("GET", "POST"))
+@login_required
+def run_lmdzor_steps(_id):
+    if request.method == "POST":
+        import time
+        time.sleep(5) # indicates the time delay caused due to processing
+        return redirect(url_for("app.steps", _id=_id))
+        # if not len(error):
+        #     # Load file
+        #     ds = load_file(_id)
+        #     lon, lat = get_lon_lat_names(_id)
+        #     # Extremities
+        #     new_values = []
+        #     for coord, step in zip([lon, lat], [lon_step, lat_step]):
+        #         # Get sorted values
+        #         sorted_vals = np.sort(np.unique(ds[coord]))
+        #         min_val = (
+        #             ds[coord].min()
+        #             - (sorted_vals[1] - sorted_vals[0]) / 2.0
+        #             + step / 2.0
+        #         )
+        #         max_val = (
+        #             ds[coord].max()
+        #             + (sorted_vals[-1] - sorted_vals[-2]) / 2.0
+        #             + step / 2.0
+        #         )
+        #         new_values.append(np.arange(min_val, max_val, step))
+        #     # Interpolate data file
+        #     interp_options = {
+        #         lon: new_values[0],
+        #         lat: new_values[1],
+        #     }
+        #     ds = ds.interp(
+        #         interp_options,
+        #         method=interpolator,
+        #     )
+        #     # Save file
+        #     save_revision(_id, ds)
+        #     flash(
+        #         "File regrided using {} interpolation with Longitude steps {} and Latitude steps {}".format(
+        #             interpolator, lon_step, lat_step
+        #         )
+        #     )
+        #     return redirect(url_for("app.steps", _id=_id))
+    return render_template("app/lmdzor.html")
 
 @bp.route("/<int:_id>/passage_problems")
 @login_required
