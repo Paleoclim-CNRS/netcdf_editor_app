@@ -693,8 +693,8 @@ def calculate_topo_index(distbox, dzz, omsk):
     return topoindex
 
 
-def write_to_netcdf(
-    filename, topo, trip, basins, topo_index, dzz, distbox, orog, flength, rlat, rlon
+def to_netcdf(
+    topo, trip, basins, topo_index, dzz, distbox, orog, flength, rlat, rlon
 ):
     ds_final = xr.Dataset(
         coords={"nav_lon": (["y", "x"], rlon), "nav_lat": (["y", "x"], rlat)},
@@ -709,7 +709,7 @@ def write_to_netcdf(
             "topo": (["y", "x"], topo[::-1]),
         },
     )
-    ds_final.to_netcdf(filename)
+    return ds_final
 
 
 def run_routines(topo, latitudes):
@@ -727,4 +727,5 @@ def run_routines(topo, latitudes):
     trip = calculate_trip_outflow_values(trip, outflow_points, basins, omsk, rlat)
     dzz = calculate_dzz(topo, trip, distbox, omsk)
     topo_index = calculate_topo_index(distbox, dzz, omsk)
-    return topo, trip, basins, topo_index, dzz, distbox, orog, river_length, rlat, rlon
+    ds_final = to_netcdf(topo, trip, basins, topo_index, dzz, distbox, orog, river_length, rlat, rlon)
+    return ds_final

@@ -183,11 +183,31 @@ def assert_dzz(dzz):
 def assert_topo_index(topo_index):
     assert numpy.nanmax(numpy.abs(ds_stn.topoind.values[::-1] - topo_index)) < 10e4
 
+def assert_ds_final(ds_final):
+    assert_ds_final_coords(ds_final)
+    assert_ds_final_variables(ds_final)
 
-def test_pre_stn():
+def assert_ds_final_variables(ds_final):
+    assert 'trip' in list(ds_final.data_vars)
+    assert 'basins' in list(ds_final.data_vars)
+    assert 'topoind' in list(ds_final.data_vars)
+    assert 'hdiff' in list(ds_final.data_vars)
+    assert 'riverl' in list(ds_final.data_vars)
+    assert 'orog' in list(ds_final.data_vars)
+    assert 'disto' in list(ds_final.data_vars)
+    assert 'topo' in list(ds_final.data_vars)
+
+def assert_ds_final_coords(ds_final):
+    assert 'nav_lon' in list(ds_final.coords)
+    assert 'nav_lat' in list(ds_final.coords)
+
+
+def test_routines():
     # use trip values provides to test if from trip values we get same values
     trip = ds_runoff.rtm.values
     topo = ds_runoff.topo.values
+
+    orog = routing.calculate_orog(topo)
 
     omsk = routing.calculate_omsk(topo)
 
@@ -216,3 +236,12 @@ def test_pre_stn():
 
     topo_index = routing.calculate_topo_index(distbox, dzz, omsk)
     assert_topo_index(topo_index)
+
+    ds_final = routing.to_netcdf(topo, trip, basins, topo_index, dzz, distbox, orog, river_length, rlat, rlon)
+    assert_ds_final(ds_final)    
+
+def test_run_routines():
+    topo = ds_runoff.topo.values
+    latitudes = ds_runoff.lat.values
+    ds_final = routing.run_routines(topo, latitudes)
+    assert_ds_final(ds_final)
