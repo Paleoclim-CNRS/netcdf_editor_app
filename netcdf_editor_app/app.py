@@ -206,13 +206,12 @@ def internal_oceans(_id):
     # And hence through panel.state.curdoc.session_context.request.arguments
     return render_template("app/panel_app.html", script=script, title="Internal Oceans")
 
-@bp.route("/<int:_id>/lmdzor", methods=("GET", "POST"))
+@bp.route("/<int:_id>/routing", methods=("GET", "POST"))
 @login_required
-def run_lmdzor_steps(_id):
+def run_routing_steps(_id):
     if request.method == "POST":
         import time
         time.sleep(5) # indicates the time delay caused due to processing
-        return redirect(url_for("app.steps", _id=_id))
         # if not len(error):
         #     # Load file
         #     ds = load_file(_id)
@@ -249,8 +248,8 @@ def run_lmdzor_steps(_id):
         #             interpolator, lon_step, lat_step
         #         )
         #     )
-        #     return redirect(url_for("app.steps", _id=_id))
-    return render_template("app/lmdzor.html")
+        return redirect(url_for("app.steps", _id=_id))
+    return render_template("app/routing.html")
 
 @bp.route("/<int:_id>/passage_problems")
 @login_required
