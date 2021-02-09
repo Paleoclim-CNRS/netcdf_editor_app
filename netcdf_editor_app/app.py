@@ -158,7 +158,7 @@ def regrid(_id):
 
         if not len(error):
             # Load file
-            ds = load_file(_id)
+            ds = load_file(_id, 'raw')
             lon, lat = get_lon_lat_names(_id)
             # Extremities
             new_values = []
@@ -216,7 +216,7 @@ def internal_oceans(_id):
 @bp.route("/<int:_id>/routing", methods=("GET", "POST"))
 @login_required
 def routing(_id):
-    ds = load_file(_id)
+    ds = load_file(_id, 'raw')
     variable_names = list(ds.data_vars)
     lon, lat = get_lon_lat_names(_id)
 

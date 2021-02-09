@@ -35,9 +35,9 @@ def init_db():
         db.executescript(f.read().decode("utf8"))
 
 
-def load_file(_id, revision=-1):
+def load_file(_id, file_type=None, revision=-1):
     # Get filename
-    filepath = get_file_path(_id, revision=revision)
+    filepath = get_file_path(_id, file_type=file_type, revision=revision)
     # Load file
     ds = xr.open_dataset(filepath)
     return ds
@@ -115,11 +115,14 @@ def get_filename(_id):
     return db.execute(query, (str(_id),)).fetchone()["filename"]
 
 
-def get_file_path(_id, full=True, revision=-1):
+def get_file_path(_id, file_type, full=True, revision=-1):
     db = get_db()
+    if file_type is None:
+        query = "SELECT revision FROM revisions WHERE data_file_id = ? ORDER BY revision ASC", (str(_id),)
+    else:
+        query = "SELECT revision FROM revisions WHERE data_file_id = (?, ?) ORDER BY revision ASC", (str(_id), file_type)
     revisions = db.execute(
-        "SELECT revision FROM revisions WHERE data_file_id = ? ORDER BY revision ASC",
-        (str(_id),),
+        query
     ).fetchall()
     revisions = [rev["revision"] for rev in revisions]
     revision_nb = revisions[revision]
