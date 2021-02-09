@@ -39,6 +39,7 @@ FLASK_APP=netcdf_editor_app
 FLASK_ENV=development
 ```
 * Run `pip install -r requirements.txt`
+* Run `BOKEH_RESOURCES=cdn python -m panel serve --port=5006 --allow-websocket-origin='*' --websocket-max-message-size=100000000 netcdf_editor_app/holoviews/*.py` to start the panel apps (exporting BOKEJ+H_RESOURCES=cdn is important otherwise the apps won't render)
 * Run `python -m flask run`
 
 ### testing
