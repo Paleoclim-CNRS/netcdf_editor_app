@@ -155,3 +155,22 @@ input[type=submit] {
   0% { transform: rotate(0deg); }
   100% { transform: rotate(360deg); }
 }
+
+/* table.dataframe, .dataframe th, .dataframe td {
+  border: none;
+  border-bottom: 1px solid #C8C8C8;
+  border-collapse: collapse;
+  text-align:left;
+  padding: 10px;
+  margin-bottom: 40px;
+  font-size: 0.9em;
+} */
+
+.table {
+  width: 50%;
+  margin: auto;
+}
+
+.table td {
+  vertical-align: middle;
+}
