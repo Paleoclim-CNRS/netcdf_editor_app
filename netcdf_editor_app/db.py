@@ -108,6 +108,15 @@ def get_latest_file_versions():
     data_files = db.execute(query).fetchall()
     return data_files
 
+def get_file_types(_id):
+    db = get_db()
+    file_types = db.execute(
+        'SELECT DISTINCT file_type FROM revisions WHERE data_file_id = ?', (str(_id), )
+    ).fetchall()
+
+    file_types = [ft["file_type"] for ft in file_types]
+    return file_types
+
 
 def get_filename(_id):
     query = "SELECT filename FROM data_files WHERE id = ?"
@@ -115,15 +124,19 @@ def get_filename(_id):
     return db.execute(query, (str(_id),)).fetchone()["filename"]
 
 
-def get_file_path(_id, file_type, full=True, revision=-1):
+def get_file_path(_id, file_type=None, full=True, revision=-1):
     db = get_db()
     if file_type is None:
-        query = "SELECT revision FROM revisions WHERE data_file_id = ? ORDER BY revision ASC", (str(_id),)
+        revisions = db.execute(
+            "SELECT revision FROM revisions WHERE data_file_id = ? ORDER BY revision ASC", 
+            (str(_id),)
+        ).fetchall()
     else:
-        query = "SELECT revision FROM revisions WHERE data_file_id = (?, ?) ORDER BY revision ASC", (str(_id), file_type)
-    revisions = db.execute(
-        query
-    ).fetchall()
+        revisions = db.execute(
+            "SELECT revision FROM revisions WHERE data_file_id = ? AND file_type = ? ORDER BY revision ASC", 
+            (str(_id), file_type),
+        ).fetchall()
+        
     revisions = [rev["revision"] for rev in revisions]
     revision_nb = revisions[revision]
     filepath = db.execute(

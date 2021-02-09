@@ -1,12 +1,15 @@
-from flask import Blueprint, flash, redirect, render_template, request, url_for, session
+from flask import Blueprint, flash, redirect, render_template, request, url_for, session, current_app, send_from_directory
 import werkzeug
 
+import os
 
 from netcdf_editor_app.auth import login_required
 from netcdf_editor_app.db import (
     get_coord_names,
     get_latest_file_versions,
     get_lon_lat_names,
+    get_file_path,
+    get_file_types,
     load_file,
     remove_data_file,
     save_revision,
@@ -17,7 +20,8 @@ from netcdf_editor_app.db import (
 
 from netcdf_editor_app.utils.routing import run_routines
 
-import numpy as np
+import numpy
+import pandas as pd
 import hvplot.xarray
 
 import holoviews as hv
@@ -62,6 +66,20 @@ def upload():
     return render_template("app/upload.html")
 
 
+@bp.route('/<int:_id>/<string:file_type>/download', methods=['GET'])
+@login_required
+def download(_id, file_type):
+    data_file_name = get_filename(_id)
+    print(data_file_name)
+    name, extension = data_file_name.split(".")
+    name += "_netcdf_flask_app"
+    data_file_name = name + "." + extension
+
+    filename = get_file_path(_id, file_type, full=False)
+    uploads = os.path.join(current_app.root_path, current_app.config['UPLOAD_FOLDER'])
+    return send_from_directory(directory=uploads, filename=filename, as_attachment=True, attachment_filename=data_file_name)
+
+
 @bp.route("/<int:_id>/delete", methods=("GET", "POST"))
 @login_required
 def delete(_id):
@@ -92,7 +110,20 @@ def set_coords(_id):
 @login_required
 def steps(_id):
     data_file_name = get_filename(_id)
-    return render_template("app/steps.html", data_file_name=data_file_name, _id=_id)
+
+    seen_file_types = get_file_types(_id)
+    data = []
+    for name in seen_file_types:
+        data.append(
+            [name.capitalize(),
+            f"<form action=\"{ url_for('app.download', _id=_id, file_type=name.lower()) }\" method=\"GET\"> \
+                <button type=\"submit\" class=\"btn btn-primary\"><i class=\"fas fa-download\"></i> Download</button> \
+            </form>"
+            ]
+        )
+
+    df = pd.DataFrame(data, columns=["File Type", "Download Link"])
+    return render_template("app/steps.html", data_file_name=data_file_name, _id=_id, assets_table=df.to_html(index=False, justify='center', border=0, classes="table", escape=False))
 
 
 @bp.route("/<int:_id>")
@@ -164,7 +195,7 @@ def regrid(_id):
             new_values = []
             for coord, step in zip([lon, lat], [lon_step, lat_step]):
                 # Get sorted values
-                sorted_vals = np.sort(np.unique(ds[coord]))
+                sorted_vals = numpy.sort(numpy.unique(ds[coord]))
                 min_val = (
                     ds[coord].min()
                     - (sorted_vals[1] - sorted_vals[0]) / 2.0
@@ -175,7 +206,7 @@ def regrid(_id):
                     + (sorted_vals[-1] - sorted_vals[-2]) / 2.0
                     + step / 2.0
                 )
-                new_values.append(np.arange(min_val, max_val, step))
+                new_values.append(numpy.arange(min_val, max_val, step))
             # Interpolate data file
             interp_options = {
                 lon: new_values[0],
