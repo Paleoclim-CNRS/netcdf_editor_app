@@ -12,10 +12,52 @@
         <p style="padding-top: 2em;">This Generally takes a few moments ...</p>
     </div>
 </div>
-<div id="proc_btn" class="center">
+
+<div id="proc" class="center">
+    {% if show_regrid %}
+    <div class="alert alert-danger" role="alert">
+        Wrong Shape got {{ data_shape }} expected (180, 360) Please regrid
+        <form method="POST" action="{{ url_for('app.regrid', _id=_id) }}">
+            <input type="hidden" name="Longitude Step" id="lon-step" placeholder="Longitude Step" value=1 required>
+            <input type="hidden" name="Latitude Step" id="lat-step" placeholder="Latitude Step" value=1 required>
+            <p>Interpolation Method:</p>
+            <div>
+              <input type="radio"
+               name="interpolator" value="linear" checked>
+              <label for="bilinear">Bilinear</label>
+          
+              <input type="radio"
+               name="interpolator" value="nearest">
+              <label for="nearest-neighbor">Nearest Neighbor</label>
+          
+            </div>
+            <button type="submit" class="btn btn-success btn-lg">
+                <i class="fas fa-calculator"></i>
+                Regrid
+            </button>
+            <input type="hidden" name="next" value="{{ url_for('app.routing', _id=_id) }}">
+        </form>
+    </div>
+    {% endif %}
     <form method=post>
-        <input type=submit value='Start Processing' name='submit_btn'
-            onclick="$('#loading').show();$('#proc_btn').hide();">
+        <label for="topo_var">Topography Variable:</label>
+        <select name="topo_var">
+            {% for name in variable_names %}
+            <option value={{ name }}>{{ name }}</option>
+            {% endfor %}
+        </select>
+        <br></br>
+        {% if show_regrid %}
+        <button type="submit" class="btn btn-success btn-lg" onclick="$('#loading').show();$('#proc').hide();" disabled>
+            <i class="fas fa-calculator"></i>
+            Start Processing
+        </button>
+        {% else %}
+        <button type="submit" class="btn btn-success btn-lg" onclick="$('#loading').show();$('#proc').hide();">
+            <i class="fas fa-calculator"></i>
+            Start Processing
+        </button>
+        {% endif %}
     </form>
 </div>
 {% endblock %}

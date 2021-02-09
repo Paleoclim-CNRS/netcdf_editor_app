@@ -1,4 +1,5 @@
 from flask import Blueprint, flash, redirect, render_template, request, url_for, session
+import werkzeug
 
 
 from netcdf_editor_app.auth import login_required
@@ -13,6 +14,8 @@ from netcdf_editor_app.db import (
     upload_file,
     get_filename,
 )
+
+from netcdf_editor_app.utils.routing import run_routines
 
 import numpy as np
 import hvplot.xarray
@@ -189,7 +192,11 @@ def regrid(_id):
                     interpolator, lon_step, lat_step
                 )
             )
-            return redirect(url_for("app.steps", _id=_id))
+            try:
+                next_page = request.form["next"]
+            except werkzeug.exceptions.BadRequestKeyError:
+                next_page = url_for("app.steps", _id=_id)
+            return redirect(next_page)
 
         flash(error)
 
@@ -208,48 +215,42 @@ def internal_oceans(_id):
 
 @bp.route("/<int:_id>/routing", methods=("GET", "POST"))
 @login_required
-def run_routing_steps(_id):
+def routing(_id):
+    ds = load_file(_id)
+    variable_names = list(ds.data_vars)
+    lon, lat = get_lon_lat_names(_id)
+
     if request.method == "POST":
-        import time
-        time.sleep(5) # indicates the time delay caused due to processing
-        # if not len(error):
-        #     # Load file
-        #     ds = load_file(_id)
-        #     lon, lat = get_lon_lat_names(_id)
-        #     # Extremities
-        #     new_values = []
-        #     for coord, step in zip([lon, lat], [lon_step, lat_step]):
-        #         # Get sorted values
-        #         sorted_vals = np.sort(np.unique(ds[coord]))
-        #         min_val = (
-        #             ds[coord].min()
-        #             - (sorted_vals[1] - sorted_vals[0]) / 2.0
-        #             + step / 2.0
-        #         )
-        #         max_val = (
-        #             ds[coord].max()
-        #             + (sorted_vals[-1] - sorted_vals[-2]) / 2.0
-        #             + step / 2.0
-        #         )
-        #         new_values.append(np.arange(min_val, max_val, step))
-        #     # Interpolate data file
-        #     interp_options = {
-        #         lon: new_values[0],
-        #         lat: new_values[1],
-        #     }
-        #     ds = ds.interp(
-        #         interp_options,
-        #         method=interpolator,
-        #     )
-        #     # Save file
-        #     save_revision(_id, ds)
-        #     flash(
-        #         "File regrided using {} interpolation with Longitude steps {} and Latitude steps {}".format(
-        #             interpolator, lon_step, lat_step
-        #         )
-        #     )
-        return redirect(url_for("app.steps", _id=_id))
-    return render_template("app/routing.html")
+        topo_variable = request.form["topo_var"]
+        error = ""
+
+        if not len(topo_variable):
+            error += "Topography Variable not understood; "
+        elif topo_variable not in variable_names:
+            error += "Topography Variable not in data set"
+
+        if not len(error):
+            # import time
+            # time.sleep(5) # indicates the time delay caused due to processing
+            # Load file
+
+            lon, lat = get_lon_lat_names(_id)
+            latitudes = ds[lat].values
+            topography = ds[topo_variable].values
+            run_routines(topography, latitudes)
+            
+            flash("Routing run succesfully")
+
+            return redirect(url_for("app.steps", _id=_id))
+
+        flash(error)
+
+    data_shape = tuple(ds.dims.values())
+    show_regrid = False
+    if data_shape != (180, 360):
+        show_regrid = True
+    
+    return render_template("app/routing.html", _id=_id, variable_names=variable_names, show_regrid=show_regrid, data_shape=data_shape)
 
 @bp.route("/<int:_id>/passage_problems")
 @login_required

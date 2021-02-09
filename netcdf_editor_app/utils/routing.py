@@ -530,7 +530,7 @@ def calculate_river_lengths(topo, trip, ocean_distances, omsk):
             flength[x, y] = flow_lengths
 
         else:
-            print("Shouldn't be here")
+            raise AssertionError(f"Unexpected end reason {end_reason} for river starting at {highest_point}")
         # Calculate the next highest point
         highest_point = numpy.unravel_index(
             numpy.where(flength == 0, topo, -9999).argmax(), topo.shape
@@ -727,16 +727,4 @@ def run_routines(topo, latitudes):
     trip = calculate_trip_outflow_values(trip, outflow_points, basins, omsk, rlat)
     dzz = calculate_dzz(topo, trip, distbox, omsk)
     topo_index = calculate_topo_index(distbox, dzz, omsk)
-    write_to_netcdf(
-        "test.nc",
-        topo,
-        trip,
-        basins,
-        topo_index,
-        dzz,
-        distbox,
-        orog,
-        river_length,
-        rlat,
-        rlon,
-    )
+    return topo, trip, basins, topo_index, dzz, distbox, orog, river_length, rlat, rlon
