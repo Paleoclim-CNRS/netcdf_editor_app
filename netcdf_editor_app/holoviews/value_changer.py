@@ -284,7 +284,7 @@ class ValueChanger(param.Parameterized):
 
     def save(self, event):
         with self.app.app_context():
-            save_revision(self.data_file_id, self.ds)
+            save_revision(self.data_file_id, self.ds, 'raw')
 
     def _apply_action(self, action):
         if action["calculation_type"] in ["Absolute", "Percentage", "Relatif"]:

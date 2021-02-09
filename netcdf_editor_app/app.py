@@ -186,7 +186,7 @@ def regrid(_id):
                 method=interpolator,
             )
             # Save file
-            save_revision(_id, ds)
+            save_revision(_id, ds, 'raw')
             flash(
                 "File regrided using {} interpolation with Longitude steps {} and Latitude steps {}".format(
                     interpolator, lon_step, lat_step

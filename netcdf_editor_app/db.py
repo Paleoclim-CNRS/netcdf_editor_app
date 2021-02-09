@@ -80,7 +80,7 @@ def upload_file(file):
     return data_file_id
 
 
-def save_revision(_id, ds):
+def save_revision(_id, ds, file_type):
     temp_name = next(tempfile._get_candidate_names()) + ".nc"
     # Save the file to the file system
     ds.to_netcdf(os.path.join(current_app.config["UPLOAD_FOLDER"], temp_name))
@@ -90,8 +90,8 @@ def save_revision(_id, ds):
     query = "SELECT revision FROM revisions WHERE data_file_id = ? ORDER BY revision DESC LIMIT 0, 1"
     revision_nb = db.execute(query, (str(_id),)).fetchone()["revision"] + 1
     db.execute(
-        "INSERT INTO revisions (data_file_id, filepath, revision)" " VALUES (?, ?, ?)",
-        (str(_id), temp_name, revision_nb),
+        "INSERT INTO revisions (data_file_id, filepath, revision, file_type)" " VALUES (?, ?, ?, ?)",
+        (str(_id), temp_name, revision_nb, file_type),
     )
     db.commit()
 

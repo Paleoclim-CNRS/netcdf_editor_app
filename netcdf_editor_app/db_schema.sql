@@ -22,5 +22,6 @@ CREATE TABLE revisions (
   created TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
   filepath TEXT NOT NULL,
   revision INTEGER NOT NULL,
+  file_type TEXT NOT NULL,
   FOREIGN KEY (data_file_id) REFERENCES data_files (id)
 );
