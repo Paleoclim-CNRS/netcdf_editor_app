@@ -6,6 +6,7 @@ Datafile chosen: {{ data_file_name }}
 {% endblock %}
 
 {% block content %}
+<h2>Workflow</h2>
 <ul>
     <li>
         <a class="action" href="{{ url_for('app.map', _id=_id) }}">
@@ -33,9 +34,16 @@ Datafile chosen: {{ data_file_name }}
         </a>
     </li>
     <li>
+        <a class="action" href="{{ url_for('app.routing', _id=_id) }}">
+            Routing
+        </a>
+    </li>
+    <li>
         <a class="action" href="{{ url_for('app.passage_problems', _id=_id) }}">
             Passage Problems
         </a>
     </li>
 </ul>
+<h2>Assets</h2>
+{{ assets_table|safe }}
 {% endblock %}

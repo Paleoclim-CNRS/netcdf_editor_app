@@ -1,5 +1,6 @@
 panel ~=0.10
 holoviews <1.14
+datashader
 hvplot
 shapely
 xarray > 0.16.1

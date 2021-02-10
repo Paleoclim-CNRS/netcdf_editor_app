@@ -11,6 +11,8 @@ colormaps = hv.plotting.list_cmaps()
 
 
 class PassageProblems(ValueChanger):
+    file_type = 'routing'
+    
     def _calculate_passage_problems(self):
         # Define template we are looking for passages
         # Where only diffusion occurs this means we are looking
@@ -52,8 +54,7 @@ class PassageProblems(ValueChanger):
     @pn.depends("ds", "attribute.value")
     def load_passage_problems(self):
         passage_problems = self._calculate_passage_problems()
-        number_passage_problems = numpy.sum(
-            passage_problems[passage_problems == 2])
+        number_passage_problems = numpy.sum(passage_problems[passage_problems == 2])
 
         # Make sure the array shapes line up
         coordinates_shapes = tuple(self.ds.coords.dims.values())
@@ -77,8 +78,7 @@ class PassageProblems(ValueChanger):
         passage_problems = hv.DynamicMap(self.load_passage_problems).opts(
             hv.opts.Image(
                 "Passage_problems",
-                clipping_colors={"NaN": "#dedede",
-                                 "max": "red", "min": "#ffffff"},
+                clipping_colors={"NaN": "#dedede", "max": "red", "min": "#ffffff"},
                 clim=(1.2, 1.5),
                 colorbar=False,
                 tools=[],
