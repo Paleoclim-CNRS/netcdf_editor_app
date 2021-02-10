@@ -18,6 +18,7 @@ services:
     build:
       context: .
       dockerfile: panel_apps.Dockerfile
+    env_file: ${PANEL_CONFIG}
     image: netcdf_editor_panel_apps:latest
     ports:
       - "${PANEL_HOST_PORT}:5006"
