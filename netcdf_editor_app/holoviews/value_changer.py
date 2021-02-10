@@ -125,7 +125,7 @@ class ValueChanger(param.Parameterized):
     def _load_ds(self, _id):
         self.loaded = False
         with self.app.app_context():
-            ds = load_file(_id)
+            ds = load_file(_id, self.file_type)
         self.curvilinear_coordinates = None
 
         number_coordinates_in_system = len(list(ds.coords.variables.values())[0].dims)

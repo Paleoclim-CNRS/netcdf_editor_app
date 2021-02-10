@@ -261,15 +261,13 @@ def routing(_id):
             error += "Topography Variable not in data set"
 
         if not len(error):
-            # import time
-            # time.sleep(5) # indicates the time delay caused due to processing
             # Load file
-
             lon, lat = get_lon_lat_names(_id)
             latitudes = ds[lat].values
             topography = ds[topo_variable].values
-            run_routines(topography, latitudes)
-            
+            ds_final = run_routines(topography, latitudes)
+            save_revision(_id, ds_final, 'routing')
+
             flash("Routing run succesfully")
 
             return redirect(url_for("app.steps", _id=_id))
@@ -286,9 +284,18 @@ def routing(_id):
 @bp.route("/<int:_id>/passage_problems")
 @login_required
 def passage_problems(_id):
-    script = server_document(
-        url="http://localhost:5006/passage_problems", arguments={"id": _id}
-    )
+    seen_file_types = get_file_types(_id)
+    if "routing" not in seen_file_types:
+        script = f"<div class=\"alert alert-danger\" role=\"alert\" \
+            style=\"display: flex; align-items: center; justify-content: center; flex-direction: column;\">\
+            Routing file not found in Database please perform Routing step first\
+            <br></br> \
+            <button onclick=\"window.location.href = '{url_for('app.routing', _id=_id)}';\" id=\"myButton\" class=\"btn btn-primary\" >Routing</button> \
+            </div>"
+    else:
+        script = server_document(
+            url="http://localhost:5006/passage_problems", arguments={"id": _id}
+        )
     # Arguments are reached through Bokeh curdoc.session_context.request.arguments
     # And hence through panel.state.curdoc.session_context.request.arguments
     return render_template(
