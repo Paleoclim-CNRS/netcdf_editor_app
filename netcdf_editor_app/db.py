@@ -57,7 +57,7 @@ def set_data_file_coords(_id, longitude, latitude):
     db.commit()
 
 
-def upload_file(file):
+def upload_file(file, file_type='raw'):
     filename = secure_filename(file.filename)
     temp_name = next(tempfile._get_candidate_names()) + ".nc"
     # Save the file to the file system
@@ -72,8 +72,8 @@ def upload_file(file):
     data_file_id = data_file.lastrowid
     # ADD the file to the revisions table
     db.execute(
-        "INSERT INTO revisions (data_file_id, filepath, revision)" " VALUES (?, ?, ?)",
-        (data_file_id, temp_name, 0),
+        "INSERT INTO revisions (data_file_id, filepath, revision, file_type)" " VALUES (?, ?, ?, ?)",
+        (data_file_id, temp_name, 0, file_type),
     )
     db.commit()
 
