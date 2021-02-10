@@ -162,7 +162,7 @@ def revision_comparison(_id):
 @login_required
 def variable_explorer(_id):
     script = server_document(
-        url="http://localhost:5006/value_changer", arguments={"id": _id}
+        url="http://{os.environ['PANEL_HOST']}:{os.environ['PANEL_SOCKET']}/value_changer", arguments={"id": _id}
     )
     # Arguments are reached through Bokeh curdoc.session_context.request.arguments
     # And hence through panel.state.curdoc.session_context.request.arguments
@@ -238,7 +238,7 @@ def regrid(_id):
 @login_required
 def internal_oceans(_id):
     script = server_document(
-        url="http://localhost:5006/internal_oceans", arguments={"id": _id}
+        url=f"http://{os.environ['PANEL_HOST']}:{os.environ['PANEL_SOCKET']}/internal_oceans", arguments={"id": _id}
     )
     # Arguments are reached through Bokeh curdoc.session_context.request.arguments
     # And hence through panel.state.curdoc.session_context.request.arguments
@@ -294,7 +294,7 @@ def passage_problems(_id):
             </div>"
     else:
         script = server_document(
-            url="http://localhost:5006/passage_problems", arguments={"id": _id}
+            url="http://{os.environ['PANEL_HOST']}:{os.environ['PANEL_SOCKET']}/passage_problems", arguments={"id": _id}
         )
     # Arguments are reached through Bokeh curdoc.session_context.request.arguments
     # And hence through panel.state.curdoc.session_context.request.arguments
