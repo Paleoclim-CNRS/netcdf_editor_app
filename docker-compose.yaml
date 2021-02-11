@@ -1,6 +1,6 @@
 version: '3'
 services:
-  app:
+  flask_app:
     build:
       context: .
       dockerfile: app.Dockerfile
@@ -8,7 +8,7 @@ services:
     environment: 
       PANEL_HOST: 0.0.0.0
       PANEL_SOCKET: ${PANEL_HOST_PORT}
-    image: netcdf_editor:latest 
+    image: netcdf_editor_flask_app:latest 
     ports:
      - "8080:5000"
     volumes:
