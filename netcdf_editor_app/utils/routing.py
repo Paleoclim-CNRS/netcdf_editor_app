@@ -826,5 +826,10 @@ def run_routines(topo, latitudes):
     trip = calculate_trip_outflow_values(trip, outflow_points, basins, omsk, rlat)
     dzz = calculate_dzz(topo, trip, distbox, omsk)
     topo_index = calculate_topo_index(distbox, dzz, omsk)
+    
     ds_routing = create_routing_netcdf(topo, trip, basins, topo_index, dzz, distbox, orog, river_length, rlat, rlon)
-    return ds_routing
+    ds_bathy = create_bathy_paleo_orca(topo)
+    ds_soils = create_soils(rlat, rlon, omsk)
+    ds_topo_high_res = create_topo_high_res(topo)
+
+    return ds_routing, ds_bathy, ds_soils, ds_topo_high_res
