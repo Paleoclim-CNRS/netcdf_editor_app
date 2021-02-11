@@ -693,12 +693,26 @@ def calculate_topo_index(distbox, dzz, omsk):
     return topoindex
 
 
+def _set_attributes_ds_final(ds_final):
+    ds_final['nav_lon'].attrs = {'units': 'degrees_east', 'valid_min': -180.0, 'valid_max': 180.0, 'long_name': 'Longitude'}
+    ds_final['nav_lat'].attrs = {'units': 'degrees_north', 'valid_min': -90.0, 'valid_max': 90.0, 'long_name': 'Latitude'}
+    ds_final['trip'].attrs = {'axis': 'TYX', 'units': '', 'long_name': 'Direction of flow from each box', 'associate': 'nav_lat na'}
+    ds_final['basins'].attrs = {'axis': 'TYX', 'units': '', 'long_name': 'Basin number for each grid box', 'associate': 'nav_lat na'}
+    ds_final['topoind'].attrs = {'axis': 'TYX', 'units': '', 'long_name': 'Topographic index of the retention time', 'associate': 'nav_lat na'}
+    ds_final['hdiff'].attrs = {'axis': 'TYX', 'units': 'm', 'long_name': 'Height difference with the outflow basin', 'associate': 'nav_lat na'}
+    ds_final['riverl'].attrs = {'axis': 'TYX', 'units': 'm', 'long_name': 'River length to the next basin', 'associate': 'nav_lat na'}
+    ds_final['orog'].attrs = {'axis': 'TYX', 'units': 'm', 'long_name': 'Orography', 'associate': 'nav_lat na'}
+    ds_final['disto'].attrs = {'axis': 'TYX', 'units': 'km', 'long_name': 'Distance to ocean', 'associate': 'nav_lat na'}
+    return ds_final
+
 def to_netcdf(
     topo, trip, basins, topo_index, dzz, distbox, orog, flength, rlat, rlon
 ):
     ds_final = xr.Dataset(
-        coords={"nav_lon": (["y", "x"], rlon), "nav_lat": (["y", "x"], rlat)},
+        coords={},
         data_vars={
+            "nav_lon": (["y", "x"], rlon), 
+            "nav_lat": (["y", "x"], rlat),
             "trip": (["y", "x"], trip[::-1]),
             "basins": (["y", "x"], basins[::-1]),
             "topoind": (["y", "x"], topo_index[::-1]),
@@ -709,6 +723,8 @@ def to_netcdf(
             "topo": (["y", "x"], topo[::-1]),
         },
     )
+    print("here")
+    ds_final = _set_attributes_ds_final(ds_final)
     return ds_final
 
 
