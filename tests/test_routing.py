@@ -184,41 +184,41 @@ def assert_topo_index(topo_index):
     assert numpy.nanmax(numpy.abs(ds_stn.topoind.values[::-1] - topo_index)) < 10e4
 
 
-def assert_ds_final(ds_final):
-    assert_ds_final_coords(ds_final)
-    assert_ds_final_variables(ds_final)
+def assert_ds_routing(ds_routing):
+    assert_ds_routing_coords(ds_routing)
+    assert_ds_routing_variables(ds_routing)
 
-def assert_ds_final_variables(ds_final):
-    assert_ds_final_variable_names(ds_final)
-    assert_ds_final_variable_attrs(ds_final)
+def assert_ds_routing_variables(ds_routing):
+    assert_ds_routing_variable_names(ds_routing)
+    assert_ds_routing_variable_attrs(ds_routing)
 
-def assert_ds_final_coords(ds_final):
-    assert_ds_final_coords_names(ds_final)
-    assert_ds_final_coords_attrs(ds_final)
+def assert_ds_routing_coords(ds_routing):
+    assert_ds_routing_coords_names(ds_routing)
+    assert_ds_routing_coords_attrs(ds_routing)
 
-def assert_ds_final_variable_names(ds_final):
-    # assert 'trip' in list(ds_final.data_vars)
-    # assert 'basins' in list(ds_final.data_vars)
-    # assert 'topoind' in list(ds_final.data_vars)
-    # assert 'hdiff' in list(ds_final.data_vars)
-    # assert 'riverl' in list(ds_final.data_vars)
-    # assert 'orog' in list(ds_final.data_vars)
-    # assert 'disto' in list(ds_final.data_vars)
-    # assert 'topo' in list(ds_final.data_vars)
-    assert set(ds_final.data_vars).intersection(set(ds_stn.data_vars)) == set(ds_stn.data_vars)
+def assert_ds_routing_variable_names(ds_routing):
+    # assert 'trip' in list(ds_routing.data_vars)
+    # assert 'basins' in list(ds_routing.data_vars)
+    # assert 'topoind' in list(ds_routing.data_vars)
+    # assert 'hdiff' in list(ds_routing.data_vars)
+    # assert 'riverl' in list(ds_routing.data_vars)
+    # assert 'orog' in list(ds_routing.data_vars)
+    # assert 'disto' in list(ds_routing.data_vars)
+    # assert 'topo' in list(ds_routing.data_vars)
+    assert set(ds_routing.data_vars).intersection(set(ds_stn.data_vars)) == set(ds_stn.data_vars)
 
-def assert_ds_final_coords_names(ds_final):
-    # assert 'nav_lon' in list(ds_final.coords)
-    # assert 'nav_lat' in list(ds_final.coords)
-    assert set(ds_final.coords) == set(ds_stn.coords)
+def assert_ds_routing_coords_names(ds_routing):
+    # assert 'nav_lon' in list(ds_routing.coords)
+    # assert 'nav_lat' in list(ds_routing.coords)
+    assert set(ds_routing.coords) == set(ds_stn.coords)
 
-def assert_ds_final_variable_attrs(ds_final):
+def assert_ds_routing_variable_attrs(ds_routing):
     for var in ds_stn.data_vars:
-        assert ds_final[var].attrs == ds_stn[var].attrs
+        assert ds_routing[var].attrs == ds_stn[var].attrs
 
-def assert_ds_final_coords_attrs(ds_final):
+def assert_ds_routing_coords_attrs(ds_routing):
     for var in ds_stn.coords:
-        assert ds_final[var].attrs == ds_stn[var].attrs
+        assert ds_routing[var].attrs == ds_stn[var].attrs
 
 
 def test_routines():
@@ -254,13 +254,54 @@ def test_routines():
     assert_dzz(dzz)
 
     topo_index = routing.calculate_topo_index(distbox, dzz, omsk)
-    assert_topo_index(topo_index)
-
-    ds_final = routing.to_netcdf(topo, trip, basins, topo_index, dzz, distbox, orog, river_length, rlat, rlon)
-    assert_ds_final(ds_final)    
+    assert_topo_index(topo_index) 
 
 def test_run_routines():
     topo = ds_runoff.topo.values
     latitudes = ds_runoff.lat.values
-    ds_final = routing.run_routines(topo, latitudes)
-    assert_ds_final(ds_final)
+    ds_routing, ds_bathy, ds_soils, ds_topo_high_res = routing.run_routines(topo, latitudes)
+    assert_ds_routing(ds_routing)
+
+def test_create_orca_dataset():
+    topo = ds_runoff.topo.values
+
+    ds = routing.create_bathy_paleo_orca(topo)
+    assert len(ds.dims) == 2
+    assert 'nav_lat' in ds.coords
+    assert 'nav_lon' in ds.coords
+    assert 'Bathymetry' in ds.data_vars
+    assert ds.nav_lat.shape == (149, 182)
+    assert ds.nav_lon.shape == (149, 182)
+    assert ds.Bathymetry.shape == (149, 182)
+
+def test_high_res_relief():
+    topo = ds_runoff.topo.values
+
+    ds = routing.create_topo_high_res(topo)
+    assert "longitude" in ds.coords 
+    assert "latitude" in ds.coords
+    assert "RELIEF" in ds.data_vars
+    assert ds.longitude.shape == (2160, )
+    assert ds.latitude.shape == (1080, )
+    assert ds.latitude.values[0] == 89.9165497
+    assert abs(ds.longitude.values[0] + 179.917) < 10e-4
+    assert ds.RELIEF.values.shape == (1080, 2160)
+    assert numpy.sum(numpy.isnan(ds.RELIEF.values)) == 0
+
+def test_soils():
+    # use trip values provides to test if from trip values we get same values
+    topo = ds_runoff.topo.values
+
+    omsk = routing.calculate_omsk(topo)
+
+    rlon, rlat = routing.calculate_curvilinear_coordinates()    
+
+    ds = routing.create_soils(rlat, rlon, omsk)
+
+    assert "soilcolor" in ds.data_vars
+    assert "soiltext" in ds.data_vars
+    assert "nav_lat" in ds.data_vars
+    assert "nav_lon" in ds.data_vars
+
+    assert set(numpy.unique(ds.soilcolor)) == set((0, 4))
+    assert set(numpy.unique(ds.soiltext)) == set((0, 3))

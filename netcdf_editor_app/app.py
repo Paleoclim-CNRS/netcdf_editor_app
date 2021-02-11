@@ -70,9 +70,8 @@ def upload():
 @login_required
 def download(_id, file_type):
     data_file_name = get_filename(_id)
-    print(data_file_name)
     name, extension = data_file_name.split(".")
-    name += "_netcdf_flask_app"
+    name += "_" + file_type + "_netcdf_flask_app"
     data_file_name = name + "." + extension
 
     filename = get_file_path(_id, file_type, full=False)
@@ -265,8 +264,11 @@ def routing(_id):
             lon, lat = get_lon_lat_names(_id)
             latitudes = ds[lat].values
             topography = ds[topo_variable].values
-            ds_final = run_routines(topography, latitudes)
-            save_revision(_id, ds_final, 'routing')
+            ds_routing, ds_bathy, ds_soils, ds_topo_high_res = run_routines(topography, latitudes)
+            save_revision(_id, ds_routing, 'routing')
+            save_revision(_id, ds_bathy, 'bathy')
+            save_revision(_id, ds_soils, 'soils')
+            save_revision(_id, ds_topo_high_res, 'topo_high_res')
 
             flash("Routing run succesfully")
 
