@@ -264,3 +264,15 @@ def test_run_routines():
     latitudes = ds_runoff.lat.values
     ds_final = routing.run_routines(topo, latitudes)
     assert_ds_final(ds_final)
+
+def test_create_orca_dataset():
+    topo = ds_runoff.topo.values
+
+    ds = routing.create_bathy_paleo_orca(topo)
+    assert len(ds.dims) == 2
+    assert 'nav_lat' in ds.coords
+    assert 'nav_lon' in ds.coords
+    assert 'Bathymetry' in ds.data_vars
+    assert ds.nav_lat.shape == (149, 182)
+    assert ds.nav_lon.shape == (149, 182)
+    assert ds.Bathymetry.shape == (149, 182)

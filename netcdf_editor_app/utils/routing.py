@@ -1,4 +1,5 @@
 import numpy
+import os
 
 from scipy.signal import convolve2d
 from scipy.ndimage import measurements
@@ -693,22 +694,22 @@ def calculate_topo_index(distbox, dzz, omsk):
     return topoindex
 
 
-def _set_attributes_ds_final(ds_final):
-    ds_final['nav_lon'].attrs = {'units': 'degrees_east', 'valid_min': -180.0, 'valid_max': 180.0, 'long_name': 'Longitude'}
-    ds_final['nav_lat'].attrs = {'units': 'degrees_north', 'valid_min': -90.0, 'valid_max': 90.0, 'long_name': 'Latitude'}
-    ds_final['trip'].attrs = {'axis': 'TYX', 'units': '', 'long_name': 'Direction of flow from each box', 'associate': 'nav_lat na'}
-    ds_final['basins'].attrs = {'axis': 'TYX', 'units': '', 'long_name': 'Basin number for each grid box', 'associate': 'nav_lat na'}
-    ds_final['topoind'].attrs = {'axis': 'TYX', 'units': '', 'long_name': 'Topographic index of the retention time', 'associate': 'nav_lat na'}
-    ds_final['hdiff'].attrs = {'axis': 'TYX', 'units': 'm', 'long_name': 'Height difference with the outflow basin', 'associate': 'nav_lat na'}
-    ds_final['riverl'].attrs = {'axis': 'TYX', 'units': 'm', 'long_name': 'River length to the next basin', 'associate': 'nav_lat na'}
-    ds_final['orog'].attrs = {'axis': 'TYX', 'units': 'm', 'long_name': 'Orography', 'associate': 'nav_lat na'}
-    ds_final['disto'].attrs = {'axis': 'TYX', 'units': 'km', 'long_name': 'Distance to ocean', 'associate': 'nav_lat na'}
-    return ds_final
+def _set_attributes_ds_routing(ds_routing):
+    ds_routing['nav_lon'].attrs = {'units': 'degrees_east', 'valid_min': -180.0, 'valid_max': 180.0, 'long_name': 'Longitude'}
+    ds_routing['nav_lat'].attrs = {'units': 'degrees_north', 'valid_min': -90.0, 'valid_max': 90.0, 'long_name': 'Latitude'}
+    ds_routing['trip'].attrs = {'axis': 'TYX', 'units': '', 'long_name': 'Direction of flow from each box', 'associate': 'nav_lat na'}
+    ds_routing['basins'].attrs = {'axis': 'TYX', 'units': '', 'long_name': 'Basin number for each grid box', 'associate': 'nav_lat na'}
+    ds_routing['topoind'].attrs = {'axis': 'TYX', 'units': '', 'long_name': 'Topographic index of the retention time', 'associate': 'nav_lat na'}
+    ds_routing['hdiff'].attrs = {'axis': 'TYX', 'units': 'm', 'long_name': 'Height difference with the outflow basin', 'associate': 'nav_lat na'}
+    ds_routing['riverl'].attrs = {'axis': 'TYX', 'units': 'm', 'long_name': 'River length to the next basin', 'associate': 'nav_lat na'}
+    ds_routing['orog'].attrs = {'axis': 'TYX', 'units': 'm', 'long_name': 'Orography', 'associate': 'nav_lat na'}
+    ds_routing['disto'].attrs = {'axis': 'TYX', 'units': 'km', 'long_name': 'Distance to ocean', 'associate': 'nav_lat na'}
+    return ds_routing
 
-def to_netcdf(
+def create_routing_netcdf(
     topo, trip, basins, topo_index, dzz, distbox, orog, flength, rlat, rlon
 ):
-    ds_final = xr.Dataset(
+    ds_routing = xr.Dataset(
         coords={},
         data_vars={
             "nav_lon": (["y", "x"], rlon), 
@@ -723,9 +724,32 @@ def to_netcdf(
             "topo": (["y", "x"], topo[::-1]),
         },
     )
-    print("here")
-    ds_final = _set_attributes_ds_final(ds_final)
-    return ds_final
+    ds_routing = _set_attributes_ds_routing(ds_routing)
+    return ds_routing
+
+def create_bathy_paleo_orca(topo):
+    # Transform topo to bathy and mask land
+    bathy = topo * -1
+    bathy[bathy < 0] = 0
+    # Remap to nemo grid
+    # Load grid
+    orca_file = os.path.join(os.path.dirname(os.path.abspath(__file__)), "paleorca2_40Ma_grid.nc")
+    ds_orca = xr.open_dataset(orca_file)
+    # create output dataset
+    ds = xr.Dataset(
+        coords = {
+            "lat": numpy.arange(-89.5, 90),
+            "lon": numpy.arange(-179.5, 180)
+        },
+        data_vars = {
+            "Bathymetry": (["lat", "lon"], bathy)
+        }
+    )
+    ds = ds.interp(ds_orca.coords, method="nearest")
+    ds = ds.rename({'lat': "nav_lat", 'lon': "nav_lon"})
+    ds.nav_lat.attrs = {'standard_name': 'latitude', 'long_name': 'latitude', 'units': 'degrees_north', '_CoordinateAxisType': 'Lat'}
+    ds.nav_lon.attrs = {'standard_name': 'longitude', 'long_name': 'longitude', 'units': 'degrees_east', '_CoordinateAxisType': 'Lon'}
+    return ds
 
 
 def run_routines(topo, latitudes):
@@ -743,5 +767,5 @@ def run_routines(topo, latitudes):
     trip = calculate_trip_outflow_values(trip, outflow_points, basins, omsk, rlat)
     dzz = calculate_dzz(topo, trip, distbox, omsk)
     topo_index = calculate_topo_index(distbox, dzz, omsk)
-    ds_final = to_netcdf(topo, trip, basins, topo_index, dzz, distbox, orog, river_length, rlat, rlon)
-    return ds_final
+    ds_routing = create_routing_netcdf(topo, trip, basins, topo_index, dzz, distbox, orog, river_length, rlat, rlon)
+    return ds_routing
