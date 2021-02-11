@@ -751,6 +751,65 @@ def create_bathy_paleo_orca(topo):
     ds.nav_lon.attrs = {'standard_name': 'longitude', 'long_name': 'longitude', 'units': 'degrees_east', '_CoordinateAxisType': 'Lon'}
     return ds
 
+def create_topo_high_res(topo):
+    # load new coordinates
+    lon_vals = numpy.arange(-180 + (360./2160.)/2, 180, 360./2160)
+    # Y values are funky so are stored in a file
+    y_file = os.path.join(os.path.dirname(os.path.abspath(__file__)), "topo_high_res_y_vals.npy")
+    lat_vals = numpy.load(y_file)
+    # create output dataset
+    ds = xr.Dataset(
+        coords = {
+            "latitude": numpy.arange(-89.5, 90),
+            "longitude": numpy.arange(-179.5, 180)
+        },
+        data_vars = {
+            "RELIEF": (["latitude", "longitude"], topo)
+        }
+    )
+    ds = ds.interp(
+            {
+                'latitude': lat_vals,
+                'longitude': lon_vals,
+            },
+            method = 'linear'
+    )
+
+    ds.longitude.attrs = {'standard_name': 'longitude', 'long_name': 'longitude', 'units': 'degrees', 'axis': 'X'}
+    ds.latitude.attrs = {'standard_name': 'latitude', 'long_name': 'latitude', 'units': 'degrees', 'axis': 'Y'}
+    ds.RELIEF.attrs = {'long_name': 'relief'}
+    relief = ds.RELIEF.values.copy()
+    relief[relief < 0] = 0
+    relief[numpy.isnan(relief)] = 0
+    ds.RELIEF.values = relief
+    return ds
+
+def create_soils(rlat, rlon, omsk):
+    soil_color = numpy.ones(rlat.shape) * 4.
+    # Mask Oceans
+    soil_color[omsk == 0] = 0
+    soil_text = numpy.ones(rlat.shape) * 3.
+    # Mask Oceans
+    soil_text[omsk == 0] = 0
+
+    # create output dataset
+    ds = xr.Dataset(
+        coords = {
+
+        },
+        data_vars = {
+            "nav_lon": (["y", "x"], rlon), 
+            "nav_lat": (["y", "x"], rlat),
+            "soilcolor": (["y", "x"], soil_color),
+            "soiltext": (["y", "x"], soil_text),
+        }
+    )
+    ds['nav_lon'].attrs = {'units': 'degrees_east', 'valid_min': -180.0, 'valid_max': 180.0, 'long_name': 'Longitude'}
+    ds['nav_lat'].attrs = {'units': 'degrees_north', 'valid_min': -90.0, 'valid_max': 90.0, 'long_name': 'Latitude'}
+    ds['soilcolor'].attrs = {'axis': 'YX', 'units': 'index', 'long_name': 'Soil color types from the Henderson-Sellers and Wilson dataset', 'associate': 'nav_lat nav_lon'}
+    ds['soiltext'].attrs = {'axis': 'YX', 'units': 'index', 'long_name': 'Soil texture from Zobler 86', 'associate': 'nav_lat nav_lon'}
+    return ds
+
 
 def run_routines(topo, latitudes):
     topo = fix_topo(topo, latitudes)

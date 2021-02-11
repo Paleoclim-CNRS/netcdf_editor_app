@@ -276,3 +276,35 @@ def test_create_orca_dataset():
     assert ds.nav_lat.shape == (149, 182)
     assert ds.nav_lon.shape == (149, 182)
     assert ds.Bathymetry.shape == (149, 182)
+
+def test_high_res_relief():
+    topo = ds_runoff.topo.values
+
+    ds = routing.create_topo_high_res(topo)
+    assert "longitude" in ds.coords 
+    assert "latitude" in ds.coords
+    assert "RELIEF" in ds.data_vars
+    assert ds.longitude.shape == (2160, )
+    assert ds.latitude.shape == (1080, )
+    assert ds.latitude.values[0] == 89.9165497
+    assert abs(ds.longitude.values[0] + 179.917) < 10e-4
+    assert ds.RELIEF.values.shape == (1080, 2160)
+    assert numpy.sum(numpy.isnan(ds.RELIEF.values)) == 0
+
+def test_soils():
+    # use trip values provides to test if from trip values we get same values
+    topo = ds_runoff.topo.values
+
+    omsk = routing.calculate_omsk(topo)
+
+    rlon, rlat = routing.calculate_curvilinear_coordinates()    
+
+    ds = routing.create_soils(rlat, rlon, omsk)
+
+    assert "soilcolor" in ds.data_vars
+    assert "soiltext" in ds.data_vars
+    assert "nav_lat" in ds.data_vars
+    assert "nav_lon" in ds.data_vars
+
+    assert set(numpy.unique(ds.soilcolor)) == set((0, 4))
+    assert set(numpy.unique(ds.soiltext)) == set((0, 3))
