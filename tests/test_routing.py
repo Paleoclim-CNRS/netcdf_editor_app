@@ -183,23 +183,42 @@ def assert_dzz(dzz):
 def assert_topo_index(topo_index):
     assert numpy.nanmax(numpy.abs(ds_stn.topoind.values[::-1] - topo_index)) < 10e4
 
+
 def assert_ds_final(ds_final):
     assert_ds_final_coords(ds_final)
     assert_ds_final_variables(ds_final)
 
 def assert_ds_final_variables(ds_final):
-    assert 'trip' in list(ds_final.data_vars)
-    assert 'basins' in list(ds_final.data_vars)
-    assert 'topoind' in list(ds_final.data_vars)
-    assert 'hdiff' in list(ds_final.data_vars)
-    assert 'riverl' in list(ds_final.data_vars)
-    assert 'orog' in list(ds_final.data_vars)
-    assert 'disto' in list(ds_final.data_vars)
-    assert 'topo' in list(ds_final.data_vars)
+    assert_ds_final_variable_names(ds_final)
+    assert_ds_final_variable_attrs(ds_final)
 
 def assert_ds_final_coords(ds_final):
-    assert 'nav_lon' in list(ds_final.coords)
-    assert 'nav_lat' in list(ds_final.coords)
+    assert_ds_final_coords_names(ds_final)
+    assert_ds_final_coords_attrs(ds_final)
+
+def assert_ds_final_variable_names(ds_final):
+    # assert 'trip' in list(ds_final.data_vars)
+    # assert 'basins' in list(ds_final.data_vars)
+    # assert 'topoind' in list(ds_final.data_vars)
+    # assert 'hdiff' in list(ds_final.data_vars)
+    # assert 'riverl' in list(ds_final.data_vars)
+    # assert 'orog' in list(ds_final.data_vars)
+    # assert 'disto' in list(ds_final.data_vars)
+    # assert 'topo' in list(ds_final.data_vars)
+    assert set(ds_final.data_vars).intersection(set(ds_stn.data_vars)) == set(ds_stn.data_vars)
+
+def assert_ds_final_coords_names(ds_final):
+    # assert 'nav_lon' in list(ds_final.coords)
+    # assert 'nav_lat' in list(ds_final.coords)
+    assert set(ds_final.coords) == set(ds_stn.coords)
+
+def assert_ds_final_variable_attrs(ds_final):
+    for var in ds_stn.data_vars:
+        assert ds_final[var].attrs == ds_stn[var].attrs
+
+def assert_ds_final_coords_attrs(ds_final):
+    for var in ds_stn.coords:
+        assert ds_final[var].attrs == ds_stn[var].attrs
 
 
 def test_routines():
