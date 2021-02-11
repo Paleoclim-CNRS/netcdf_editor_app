@@ -4,6 +4,26 @@ services:
     build:
       context: .
       dockerfile: app.Dockerfile
-    image: netcdf_editor:latest
+    env_file: ${FLASK_CONFIG}
+    environment: 
+      PANEL_HOST: 0.0.0.0
+      PANEL_SOCKET: ${PANEL_HOST_PORT}
+    image: netcdf_editor:latest 
     ports:
-     - "8080:8080"
+     - "8080:5000"
+    volumes:
+      - instance_storage:/usr/src/app/instance
+  
+  panel_apps:
+    build:
+      context: .
+      dockerfile: panel_apps.Dockerfile
+    image: netcdf_editor_panel_apps:latest
+    ports:
+      - "${PANEL_HOST_PORT}:5006"
+    volumes:
+      - instance_storage:/usr/src/app/instance
+
+volumes:
+  instance_storage:
+

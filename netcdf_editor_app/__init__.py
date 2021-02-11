@@ -9,7 +9,7 @@ def create_app(test_config=None):
     # create and configure the app
     app = Flask(__name__, instance_relative_config=True)
     app.config.from_mapping(
-        SECRET_KEY="dev",
+        SECRET_KEY= b'\xd8\xb7\xc5 \xdc\xac\x92\xa6\xfd"\xc2a\xe4k*\x17',
         DATABASE=os.path.join(app.instance_path, "netcdf_editor.sqlite"),
         UPLOAD_FOLDER=app.instance_path,
     )
