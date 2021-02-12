@@ -5,9 +5,6 @@
     integrity="sha384-9aIt2nRpC12Uk9gS9baDl411NQApFmC26EwAOH8WgZl5MYYxFfc+NcPb1dKGj7Sk" crossorigin="anonymous">
 <link href="https://cdn.datatables.net/1.10.21/css/dataTables.bootstrap4.min.css" rel="stylesheet" type="text/css">
 <link rel="stylesheet" href="https://unpkg.com/bootstrap-table@1.16.0/dist/bootstrap-table.min.css">
-<!-- <link href="https://fonts.googleapis.com/css2?family=Nunito&display=swap" rel="stylesheet">
-<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400&display=swap" rel="stylesheet">
-<link href="https://fonts.googleapis.com/css2?family=Raleway:wght@500&display=swap" rel="stylesheet"> -->
 {% endblock %}
 {% block header %}
 <h1>{% block title %}Plant Functional Type{% endblock %}</h1>
@@ -15,10 +12,9 @@
 
 
 {% block content %}
-<table id="myTable" class="table" data-toggle="table" data-mobile-responsive="true" data-pagination="true"
-    data-height="460">
+<table id="myTable" class="table" data-toggle="table" data-mobile-responsive="true">
 
-    <thead>
+    <thead class="thead-dark">
         <tr>
             <th>Latitude</th>
             <th>PFT1</th>
@@ -301,10 +297,55 @@
         sumRowVals();
 
         $('#addrow').click(function () {
-            console.log("Being called");
+            var rowCount = $("#myTable tr").length;
             //Add row
-
-            table.append('<tr><td >  <select  id="ex1"  required >   <option value="">Iphone</option><option value="">IPod</option><option value="">Galaxy Tab</option> <option value="">PocoPhone</option> </select>  </td>  <td >  <input  id="ex2" type="number">  </td> <td ><input  id="ex3" type="number"> </td> <td > <input  id="ex4" type="number"> </td> <td >  <button   class="btnDelete btn-outline-success"   id="delrow"  >Delete</button>  </td>  </tr>  ');
+            table.find('tr:last').prev().after(`       <tr>
+            <td>
+                Up to: <input id="lat" type="number" min=90 max=90 step=5 value=90>
+            </td>
+            <td>
+                <input id="PFT1" type="number" min=0 max=100 step=10 value=0>
+            </td>
+            <td>
+                <input id="PFT2" type="number" min=0 max=100 step=10 value=0>
+            </td>
+            <td>
+                <input id="PFT3" type="number" min=0 max=100 step=10 value=0>
+            </td>
+            <td>
+                <input id="PFT4" type="number" min=0 max=100 step=10 value=0>
+            </td>
+            <td>
+                <input id="PFT5" type="number" min=0 max=100 step=10 value=0>
+            </td>
+            <td>
+                <input id="PFT6" type="number" min=0 max=100 step=10 value=0>
+            </td>
+            <td>
+                <input id="PFT7" type="number" min=0 max=100 step=10 value=0>
+            </td>
+            <td>
+                <input id="PFT8" type="number" min=0 max=100 step=10 value=0>
+            </td>
+            <td>
+                <input id="PFT9" type="number" min=0 max=100 step=10 value=0>
+            </td>
+            <td>
+                <input id="PFT10" type="number" min=0 max=100 step=10 value=0>
+            </td>
+            <td>
+                <input id="PFT11" type="number" min=0 max=100 step=10 value=0>
+            </td>
+            <td>
+                <input id="PFT12" type="number" min=0 max=100 step=10 value=0>
+            </td>
+            <td>
+                <input id="PFT13" type="number" min=0 max=100 step=10 value=0>
+            </td>
+            <td class="total" id="total${rowCount - 1}">
+            </td>
+        </tr>`);
+        sumRowVals();
         })
 
         $("#myTable").on('click', '.btnDelete', function () {
