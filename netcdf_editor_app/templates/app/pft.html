@@ -280,13 +280,14 @@
             <td class="total" id="total5">
             </td>
         </tr>
-        <tr>
-            <td>
-                <button class="btn btn-outline-success" id="addrow" class="addnew"> Add </button>
-            </td>
-        </tr>
     </tbody>
 </table>
+<button class="btn btn-outline-success btn-lg" id="addrow" class="addnew" style="margin: 2em;"> Add </button>
+
+<form method="Post">
+    <button type="submit" class="btn btn-success btn-lg" id="generateBTN"><i class="fas fa-calculator"></i> Generate PFT
+        file</button>
+</form>
 
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
@@ -312,6 +313,7 @@
         var table = tbody.length ? tbody : $('#myTable');
         sumRowVals();
         sortTable();
+        var isValid = sumRowVals();
 
         $('#addrow').click(function () {
             addRow();
@@ -324,10 +326,11 @@
 
         $("#myTable").on('click', '.btnDelete', function () {
             $(this).closest('tr').remove();
+            var isValid = sumRowVals();
         });
 
         $("#myTable input").change(function () {
-            sumRowVals();
+            var isValid = sumRowVals();
             sortTable();
         });
 
@@ -393,20 +396,22 @@
         isvalid = true;
         var rindx = 0;
         $("#myTable tr").each(function () {
-            var temp = 0;
-            var cindx = 1;
-            $("input[type=number]", this).each(function () {
-                var elval = !isNaN(parseFloat(this.value)) ? parseFloat(this.value) : 0;
-                if (cindx == 1) {
-                    elval = 0;
+            if (rindx > 0) {
+                var temp = 0;
+                var cindx = 1;
+                $("input[type=number]", this).each(function () {
+                    var elval = !isNaN(parseFloat(this.value)) ? parseFloat(this.value) : 0;
+                    if (cindx == 1) {
+                        elval = 0;
+                    }
+                    temp = temp + elval;
+                    if (elval > 100) { isvalid = false; }
+                    cindx++;
+                });
+                if (rindx != $('#myTable tr').length) {
+                    if (temp != 100) { isvalid = false; }
+                    $(".total", this).html(temp);
                 }
-                temp = temp + elval;
-                if (elval > 100) { isvalid = false; }
-                cindx++;
-            });
-            if (rindx != $('#myTable tr').length) {
-                if (temp != 100) { isvalid = false; }
-                $(".total", this).html(temp);
             }
             rindx++;
         });
@@ -416,14 +421,18 @@
                 this.style.color = "green"
             } else {
                 this.style.color = "red"
+
             }
         });
+        $("#generateBTN").prop("disabled", !isvalid);
         return isvalid;
     }
 
-    $("#myTable").on('click', '.btnDelete', function() {
+    $("#myTable").on('click', '.btnDelete', function () {
         $(this).closest('tr').remove();
-      });
+        var isValid = sumRowVals();
+        $("#generateBTN").prop("disabled", !isValid);
+    });
 
     function sortTable() {
         var table, rows, switching, i, x, y, shouldSwitch;
