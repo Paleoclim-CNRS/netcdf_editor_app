@@ -34,7 +34,7 @@
         </tr>
     </thead>
     <tbody>
-        <tr>
+        <tr class="data">
             <td>
                 <div style="display: flex; align-items: baseline;">
                     Up to: <input id="lat" type="number" min=0 max=90 step=5 value=15>
@@ -84,7 +84,7 @@
             <td class="total" id="total1">
             </td>
         </tr>
-        <tr>
+        <tr class="data">
             <td>
                 <div style="display: flex; align-items: baseline;">
                     Up to: <input id="lat" type="number" min=0 max=90 step=5 value=35>
@@ -134,7 +134,7 @@
             <td class="total" id="total2">
             </td>
         </tr>
-        <tr>
+        <tr class="data">
             <td>
                 <div style="display: flex; align-items: baseline;">
                     Up to: <input id="lat" type="number" min=0 max=90 step=5 value=50>
@@ -184,7 +184,7 @@
             <td class="total" id="total3">
             </td>
         </tr>
-        <tr>
+        <tr class="data">
             <td>
                 <div style="display: flex; align-items: baseline;">
                     Up to: <input id="lat" type="number" min=0 max=90 step=5 value=80>
@@ -234,7 +234,7 @@
             <td class="total" id="total4">
             </td>
         </tr>
-        <tr>
+        <tr class="data">
             <td>
                 Up to: <input id="lat" type="number" min=90 max=90 step=5 value=90 disabled>
             </td>
@@ -284,10 +284,8 @@
 </table>
 <button class="btn btn-outline-success btn-lg" id="addrow" class="addnew" style="margin: 2em;"> Add </button>
 
-<form method="Post">
-    <button type="submit" class="btn btn-success btn-lg" id="generateBTN"><i class="fas fa-calculator"></i> Generate PFT
-        file</button>
-</form>
+<button type="submit" class="btn btn-success btn-lg" id="generateBTN"><i class="fas fa-calculator"></i> Generate PFT
+    file</button>
 
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
@@ -298,10 +296,6 @@
 <script src="https://unpkg.com/bootstrap-table@1.16.0/dist/bootstrap-table.min.js"></script>
 
 <script src="https://unpkg.com/bootstrap-table@1.16.0/dist/extensions/mobile/bootstrap-table-mobile.min.js"></script>
-
-<!-- Unrelated: version incompatibility
-    <script src="https://cdn.datatables.net/1.10.21/js/dataTables.bootstrap4.min.js"></script>
-   -->
 
 <script>
     $(document).ready(function () {
@@ -314,6 +308,14 @@
         sumRowVals();
         sortTable();
         var isValid = sumRowVals();
+
+        $('#generateBTN').click(function () {
+            var data = getData();
+            fetch("{{ url_for('app.pft', _id=_id) }}", {
+                method: "POST",
+                body: JSON.stringify({'dataArray': data})
+            });
+        });
 
         $('#addrow').click(function () {
             addRow();
@@ -336,10 +338,22 @@
 
     });
 
+    function getData() {
+        var data = []
+        $("#myTable tr.data").each(function () {
+            var rowData = []
+            $("input[type=number]", this).each(function () {
+                rowData.push(parseFloat(this.value))
+            })
+            data.push(rowData)
+        });
+        return data
+    }
+
     function addRow() {
         var rowCount = $("#myTable tr").length;
         //Add row
-        $('#myTable').find('tr:last').prev().after(`       <tr>
+        $('#myTable').find('tr:last').prev().after(`       <tr class="data">
             <td>
                 <div style="display: flex; align-items: baseline;">
                     Up to: <input id="lat" type="number" min=0 max=90 step=5 value=89>

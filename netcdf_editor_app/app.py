@@ -22,6 +22,7 @@ from netcdf_editor_app.utils.routing import run_routines
 
 import numpy
 import pandas as pd
+import json
 import hvplot.xarray
 
 import holoviews as hv
@@ -307,4 +308,11 @@ def passage_problems(_id):
 @bp.route("/<int:_id>/pft",  methods=("GET", "POST"))
 @login_required
 def pft(_id):
-    return render_template("app/pft.html")
+    if request.method == "POST":
+        data = json.loads(request.data)
+        resp_array = numpy.array(data["dataArray"])
+        pft_values = resp_array[:, 1:]
+        latitudes = resp_array[:, 0]
+        print(pft_values)
+        print(latitudes)
+    return render_template("app/pft.html", _id=_id)
