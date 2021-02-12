@@ -220,7 +220,7 @@
         </tr>
         <tr>
             <td>
-                Up to: <input id="lat" type="number" min=90 max=90 step=5 value=90>
+                Up to: <input id="lat" type="number" min=90 max=90 step=5 value=90 disabled>
             </td>
             <td>
                 <input id="PFT1" type="number" min=0 max=100 step=10 value=0>
@@ -295,13 +295,35 @@
         //Then if no tbody just select your table 
         var table = tbody.length ? tbody : $('#myTable');
         sumRowVals();
+        sortTable();
 
         $('#addrow').click(function () {
-            var rowCount = $("#myTable tr").length;
+            addRow();
+            sortTable();
+            $("#myTable input").change(function () {
+            sumRowVals();
+            sortTable();
+        });
+        })
+
+        $("#myTable").on('click', '.btnDelete', function () {
+            $(this).closest('tr').remove();
+        });
+
+        $("#myTable input").change(function () {
+            console.log("Changed")
+            sumRowVals();
+            sortTable();
+        });
+
+    });
+
+    function addRow() {
+        var rowCount = $("#myTable tr").length;
             //Add row
-            table.find('tr:last').prev().after(`       <tr>
+            $('#myTable').find('tr:last').prev().after(`       <tr>
             <td>
-                Up to: <input id="lat" type="number" min=90 max=90 step=5 value=90>
+                Up to: <input id="lat" type="number" min=90 max=90 step=5 value=89>
             </td>
             <td>
                 <input id="PFT1" type="number" min=0 max=100 step=10 value=0>
@@ -346,17 +368,7 @@
             </td>
         </tr>`);
         sumRowVals();
-        })
-
-        $("#myTable").on('click', '.btnDelete', function () {
-            $(this).closest('tr').remove();
-        });
-
-        $("#myTable input").change(function () {
-            sumRowVals();
-        });
-
-    });
+    }
 
     function sumRowVals() {
         isvalid = true;
@@ -381,13 +393,48 @@
         });
         $("#myTable .total").each(function () {
             var val = parseFloat(this.innerText)
-            if( val == 100 ){
+            if (val == 100) {
                 this.style.color = "green"
             } else {
                 this.style.color = "red"
             }
         });
         return isvalid;
+    }
+
+    function sortTable() {
+        var table, rows, switching, i, x, y, shouldSwitch;
+        table = document.getElementById("myTable");
+        switching = true;
+        /* Make a loop that will continue until
+        no switching has been done: */
+        while (switching) {
+            // Start by saying: no switching is done:
+            switching = false;
+            rows = table.rows;
+            /* Loop through all table rows (except the
+            first, which contains table headers): */
+            for (i = 1; i < (rows.length - 2); i++) {
+                // Start by saying there should be no switching:
+                shouldSwitch = false;
+                /* Get the two elements you want to compare,
+                one from current row and one from the next: */
+                x = parseFloat(rows[i].getElementsByTagName("TD")[0].getElementsByTagName("input")[0].value);
+                y = parseFloat(rows[i + 1].getElementsByTagName("TD")[0].getElementsByTagName("input")[0].value);
+                // Check if the two rows should switch place:
+                if (x > y) {
+                    // If so, mark as a switch and break the loop:
+                    shouldSwitch = true;
+                    break;
+                }
+            }
+            if (shouldSwitch) {
+                /* If a switch has been marked, make the switch
+                and mark that a switch has been done: */
+                rows[i].parentNode.insertBefore(rows[i + 1], rows[i]);
+                switching = true;
+            }
+        }
     }
 </script>
 
