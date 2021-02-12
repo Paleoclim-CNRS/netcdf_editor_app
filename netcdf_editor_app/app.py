@@ -303,3 +303,8 @@ def passage_problems(_id):
     return render_template(
         "app/panel_app.html", script=script, title="Passage Problems"
     )
+
+@bp.route("/<int:_id>/pft",  methods=("GET", "POST"))
+@login_required
+def pft(_id):
+    return render_template("app/pft.html")

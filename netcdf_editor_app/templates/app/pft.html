@@ -1,0 +1,353 @@
+{% extends 'base.html' %}
+
+{% block head %}
+<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/css/bootstrap.min.css"
+    integrity="sha384-9aIt2nRpC12Uk9gS9baDl411NQApFmC26EwAOH8WgZl5MYYxFfc+NcPb1dKGj7Sk" crossorigin="anonymous">
+<link href="https://cdn.datatables.net/1.10.21/css/dataTables.bootstrap4.min.css" rel="stylesheet" type="text/css">
+<link rel="stylesheet" href="https://unpkg.com/bootstrap-table@1.16.0/dist/bootstrap-table.min.css">
+<!-- <link href="https://fonts.googleapis.com/css2?family=Nunito&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Raleway:wght@500&display=swap" rel="stylesheet"> -->
+{% endblock %}
+{% block header %}
+<h1>{% block title %}Plant Functional Type{% endblock %}</h1>
+{% endblock %}
+
+
+{% block content %}
+<table id="myTable" class="table" data-toggle="table" data-mobile-responsive="true" data-pagination="true"
+    data-height="460">
+
+    <thead>
+        <tr>
+            <th>Latitude</th>
+            <th>PFT1</th>
+            <th>PFT2</th>
+            <th>PFT3</th>
+            <th>PFT4</th>
+            <th>PFT5</th>
+            <th>PFT6</th>
+            <th>PFT7</th>
+            <th>PFT8</th>
+            <th>PFT9</th>
+            <th>PFT10</th>
+            <th>PFT11</th>
+            <th>PFT12</th>
+            <th>PFT13</th>
+            <th>Total</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr>
+            <td>
+                Up to: <input id="lat" type="number" min=0 max=90 step=5 value=15>
+            </td>
+            <td>
+                <input id="PFT1" type="number" min=0 max=100 step=10 value=0>
+            </td>
+            <td>
+                <input id="PFT2" type="number" min=0 max=100 step=10 value=75>
+            </td>
+            <td>
+                <input id="PFT3" type="number" min=0 max=100 step=10 value=25>
+            </td>
+            <td>
+                <input id="PFT4" type="number" min=0 max=100 step=10 value=0>
+            </td>
+            <td>
+                <input id="PFT5" type="number" min=0 max=100 step=10 value=0>
+            </td>
+            <td>
+                <input id="PFT6" type="number" min=0 max=100 step=10 value=0>
+            </td>
+            <td>
+                <input id="PFT7" type="number" min=0 max=100 step=10 value=0>
+            </td>
+            <td>
+                <input id="PFT8" type="number" min=0 max=100 step=10 value=0>
+            </td>
+            <td>
+                <input id="PFT9" type="number" min=0 max=100 step=10 value=0>
+            </td>
+            <td>
+                <input id="PFT10" type="number" min=0 max=100 step=10 value=0>
+            </td>
+            <td>
+                <input id="PFT11" type="number" min=0 max=100 step=10 value=0>
+            </td>
+            <td>
+                <input id="PFT12" type="number" min=0 max=100 step=10 value=0>
+            </td>
+            <td>
+                <input id="PFT13" type="number" min=0 max=100 step=10 value=0>
+            </td>
+            <td class="total" id="total1">
+            </td>
+        </tr>
+        <tr>
+            <td>
+                Up to: <input id="lat" type="number" min=0 max=90 step=5 value=35>
+            </td>
+            <td>
+                <input id="PFT1" type="number" min=0 max=100 step=10 value=0>
+            </td>
+            <td>
+                <input id="PFT2" type="number" min=0 max=100 step=10 value=15>
+            </td>
+            <td>
+                <input id="PFT3" type="number" min=0 max=100 step=10 value=55>
+            </td>
+            <td>
+                <input id="PFT4" type="number" min=0 max=100 step=10 value=0>
+            </td>
+            <td>
+                <input id="PFT5" type="number" min=0 max=100 step=10 value=0>
+            </td>
+            <td>
+                <input id="PFT6" type="number" min=0 max=100 step=10 value=0>
+            </td>
+            <td>
+                <input id="PFT7" type="number" min=0 max=100 step=10 value=0>
+            </td>
+            <td>
+                <input id="PFT8" type="number" min=0 max=100 step=10 value=0>
+            </td>
+            <td>
+                <input id="PFT9" type="number" min=0 max=100 step=10 value=0>
+            </td>
+            <td>
+                <input id="PFT10" type="number" min=0 max=100 step=10 value=30>
+            </td>
+            <td>
+                <input id="PFT11" type="number" min=0 max=100 step=10 value=0>
+            </td>
+            <td>
+                <input id="PFT12" type="number" min=0 max=100 step=10 value=0>
+            </td>
+            <td>
+                <input id="PFT13" type="number" min=0 max=100 step=10 value=0>
+            </td>
+            <td class="total" id="total2">
+            </td>
+        </tr>
+        <tr>
+            <td>
+                Up to: <input id="lat" type="number" min=0 max=90 step=5 value=50>
+            </td>
+            <td>
+                <input id="PFT1" type="number" min=0 max=100 step=10 value=0>
+            </td>
+            <td>
+                <input id="PFT2" type="number" min=0 max=100 step=10 value=0>
+            </td>
+            <td>
+                <input id="PFT3" type="number" min=0 max=100 step=10 value=0>
+            </td>
+            <td>
+                <input id="PFT4" type="number" min=0 max=100 step=10 value=0>
+            </td>
+            <td>
+                <input id="PFT5" type="number" min=0 max=100 step=10 value=70>
+            </td>
+            <td>
+                <input id="PFT6" type="number" min=0 max=100 step=10 value=30>
+            </td>
+            <td>
+                <input id="PFT7" type="number" min=0 max=100 step=10 value=0>
+            </td>
+            <td>
+                <input id="PFT8" type="number" min=0 max=100 step=10 value=0>
+            </td>
+            <td>
+                <input id="PFT9" type="number" min=0 max=100 step=10 value=0>
+            </td>
+            <td>
+                <input id="PFT10" type="number" min=0 max=100 step=10 value=0>
+            </td>
+            <td>
+                <input id="PFT11" type="number" min=0 max=100 step=10 value=0>
+            </td>
+            <td>
+                <input id="PFT12" type="number" min=0 max=100 step=10 value=0>
+            </td>
+            <td>
+                <input id="PFT13" type="number" min=0 max=100 step=10 value=0>
+            </td>
+            <td class="total" id="total3">
+            </td>
+        </tr>
+        <tr>
+            <td>
+                Up to: <input id="lat" type="number" min=0 max=90 step=5 value=80>
+            </td>
+            <td>
+                <input id="PFT1" type="number" min=0 max=100 step=10 value=0>
+            </td>
+            <td>
+                <input id="PFT2" type="number" min=0 max=100 step=10 value=0>
+            </td>
+            <td>
+                <input id="PFT3" type="number" min=0 max=100 step=10 value=0>
+            </td>
+            <td>
+                <input id="PFT4" type="number" min=0 max=100 step=10 value=0>
+            </td>
+            <td>
+                <input id="PFT5" type="number" min=0 max=100 step=10 value=40>
+            </td>
+            <td>
+                <input id="PFT6" type="number" min=0 max=100 step=10 value=30>
+            </td>
+            <td>
+                <input id="PFT7" type="number" min=0 max=100 step=10 value=0>
+            </td>
+            <td>
+                <input id="PFT8" type="number" min=0 max=100 step=10 value=30>
+            </td>
+            <td>
+                <input id="PFT9" type="number" min=0 max=100 step=10 value=0>
+            </td>
+            <td>
+                <input id="PFT10" type="number" min=0 max=100 step=10 value=0>
+            </td>
+            <td>
+                <input id="PFT11" type="number" min=0 max=100 step=10 value=0>
+            </td>
+            <td>
+                <input id="PFT12" type="number" min=0 max=100 step=10 value=0>
+            </td>
+            <td>
+                <input id="PFT13" type="number" min=0 max=100 step=10 value=0>
+            </td>
+            <td class="total" id="total4">
+            </td>
+        </tr>
+        <tr>
+            <td>
+                Up to: <input id="lat" type="number" min=90 max=90 step=5 value=90>
+            </td>
+            <td>
+                <input id="PFT1" type="number" min=0 max=100 step=10 value=0>
+            </td>
+            <td>
+                <input id="PFT2" type="number" min=0 max=100 step=10 value=0>
+            </td>
+            <td>
+                <input id="PFT3" type="number" min=0 max=100 step=10 value=0>
+            </td>
+            <td>
+                <input id="PFT4" type="number" min=0 max=100 step=10 value=0>
+            </td>
+            <td>
+                <input id="PFT5" type="number" min=0 max=100 step=10 value=0>
+            </td>
+            <td>
+                <input id="PFT6" type="number" min=0 max=100 step=10 value=30>
+            </td>
+            <td>
+                <input id="PFT7" type="number" min=0 max=100 step=10 value=0>
+            </td>
+            <td>
+                <input id="PFT8" type="number" min=0 max=100 step=10 value=0>
+            </td>
+            <td>
+                <input id="PFT9" type="number" min=0 max=100 step=10 value=40>
+            </td>
+            <td>
+                <input id="PFT10" type="number" min=0 max=100 step=10 value=30>
+            </td>
+            <td>
+                <input id="PFT11" type="number" min=0 max=100 step=10 value=0>
+            </td>
+            <td>
+                <input id="PFT12" type="number" min=0 max=100 step=10 value=0>
+            </td>
+            <td>
+                <input id="PFT13" type="number" min=0 max=100 step=10 value=0>
+            </td>
+            <td class="total" id="total5">
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <button class="btn btn-outline-success" id="addrow" class="addnew"> Add </button>
+            </td>
+        </tr>
+    </tbody>
+</table>
+
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/js/bootstrap.min.js"
+    integrity="sha384-OgVRvuATP1z7JjHLkuOU7Xw704+h835Lr+6QL9UvYjZE3Ipu6Tp75j7Bh/kR0JKI"
+    crossorigin="anonymous"></script>
+
+<script src="https://unpkg.com/bootstrap-table@1.16.0/dist/bootstrap-table.min.js"></script>
+
+<script src="https://unpkg.com/bootstrap-table@1.16.0/dist/extensions/mobile/bootstrap-table-mobile.min.js"></script>
+
+<!-- Unrelated: version incompatibility
+    <script src="https://cdn.datatables.net/1.10.21/js/dataTables.bootstrap4.min.js"></script>
+   -->
+
+<script>
+    $(document).ready(function () {
+        //Try to get tbody first with jquery children. works faster!
+
+        var tbody = $('#myTable').children('tbody');
+
+        //Then if no tbody just select your table 
+        var table = tbody.length ? tbody : $('#myTable');
+        sumRowVals();
+
+        $('#addrow').click(function () {
+            console.log("Being called");
+            //Add row
+
+            table.append('<tr><td >  <select  id="ex1"  required >   <option value="">Iphone</option><option value="">IPod</option><option value="">Galaxy Tab</option> <option value="">PocoPhone</option> </select>  </td>  <td >  <input  id="ex2" type="number">  </td> <td ><input  id="ex3" type="number"> </td> <td > <input  id="ex4" type="number"> </td> <td >  <button   class="btnDelete btn-outline-success"   id="delrow"  >Delete</button>  </td>  </tr>  ');
+        })
+
+        $("#myTable").on('click', '.btnDelete', function () {
+            $(this).closest('tr').remove();
+        });
+
+        $("#myTable input").change(function () {
+            sumRowVals();
+        });
+
+    });
+
+    function sumRowVals() {
+        isvalid = true;
+        var rindx = 0;
+        $("#myTable tr").each(function () {
+            var temp = 0;
+            var cindx = 1;
+            $("input[type=number]", this).each(function () {
+                var elval = !isNaN(parseFloat(this.value)) ? parseFloat(this.value) : 0;
+                if (cindx == 1) {
+                    elval = 0;
+                }
+                temp = temp + elval;
+                if (elval > 100) { isvalid = false; }
+                cindx++;
+            });
+            if (rindx != $('#myTable tr').length) {
+                if (temp != 100) { isvalid = false; }
+                $("#total" + rindx).html(temp);
+            }
+            rindx++;
+        });
+        $("#myTable .total").each(function () {
+            var val = parseFloat(this.innerText)
+            if( val == 100 ){
+                this.style.color = "green"
+            } else {
+                this.style.color = "red"
+            }
+        });
+        return isvalid;
+    }
+</script>
+
+{% endblock %}
