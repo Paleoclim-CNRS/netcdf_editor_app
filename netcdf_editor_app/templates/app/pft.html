@@ -327,7 +327,6 @@
         });
 
         $("#myTable input").change(function () {
-            console.log("Changed")
             sumRowVals();
             sortTable();
         });
@@ -407,7 +406,7 @@
             });
             if (rindx != $('#myTable tr').length) {
                 if (temp != 100) { isvalid = false; }
-                $("#total" + rindx).html(temp);
+                $(".total", this).html(temp);
             }
             rindx++;
         });
