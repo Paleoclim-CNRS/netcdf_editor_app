@@ -36,7 +36,11 @@
     <tbody>
         <tr>
             <td>
-                Up to: <input id="lat" type="number" min=0 max=90 step=5 value=15>
+                <div style="display: flex; align-items: baseline;">
+                    Up to: <input id="lat" type="number" min=0 max=90 step=5 value=15>
+                    <button class="btn btn-outline-danger btnDelete" id="delrow" style="margin-left: auto;"> <i
+                            class="fas fa-trash"></i> </button>
+                </div>
             </td>
             <td>
                 <input id="PFT1" type="number" min=0 max=100 step=10 value=0>
@@ -82,7 +86,11 @@
         </tr>
         <tr>
             <td>
-                Up to: <input id="lat" type="number" min=0 max=90 step=5 value=35>
+                <div style="display: flex; align-items: baseline;">
+                    Up to: <input id="lat" type="number" min=0 max=90 step=5 value=35>
+                    <button class="btn btn-outline-danger btnDelete" id="delrow" style="margin-left: auto;"> <i
+                            class="fas fa-trash"></i> </button>
+                </div>
             </td>
             <td>
                 <input id="PFT1" type="number" min=0 max=100 step=10 value=0>
@@ -128,7 +136,11 @@
         </tr>
         <tr>
             <td>
-                Up to: <input id="lat" type="number" min=0 max=90 step=5 value=50>
+                <div style="display: flex; align-items: baseline;">
+                    Up to: <input id="lat" type="number" min=0 max=90 step=5 value=50>
+                    <button class="btn btn-outline-danger btnDelete" id="delrow" style="margin-left: auto;"> <i
+                            class="fas fa-trash"></i> </button>
+                </div>
             </td>
             <td>
                 <input id="PFT1" type="number" min=0 max=100 step=10 value=0>
@@ -174,7 +186,11 @@
         </tr>
         <tr>
             <td>
-                Up to: <input id="lat" type="number" min=0 max=90 step=5 value=80>
+                <div style="display: flex; align-items: baseline;">
+                    Up to: <input id="lat" type="number" min=0 max=90 step=5 value=80>
+                    <button class="btn btn-outline-danger btnDelete" id="delrow" style="margin-left: auto;"> <i
+                            class="fas fa-trash"></i> </button>
+                </div>
             </td>
             <td>
                 <input id="PFT1" type="number" min=0 max=100 step=10 value=0>
@@ -301,9 +317,9 @@
             addRow();
             sortTable();
             $("#myTable input").change(function () {
-            sumRowVals();
-            sortTable();
-        });
+                sumRowVals();
+                sortTable();
+            });
         })
 
         $("#myTable").on('click', '.btnDelete', function () {
@@ -320,10 +336,14 @@
 
     function addRow() {
         var rowCount = $("#myTable tr").length;
-            //Add row
-            $('#myTable').find('tr:last').prev().after(`       <tr>
+        //Add row
+        $('#myTable').find('tr:last').prev().after(`       <tr>
             <td>
-                Up to: <input id="lat" type="number" min=90 max=90 step=5 value=89>
+                <div style="display: flex; align-items: baseline;">
+                    Up to: <input id="lat" type="number" min=0 max=90 step=5 value=89>
+                    <button class="btn btn-outline-danger btnDelete" id="delrow" style="margin-left: auto;"> <i
+                            class="fas fa-trash"></i> </button>
+                </div>
             </td>
             <td>
                 <input id="PFT1" type="number" min=0 max=100 step=10 value=0>
@@ -401,6 +421,10 @@
         });
         return isvalid;
     }
+
+    $("#myTable").on('click', '.btnDelete', function() {
+        $(this).closest('tr').remove();
+      });
 
     function sortTable() {
         var table, rows, switching, i, x, y, shouldSwitch;
