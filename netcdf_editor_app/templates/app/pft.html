@@ -284,8 +284,10 @@
 </table>
 <button class="btn btn-outline-success btn-lg" id="addrow" class="addnew" style="margin: 2em;"> Add </button>
 
-<button type="submit" class="btn btn-success btn-lg" id="generateBTN"><i class="fas fa-calculator"></i> Generate PFT
-    file</button>
+<form name="submit_form" id="submit_form" onsubmit="preprocessForm()" action="{{ url_for('app.pft', _id=_id) }}" method="POST">
+    <input type="hidden" name="data" id="data" />
+    <input type="submit" class="btn btn-success btn-lg" id="generateBTN" value='Generate PFT file' />
+</form>
 
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
@@ -309,14 +311,6 @@
         sortTable();
         var isValid = sumRowVals();
 
-        $('#generateBTN').click(function () {
-            var data = getData();
-            fetch("{{ url_for('app.pft', _id=_id) }}", {
-                method: "POST",
-                body: JSON.stringify({'dataArray': data})
-            });
-        });
-
         $('#addrow').click(function () {
             addRow();
             sortTable();
@@ -337,6 +331,12 @@
         });
 
     });
+
+    function preprocessForm() {
+        var data = getData();
+        data = JSON.stringify({'dataArray': data});
+        $('#data').val(data);
+    }
 
     function getData() {
         var data = []
