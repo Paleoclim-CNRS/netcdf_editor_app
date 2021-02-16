@@ -86,7 +86,7 @@ class ValueChanger(param.Parameterized):
             name="Max Value", width=100, align="end"
         )
         self.colormap_range_slider = pn.widgets.RangeSlider(width=400, show_value=False)
-        self.colormap_delta = pn.widgets.IntInput(
+        self.colormap_delta = pn.widgets.FloatInput(
             name="Delta between values", value=0, align="end"
         )
         # Link the viewing of multiple graphs together
@@ -227,12 +227,12 @@ class ValueChanger(param.Parameterized):
             hvds.data[self.attribute.value].loc[
                 hvds.select(selection_expr).data.index
             ] *= (100 + value) / 100.0
-        self.ds[self.attribute.value] = tuple(
+        self.ds[self.attribute.value] = tuple((
             list(self.ds[self.attribute.value].dims),
             hvds.data[self.attribute.value].values.reshape(
                 *self.ds[self.attribute.value].shape
             ),
-        )
+        ))
         ds = self.ds.copy(deep=True)
         self.ds = ds
 
@@ -448,7 +448,7 @@ class ValueChanger(param.Parameterized):
             return None
         return (
             list(
-                range(
+                numpy.arange(
                     self.colormap_min.value,
                     self.colormap_max.value,
                     self.colormap_delta.value,
