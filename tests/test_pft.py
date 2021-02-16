@@ -5,7 +5,7 @@ import numpy
 
 ds_input = xr.open_dataset("./tests/data/input.nc")
 
-def test_generate_pft_array():
+def test_generate_pft_netcdf():
     lat_values = numpy.arange(89.75, -90, -0.5)
     lon_vals = numpy.arange(-179.75, 180, 0.5)
     ds = ds_input.interp(
@@ -25,7 +25,7 @@ def test_generate_pft_array():
        [ 0,  0,  0,  0,  0, 30,  0,  0, 40, 30,  0,  0,  0]])
 
 
-    ds = pft.generate_pft_array(topo, latitudes, pft_values)
+    ds = pft.generate_pft_netcdf(topo, latitudes, pft_values)
     results = ds.maxvegetfrac.values
     assert results.shape == (1, 13, 360, 720)
     # Make sure ocean values are nan
