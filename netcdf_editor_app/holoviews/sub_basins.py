@@ -8,7 +8,7 @@ from scipy.ndimage import measurements
 import holoviews as hv
 from bokeh.models import HoverTool
 
-from netcdf_editor_app.db import load_file
+from netcdf_editor_app.db import load_file, save_revision
 
 colormaps = hv.plotting.list_cmaps()
 
@@ -33,7 +33,7 @@ class InternalOceans(ValueChanger):
             ds = load_file(_id, self.file_type)
         assert ds.Bathymetry.shape == (149, 182)
         ds.Bathymetry.values = self._default_ocean_values(ds.Bathymetry.values)
-
+        ds = ds.rename({"Bathymetry": "Oceans"})
         self.curvilinear_coordinates = None
 
         number_coordinates_in_system = len(list(ds.coords.variables.values())[0].dims)
@@ -117,6 +117,30 @@ class InternalOceans(ValueChanger):
         self.spinner.start = 1
         self.spinner.end = 3
         return default_graphs
+
+    def save(self, event):
+        atlmsk = numpy.where(self.ds.Oceans.values == 1, 1, 0)
+        pacmsk = numpy.where(self.ds.Oceans.values == 2, 1, 0)
+        indmsk = numpy.where(self.ds.Oceans.values == 3, 1, 0)
+        ds = xr.Dataset(
+            coords = {},
+            data_vars = {
+                'navlat' : (["y", "x"], self.ds.nav_lat.values),
+                'navlon' : (["y", "x"], self.ds.nav_lon.values),
+                'atlmsk' : (["y", "x"], atlmsk),
+                'pacmsk' : (["y", "x"], pacmsk),
+                'indmsk' : (["y", "x"], indmsk),
+            }
+        )
+
+        ds['navlon'].attrs = {'units': 'degrees_east'}
+        ds['navlat'].attrs = {'units': 'degrees_north'}
+        ds['atlmsk'].attrs = {}
+        ds['pacmsk'].attrs = {}
+        ds['indmsk'].attrs = {}
+
+        with self.app.app_context():
+            save_revision(self.data_file_id, ds, 'sub_basins')
 
 
 if "bokeh_app" in __name__:
