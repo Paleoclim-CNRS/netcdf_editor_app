@@ -323,21 +323,22 @@ def pft(_id):
 
         # Load routing file with final topography
         ds = load_file(_id, 'routing') 
-        print(ds)
+        assert set(ds.dims) == set(("x", "y"))
+        assert len(ds.coords) == 0
         # The PFT values are on a 360 x 720 grid
         # So we need to interpolate the values onto this grid
-        lat_values = numpy.arange(89.75, -90, -0.5)
-        lon_vals = numpy.arange(-179.75, 180, 0.5)
+        lat_vals = numpy.arange(0, 180, 0.5)
+        lon_vals = numpy.arange(0, 360, 0.5)
         ds = ds.interp(
             {
-                "y": lat_values,
+                "y": lat_vals,
                 "x": lon_vals
             }
         )
         topo = ds.topo.values
 
         ds = generate_pft_netcdf(topo, latitudes, pft_values)
-        save_revision(_id, ds, "PFT")
+        save_revision(_id, ds, "pft")
         return redirect(url_for("app.steps", _id=_id))
 
     return render_template("app/pft.html", _id=_id)
