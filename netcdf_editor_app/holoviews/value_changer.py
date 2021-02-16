@@ -105,6 +105,7 @@ class ValueChanger(param.Parameterized):
         self.undo_button.on_click(self.undo)
         self.redo_button.on_click(self.redo)
         self.save_button.on_click(self.save)
+        self.save_button.js_on_click(args={'target': pn.state.curdoc.session_context.request.arguments["redirect"][0].decode()}, code='window.location.href = target')
         self._auto_update_cmap_min = True
         self._auto_update_cmap_max = True
 

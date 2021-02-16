@@ -163,7 +163,7 @@ def revision_comparison(_id):
 @login_required
 def variable_explorer(_id):
     script = server_document(
-        url=f"http://{os.environ['PANEL_HOST']}:{os.environ['PANEL_SOCKET']}/value_changer", arguments={"id": _id}
+        url=f"http://{os.environ['PANEL_HOST']}:{os.environ['PANEL_SOCKET']}/value_changer", arguments={"id": _id, "redirect": url_for("app.steps", _id=_id)}
     )
     # Arguments are reached through Bokeh curdoc.session_context.request.arguments
     # And hence through panel.state.curdoc.session_context.request.arguments
@@ -239,7 +239,7 @@ def regrid(_id):
 @login_required
 def internal_oceans(_id):
     script = server_document(
-        url=f"http://{os.environ['PANEL_HOST']}:{os.environ['PANEL_SOCKET']}/internal_oceans", arguments={"id": _id}
+        url=f"http://{os.environ['PANEL_HOST']}:{os.environ['PANEL_SOCKET']}/internal_oceans", arguments={"id": _id, "redirect": url_for("app.steps", _id=_id)}
     )
     # Arguments are reached through Bokeh curdoc.session_context.request.arguments
     # And hence through panel.state.curdoc.session_context.request.arguments
@@ -298,7 +298,7 @@ def passage_problems(_id):
             </div>"
     else:
         script = server_document(
-            url=f"http://{os.environ['PANEL_HOST']}:{os.environ['PANEL_SOCKET']}/passage_problems", arguments={"id": _id}
+            url=f"http://{os.environ['PANEL_HOST']}:{os.environ['PANEL_SOCKET']}/passage_problems", arguments={"id": _id, "redirect": url_for("app.steps", _id=_id)}
         )
     # Arguments are reached through Bokeh curdoc.session_context.request.arguments
     # And hence through panel.state.curdoc.session_context.request.arguments
@@ -346,10 +346,8 @@ def pft(_id):
 @bp.route("/<int:_id>/sub_basins")
 @login_required
 def subbasins(_id):
-    print(os.environ.get("PANEL_HOST"))
-    print("not get: ", os.environ['PANEL_HOST'])
     script = server_document(
-        url=f"http://{os.environ['PANEL_HOST']}:{os.environ['PANEL_SOCKET']}/sub_basins", arguments={"id": _id}
+        url=f"http://{os.environ['PANEL_HOST']}:{os.environ['PANEL_SOCKET']}/sub_basins", arguments={"id": _id, "redirect": url_for("app.steps", _id=_id)}
     )
     # Arguments are reached through Bokeh curdoc.session_context.request.arguments
     # And hence through panel.state.curdoc.session_context.request.arguments
