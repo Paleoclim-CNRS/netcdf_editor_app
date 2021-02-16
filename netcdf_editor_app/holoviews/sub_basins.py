@@ -3,10 +3,7 @@ import panel as pn
 import xarray as xr
 import numpy
 
-from scipy.ndimage import measurements
-
 import holoviews as hv
-from bokeh.models import HoverTool
 
 from netcdf_editor_app.db import load_file, save_revision
 
@@ -60,7 +57,7 @@ class InternalOceans(ValueChanger):
         self.loaded = True
         return True
 
-    def _options_pane_setup(self):  
+    def _options_pane_setup(self):
         self.options_pane.clear()
         self.options_pane.extend(
             [
@@ -99,18 +96,20 @@ class InternalOceans(ValueChanger):
             hvds.select(selection_expr).data.index
         ] = value
         hvds.data[self.attribute.value].loc[land_indexs] = 0
-        self.ds[self.attribute.value] = tuple((
-            list(self.ds[self.attribute.value].dims),
-            hvds.data[self.attribute.value].values.reshape(
-                *self.ds[self.attribute.value].shape
-            ),
-        ))
+        self.ds[self.attribute.value] = tuple(
+            (
+                list(self.ds[self.attribute.value].dims),
+                hvds.data[self.attribute.value].values.reshape(
+                    *self.ds[self.attribute.value].shape
+                ),
+            )
+        )
         ds = self.ds.copy(deep=True)
         self.ds = ds
 
     def _get_graphs(self):
         default_graphs = super()._get_graphs()
-        self.colormap.value = 'viridis'
+        self.colormap.value = "viridis"
         self.colormap_delta.value = 0.75
         # Only allow values 1 to 3
         self.spinner.value = 1
@@ -123,24 +122,24 @@ class InternalOceans(ValueChanger):
         pacmsk = numpy.where(self.ds.Oceans.values == 2, 1, 0)
         indmsk = numpy.where(self.ds.Oceans.values == 3, 1, 0)
         ds = xr.Dataset(
-            coords = {},
-            data_vars = {
-                'navlat' : (["y", "x"], self.ds.nav_lat.values),
-                'navlon' : (["y", "x"], self.ds.nav_lon.values),
-                'atlmsk' : (["y", "x"], atlmsk),
-                'pacmsk' : (["y", "x"], pacmsk),
-                'indmsk' : (["y", "x"], indmsk),
-            }
+            coords={},
+            data_vars={
+                "navlat": (["y", "x"], self.ds.nav_lat.values),
+                "navlon": (["y", "x"], self.ds.nav_lon.values),
+                "atlmsk": (["y", "x"], atlmsk),
+                "pacmsk": (["y", "x"], pacmsk),
+                "indmsk": (["y", "x"], indmsk),
+            },
         )
 
-        ds['navlon'].attrs = {'units': 'degrees_east'}
-        ds['navlat'].attrs = {'units': 'degrees_north'}
-        ds['atlmsk'].attrs = {}
-        ds['pacmsk'].attrs = {}
-        ds['indmsk'].attrs = {}
+        ds["navlon"].attrs = {"units": "degrees_east"}
+        ds["navlat"].attrs = {"units": "degrees_north"}
+        ds["atlmsk"].attrs = {}
+        ds["pacmsk"].attrs = {}
+        ds["indmsk"].attrs = {}
 
         with self.app.app_context():
-            save_revision(self.data_file_id, ds, 'sub_basins')
+            save_revision(self.data_file_id, ds, "sub_basins")
 
 
 if "bokeh_app" in __name__:

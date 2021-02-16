@@ -1,4 +1,14 @@
-from flask import Blueprint, flash, redirect, render_template, request, url_for, session, current_app, send_from_directory
+from flask import (
+    Blueprint,
+    flash,
+    redirect,
+    render_template,
+    request,
+    url_for,
+    session,
+    current_app,
+    send_from_directory,
+)
 import werkzeug
 
 import os
@@ -68,7 +78,7 @@ def upload():
     return render_template("app/upload.html")
 
 
-@bp.route('/<int:_id>/<string:file_type>/download', methods=['GET'])
+@bp.route("/<int:_id>/<string:file_type>/download", methods=["GET"])
 @login_required
 def download(_id, file_type):
     data_file_name = get_filename(_id)
@@ -77,8 +87,13 @@ def download(_id, file_type):
     data_file_name = name + "." + extension
 
     filename = get_file_path(_id, file_type, full=False)
-    uploads = os.path.join(current_app.root_path, current_app.config['UPLOAD_FOLDER'])
-    return send_from_directory(directory=uploads, filename=filename, as_attachment=True, attachment_filename=data_file_name)
+    uploads = os.path.join(current_app.root_path, current_app.config["UPLOAD_FOLDER"])
+    return send_from_directory(
+        directory=uploads,
+        filename=filename,
+        as_attachment=True,
+        attachment_filename=data_file_name,
+    )
 
 
 @bp.route("/<int:_id>/delete", methods=("GET", "POST"))
@@ -116,15 +131,23 @@ def steps(_id):
     data = []
     for name in seen_file_types:
         data.append(
-            [name.capitalize(),
-            f"<form action=\"{ url_for('app.download', _id=_id, file_type=name.lower()) }\" method=\"GET\"> \
+            [
+                name.capitalize(),
+                f"<form action=\"{ url_for('app.download', _id=_id, file_type=name.lower()) }\" method=\"GET\"> \
                 <button type=\"submit\" class=\"btn btn-primary\"><i class=\"fas fa-download\"></i> Download</button> \
-            </form>"
+            </form>",
             ]
         )
 
     df = pd.DataFrame(data, columns=["File Type", "Download Link"])
-    return render_template("app/steps.html", data_file_name=data_file_name, _id=_id, assets_table=df.to_html(index=False, justify='center', border=0, classes="table", escape=False))
+    return render_template(
+        "app/steps.html",
+        data_file_name=data_file_name,
+        _id=_id,
+        assets_table=df.to_html(
+            index=False, justify="center", border=0, classes="table", escape=False
+        ),
+    )
 
 
 @bp.route("/<int:_id>")
@@ -163,7 +186,8 @@ def revision_comparison(_id):
 @login_required
 def variable_explorer(_id):
     script = server_document(
-        url=f"http://{os.environ['PANEL_HOST']}:{os.environ['PANEL_SOCKET']}/value_changer", arguments={"id": _id, "redirect": url_for("app.steps", _id=_id)}
+        url=f"http://{os.environ['PANEL_HOST']}:{os.environ['PANEL_SOCKET']}/value_changer",
+        arguments={"id": _id, "redirect": url_for("app.steps", _id=_id)},
     )
     # Arguments are reached through Bokeh curdoc.session_context.request.arguments
     # And hence through panel.state.curdoc.session_context.request.arguments
@@ -190,7 +214,7 @@ def regrid(_id):
 
         if not len(error):
             # Load file
-            ds = load_file(_id, 'raw')
+            ds = load_file(_id, "raw")
             lon, lat = get_lon_lat_names(_id)
             # Extremities
             new_values = []
@@ -218,7 +242,7 @@ def regrid(_id):
                 method=interpolator,
             )
             # Save file
-            save_revision(_id, ds, 'raw')
+            save_revision(_id, ds, "raw")
             flash(
                 "File regrided using {} interpolation with Longitude steps {} and Latitude steps {}".format(
                     interpolator, lon_step, lat_step
@@ -239,16 +263,18 @@ def regrid(_id):
 @login_required
 def internal_oceans(_id):
     script = server_document(
-        url=f"http://{os.environ['PANEL_HOST']}:{os.environ['PANEL_SOCKET']}/internal_oceans", arguments={"id": _id, "redirect": url_for("app.steps", _id=_id)}
+        url=f"http://{os.environ['PANEL_HOST']}:{os.environ['PANEL_SOCKET']}/internal_oceans",
+        arguments={"id": _id, "redirect": url_for("app.steps", _id=_id)},
     )
     # Arguments are reached through Bokeh curdoc.session_context.request.arguments
     # And hence through panel.state.curdoc.session_context.request.arguments
     return render_template("app/panel_app.html", script=script, title="Internal Oceans")
 
+
 @bp.route("/<int:_id>/routing", methods=("GET", "POST"))
 @login_required
 def routing(_id):
-    ds = load_file(_id, 'raw')
+    ds = load_file(_id, "raw")
     variable_names = list(ds.data_vars)
     lon, lat = get_lon_lat_names(_id)
 
@@ -266,11 +292,13 @@ def routing(_id):
             lon, lat = get_lon_lat_names(_id)
             latitudes = ds[lat].values
             topography = ds[topo_variable].values
-            ds_routing, ds_bathy, ds_soils, ds_topo_high_res = run_routines(topography, latitudes)
-            save_revision(_id, ds_routing, 'routing')
-            save_revision(_id, ds_bathy, 'bathy')
-            save_revision(_id, ds_soils, 'soils')
-            save_revision(_id, ds_topo_high_res, 'topo_high_res')
+            ds_routing, ds_bathy, ds_soils, ds_topo_high_res = run_routines(
+                topography, latitudes
+            )
+            save_revision(_id, ds_routing, "routing")
+            save_revision(_id, ds_bathy, "bathy")
+            save_revision(_id, ds_soils, "soils")
+            save_revision(_id, ds_topo_high_res, "topo_high_res")
 
             flash("Routing run succesfully")
 
@@ -282,8 +310,15 @@ def routing(_id):
     show_regrid = False
     if data_shape != (180, 360):
         show_regrid = True
-    
-    return render_template("app/routing.html", _id=_id, variable_names=variable_names, show_regrid=show_regrid, data_shape=data_shape)
+
+    return render_template(
+        "app/routing.html",
+        _id=_id,
+        variable_names=variable_names,
+        show_regrid=show_regrid,
+        data_shape=data_shape,
+    )
+
 
 @bp.route("/<int:_id>/passage_problems")
 @login_required
@@ -294,11 +329,13 @@ def passage_problems(_id):
             style=\"display: flex; align-items: center; justify-content: center; flex-direction: column;\">\
             Routing file not found in Database please perform Routing step first\
             <br></br> \
-            <button onclick=\"window.location.href = '{url_for('app.routing', _id=_id)}';\" id=\"myButton\" class=\"btn btn-primary\" >Routing</button> \
+            <button onclick=\"window.location.href = \
+                '{url_for('app.routing', _id=_id)}';\" id=\"myButton\" class=\"btn btn-primary\" >Routing</button> \
             </div>"
     else:
         script = server_document(
-            url=f"http://{os.environ['PANEL_HOST']}:{os.environ['PANEL_SOCKET']}/passage_problems", arguments={"id": _id, "redirect": url_for("app.steps", _id=_id)}
+            url=f"http://{os.environ['PANEL_HOST']}:{os.environ['PANEL_SOCKET']}/passage_problems",
+            arguments={"id": _id, "redirect": url_for("app.steps", _id=_id)},
         )
     # Arguments are reached through Bokeh curdoc.session_context.request.arguments
     # And hence through panel.state.curdoc.session_context.request.arguments
@@ -306,7 +343,8 @@ def passage_problems(_id):
         "app/panel_app.html", script=script, title="Passage Problems"
     )
 
-@bp.route("/<int:_id>/pft",  methods=("GET", "POST"))
+
+@bp.route("/<int:_id>/pft", methods=("GET", "POST"))
 @login_required
 def pft(_id):
     if request.method == "POST":
@@ -322,19 +360,14 @@ def pft(_id):
         assert latitudes[-1] == 90
 
         # Load routing file with final topography
-        ds = load_file(_id, 'routing') 
+        ds = load_file(_id, "routing")
         assert set(ds.dims) == set(("x", "y"))
         assert len(ds.coords) == 0
         # The PFT values are on a 360 x 720 grid
         # So we need to interpolate the values onto this grid
         lat_vals = numpy.arange(0, 180, 0.5)
         lon_vals = numpy.arange(0, 360, 0.5)
-        ds = ds.interp(
-            {
-                "y": lat_vals,
-                "x": lon_vals
-            }
-        )
+        ds = ds.interp({"y": lat_vals, "x": lon_vals})
         topo = ds.topo.values
 
         ds = generate_pft_netcdf(topo, latitudes, pft_values)
@@ -343,14 +376,14 @@ def pft(_id):
 
     return render_template("app/pft.html", _id=_id)
 
+
 @bp.route("/<int:_id>/sub_basins")
 @login_required
 def subbasins(_id):
     script = server_document(
-        url=f"http://{os.environ['PANEL_HOST']}:{os.environ['PANEL_SOCKET']}/sub_basins", arguments={"id": _id, "redirect": url_for("app.steps", _id=_id)}
+        url=f"http://{os.environ['PANEL_HOST']}:{os.environ['PANEL_SOCKET']}/sub_basins",
+        arguments={"id": _id, "redirect": url_for("app.steps", _id=_id)},
     )
     # Arguments are reached through Bokeh curdoc.session_context.request.arguments
     # And hence through panel.state.curdoc.session_context.request.arguments
-    return render_template(
-        "app/panel_app.html", script=script, title="Sub Basins"
-    )
+    return render_template("app/panel_app.html", script=script, title="Sub Basins")

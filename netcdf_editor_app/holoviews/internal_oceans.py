@@ -11,8 +11,8 @@ colormaps = hv.plotting.list_cmaps()
 
 
 class InternalOceans(ValueChanger):
-    file_type = 'raw'
-    
+    file_type = "raw"
+
     def _calculate_internal_oceans(self):
         # Calculate a binary array of above and below see level
         # from scipy doc:  Any non-zero values in `input` are

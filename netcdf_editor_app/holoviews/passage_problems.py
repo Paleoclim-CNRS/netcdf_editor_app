@@ -11,8 +11,8 @@ colormaps = hv.plotting.list_cmaps()
 
 
 class PassageProblems(ValueChanger):
-    file_type = 'routing'
-    
+    file_type = "routing"
+
     def _calculate_passage_problems(self):
         # Define template we are looking for passages
         # Where only diffusion occurs this means we are looking
