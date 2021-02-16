@@ -531,7 +531,9 @@ def calculate_river_lengths(topo, trip, ocean_distances, omsk):
             flength[x, y] = flow_lengths
 
         else:
-            raise AssertionError(f"Unexpected end reason {end_reason} for river starting at {highest_point}")
+            raise AssertionError(
+                f"Unexpected end reason {end_reason} for river starting at {highest_point}"
+            )
         # Calculate the next highest point
         highest_point = numpy.unravel_index(
             numpy.where(flength == 0, topo, -9999).argmax(), topo.shape
@@ -695,16 +697,62 @@ def calculate_topo_index(distbox, dzz, omsk):
 
 
 def _set_attributes_ds_routing(ds_routing):
-    ds_routing['nav_lon'].attrs = {'units': 'degrees_east', 'valid_min': -180.0, 'valid_max': 180.0, 'long_name': 'Longitude'}
-    ds_routing['nav_lat'].attrs = {'units': 'degrees_north', 'valid_min': -90.0, 'valid_max': 90.0, 'long_name': 'Latitude'}
-    ds_routing['trip'].attrs = {'axis': 'TYX', 'units': '', 'long_name': 'Direction of flow from each box', 'associate': 'nav_lat na'}
-    ds_routing['basins'].attrs = {'axis': 'TYX', 'units': '', 'long_name': 'Basin number for each grid box', 'associate': 'nav_lat na'}
-    ds_routing['topoind'].attrs = {'axis': 'TYX', 'units': '', 'long_name': 'Topographic index of the retention time', 'associate': 'nav_lat na'}
-    ds_routing['hdiff'].attrs = {'axis': 'TYX', 'units': 'm', 'long_name': 'Height difference with the outflow basin', 'associate': 'nav_lat na'}
-    ds_routing['riverl'].attrs = {'axis': 'TYX', 'units': 'm', 'long_name': 'River length to the next basin', 'associate': 'nav_lat na'}
-    ds_routing['orog'].attrs = {'axis': 'TYX', 'units': 'm', 'long_name': 'Orography', 'associate': 'nav_lat na'}
-    ds_routing['disto'].attrs = {'axis': 'TYX', 'units': 'km', 'long_name': 'Distance to ocean', 'associate': 'nav_lat na'}
+    ds_routing["nav_lon"].attrs = {
+        "units": "degrees_east",
+        "valid_min": -180.0,
+        "valid_max": 180.0,
+        "long_name": "Longitude",
+    }
+    ds_routing["nav_lat"].attrs = {
+        "units": "degrees_north",
+        "valid_min": -90.0,
+        "valid_max": 90.0,
+        "long_name": "Latitude",
+    }
+    ds_routing["trip"].attrs = {
+        "axis": "TYX",
+        "units": "",
+        "long_name": "Direction of flow from each box",
+        "associate": "nav_lat na",
+    }
+    ds_routing["basins"].attrs = {
+        "axis": "TYX",
+        "units": "",
+        "long_name": "Basin number for each grid box",
+        "associate": "nav_lat na",
+    }
+    ds_routing["topoind"].attrs = {
+        "axis": "TYX",
+        "units": "",
+        "long_name": "Topographic index of the retention time",
+        "associate": "nav_lat na",
+    }
+    ds_routing["hdiff"].attrs = {
+        "axis": "TYX",
+        "units": "m",
+        "long_name": "Height difference with the outflow basin",
+        "associate": "nav_lat na",
+    }
+    ds_routing["riverl"].attrs = {
+        "axis": "TYX",
+        "units": "m",
+        "long_name": "River length to the next basin",
+        "associate": "nav_lat na",
+    }
+    ds_routing["orog"].attrs = {
+        "axis": "TYX",
+        "units": "m",
+        "long_name": "Orography",
+        "associate": "nav_lat na",
+    }
+    ds_routing["disto"].attrs = {
+        "axis": "TYX",
+        "units": "km",
+        "long_name": "Distance to ocean",
+        "associate": "nav_lat na",
+    }
     return ds_routing
+
 
 def create_routing_netcdf(
     topo, trip, basins, topo_index, dzz, distbox, orog, flength, rlat, rlon
@@ -712,7 +760,7 @@ def create_routing_netcdf(
     ds_routing = xr.Dataset(
         coords={},
         data_vars={
-            "nav_lon": (["y", "x"], rlon), 
+            "nav_lon": (["y", "x"], rlon),
             "nav_lat": (["y", "x"], rlat),
             "trip": (["y", "x"], trip[::-1]),
             "basins": (["y", "x"], basins[::-1]),
@@ -727,87 +775,125 @@ def create_routing_netcdf(
     ds_routing = _set_attributes_ds_routing(ds_routing)
     return ds_routing
 
+
 def create_bathy_paleo_orca(topo):
     # Transform topo to bathy and mask land
     bathy = topo * -1
     bathy[bathy < 0] = 0
     # Remap to nemo grid
     # Load grid
-    orca_file = os.path.join(os.path.dirname(os.path.abspath(__file__)), "paleorca2_40Ma_grid.nc")
+    orca_file = os.path.join(
+        os.path.dirname(os.path.abspath(__file__)), "paleorca2_40Ma_grid.nc"
+    )
     ds_orca = xr.open_dataset(orca_file)
     # create output dataset
     ds = xr.Dataset(
-        coords = {
-            "lat": numpy.arange(-89.5, 90),
-            "lon": numpy.arange(-179.5, 180)
-        },
-        data_vars = {
-            "Bathymetry": (["lat", "lon"], bathy)
-        }
+        coords={"lat": numpy.arange(-89.5, 90), "lon": numpy.arange(-179.5, 180)},
+        data_vars={"Bathymetry": (["lat", "lon"], bathy)},
     )
     ds = ds.interp(ds_orca.coords, method="nearest")
-    ds = ds.rename({'lat': "nav_lat", 'lon': "nav_lon"})
-    ds.nav_lat.attrs = {'standard_name': 'latitude', 'long_name': 'latitude', 'units': 'degrees_north', '_CoordinateAxisType': 'Lat'}
-    ds.nav_lon.attrs = {'standard_name': 'longitude', 'long_name': 'longitude', 'units': 'degrees_east', '_CoordinateAxisType': 'Lon'}
+    ds = ds.rename({"lat": "nav_lat", "lon": "nav_lon"})
+    ds.nav_lat.attrs = {
+        "standard_name": "latitude",
+        "long_name": "latitude",
+        "units": "degrees_north",
+        "_CoordinateAxisType": "Lat",
+    }
+    ds.nav_lon.attrs = {
+        "standard_name": "longitude",
+        "long_name": "longitude",
+        "units": "degrees_east",
+        "_CoordinateAxisType": "Lon",
+    }
     return ds
+
 
 def create_topo_high_res(topo):
     # load new coordinates
-    lon_vals = numpy.arange(-180 + (360./2160.)/2, 180, 360./2160)
+    lon_vals = numpy.arange(-180 + (360.0 / 2160.0) / 2, 180, 360.0 / 2160)
     # Y values are funky so are stored in a file
-    y_file = os.path.join(os.path.dirname(os.path.abspath(__file__)), "topo_high_res_y_vals.npy")
+    y_file = os.path.join(
+        os.path.dirname(os.path.abspath(__file__)), "topo_high_res_y_vals.npy"
+    )
     lat_vals = numpy.load(y_file)
     # create output dataset
     ds = xr.Dataset(
-        coords = {
+        coords={
             "latitude": numpy.arange(-89.5, 90),
-            "longitude": numpy.arange(-179.5, 180)
+            "longitude": numpy.arange(-179.5, 180),
         },
-        data_vars = {
-            "RELIEF": (["latitude", "longitude"], topo)
-        }
+        data_vars={"RELIEF": (["latitude", "longitude"], topo)},
     )
     ds = ds.interp(
-            {
-                'latitude': lat_vals,
-                'longitude': lon_vals,
-            },
-            method = 'linear'
+        {
+            "latitude": lat_vals,
+            "longitude": lon_vals,
+        },
+        method="linear",
     )
 
-    ds.longitude.attrs = {'standard_name': 'longitude', 'long_name': 'longitude', 'units': 'degrees', 'axis': 'X'}
-    ds.latitude.attrs = {'standard_name': 'latitude', 'long_name': 'latitude', 'units': 'degrees', 'axis': 'Y'}
-    ds.RELIEF.attrs = {'long_name': 'relief'}
+    ds.longitude.attrs = {
+        "standard_name": "longitude",
+        "long_name": "longitude",
+        "units": "degrees",
+        "axis": "X",
+    }
+    ds.latitude.attrs = {
+        "standard_name": "latitude",
+        "long_name": "latitude",
+        "units": "degrees",
+        "axis": "Y",
+    }
+    ds.RELIEF.attrs = {"long_name": "relief"}
     relief = ds.RELIEF.values.copy()
     relief[relief < 0] = 0
     relief[numpy.isnan(relief)] = 0
     ds.RELIEF.values = relief
     return ds
 
+
 def create_soils(rlat, rlon, omsk):
-    soil_color = numpy.ones(rlat.shape) * 4.
+    soil_color = numpy.ones(rlat.shape) * 4.0
     # Mask Oceans
     soil_color[omsk == 0] = 0
-    soil_text = numpy.ones(rlat.shape) * 3.
+    soil_text = numpy.ones(rlat.shape) * 3.0
     # Mask Oceans
     soil_text[omsk == 0] = 0
 
     # create output dataset
     ds = xr.Dataset(
-        coords = {
-
-        },
-        data_vars = {
-            "nav_lon": (["y", "x"], rlon), 
+        coords={},
+        data_vars={
+            "nav_lon": (["y", "x"], rlon),
             "nav_lat": (["y", "x"], rlat),
             "soilcolor": (["y", "x"], soil_color),
             "soiltext": (["y", "x"], soil_text),
-        }
+        },
     )
-    ds['nav_lon'].attrs = {'units': 'degrees_east', 'valid_min': -180.0, 'valid_max': 180.0, 'long_name': 'Longitude'}
-    ds['nav_lat'].attrs = {'units': 'degrees_north', 'valid_min': -90.0, 'valid_max': 90.0, 'long_name': 'Latitude'}
-    ds['soilcolor'].attrs = {'axis': 'YX', 'units': 'index', 'long_name': 'Soil color types from the Henderson-Sellers and Wilson dataset', 'associate': 'nav_lat nav_lon'}
-    ds['soiltext'].attrs = {'axis': 'YX', 'units': 'index', 'long_name': 'Soil texture from Zobler 86', 'associate': 'nav_lat nav_lon'}
+    ds["nav_lon"].attrs = {
+        "units": "degrees_east",
+        "valid_min": -180.0,
+        "valid_max": 180.0,
+        "long_name": "Longitude",
+    }
+    ds["nav_lat"].attrs = {
+        "units": "degrees_north",
+        "valid_min": -90.0,
+        "valid_max": 90.0,
+        "long_name": "Latitude",
+    }
+    ds["soilcolor"].attrs = {
+        "axis": "YX",
+        "units": "index",
+        "long_name": "Soil color types from the Henderson-Sellers and Wilson dataset",
+        "associate": "nav_lat nav_lon",
+    }
+    ds["soiltext"].attrs = {
+        "axis": "YX",
+        "units": "index",
+        "long_name": "Soil texture from Zobler 86",
+        "associate": "nav_lat nav_lon",
+    }
     return ds
 
 
@@ -826,8 +912,10 @@ def run_routines(topo, latitudes):
     trip = calculate_trip_outflow_values(trip, outflow_points, basins, omsk, rlat)
     dzz = calculate_dzz(topo, trip, distbox, omsk)
     topo_index = calculate_topo_index(distbox, dzz, omsk)
-    
-    ds_routing = create_routing_netcdf(topo, trip, basins, topo_index, dzz, distbox, orog, river_length, rlat, rlon)
+
+    ds_routing = create_routing_netcdf(
+        topo, trip, basins, topo_index, dzz, distbox, orog, river_length, rlat, rlon
+    )
     ds_bathy = create_bathy_paleo_orca(topo)
     ds_soils = create_soils(rlat, rlon, omsk)
     ds_topo_high_res = create_topo_high_res(topo)

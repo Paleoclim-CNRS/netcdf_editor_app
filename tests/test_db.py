@@ -27,9 +27,10 @@ def test_init_db_command(runner, monkeypatch):
     assert "Initialized" in result.output
     assert Recorder.called
 
+
 def test_get_file_types(app):
     with app.app_context():
         file_types = get_file_types(1)
     assert type(file_types) == list
-    assert 'raw' in file_types
-    assert 'routing' in file_types
+    assert "raw" in file_types
+    assert "routing" in file_types

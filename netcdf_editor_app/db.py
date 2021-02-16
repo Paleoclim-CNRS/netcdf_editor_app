@@ -57,7 +57,7 @@ def set_data_file_coords(_id, longitude, latitude):
     db.commit()
 
 
-def upload_file(file, file_type='raw'):
+def upload_file(file, file_type="raw"):
     filename = secure_filename(file.filename)
     temp_name = next(tempfile._get_candidate_names()) + ".nc"
     # Save the file to the file system
@@ -72,7 +72,8 @@ def upload_file(file, file_type='raw'):
     data_file_id = data_file.lastrowid
     # ADD the file to the revisions table
     db.execute(
-        "INSERT INTO revisions (data_file_id, filepath, revision, file_type)" " VALUES (?, ?, ?, ?)",
+        "INSERT INTO revisions (data_file_id, filepath, revision, file_type)"
+        " VALUES (?, ?, ?, ?)",
         (data_file_id, temp_name, 0, file_type),
     )
     db.commit()
@@ -90,7 +91,8 @@ def save_revision(_id, ds, file_type):
     query = "SELECT revision FROM revisions WHERE data_file_id = ? ORDER BY revision DESC LIMIT 0, 1"
     revision_nb = db.execute(query, (str(_id),)).fetchone()["revision"] + 1
     db.execute(
-        "INSERT INTO revisions (data_file_id, filepath, revision, file_type)" " VALUES (?, ?, ?, ?)",
+        "INSERT INTO revisions (data_file_id, filepath, revision, file_type)"
+        " VALUES (?, ?, ?, ?)",
         (str(_id), temp_name, revision_nb, file_type),
     )
     db.commit()
@@ -108,10 +110,11 @@ def get_latest_file_versions():
     data_files = db.execute(query).fetchall()
     return data_files
 
+
 def get_file_types(_id):
     db = get_db()
     file_types = db.execute(
-        'SELECT DISTINCT file_type FROM revisions WHERE data_file_id = ?', (str(_id), )
+        "SELECT DISTINCT file_type FROM revisions WHERE data_file_id = ?", (str(_id),)
     ).fetchall()
 
     file_types = [ft["file_type"] for ft in file_types]
@@ -128,15 +131,15 @@ def get_file_path(_id, file_type=None, full=True, revision=-1):
     db = get_db()
     if file_type is None:
         revisions = db.execute(
-            "SELECT revision FROM revisions WHERE data_file_id = ? ORDER BY revision ASC", 
-            (str(_id),)
+            "SELECT revision FROM revisions WHERE data_file_id = ? ORDER BY revision ASC",
+            (str(_id),),
         ).fetchall()
     else:
         revisions = db.execute(
-            "SELECT revision FROM revisions WHERE data_file_id = ? AND file_type = ? ORDER BY revision ASC", 
+            "SELECT revision FROM revisions WHERE data_file_id = ? AND file_type = ? ORDER BY revision ASC",
             (str(_id), file_type),
         ).fetchall()
-        
+
     revisions = [rev["revision"] for rev in revisions]
     revision_nb = revisions[revision]
     filepath = db.execute(

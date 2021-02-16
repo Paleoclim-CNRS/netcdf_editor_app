@@ -48,6 +48,11 @@ Datafile chosen: {{ data_file_name }}
             Plant Functional Type
         </a>
     </li>
+    <li>
+        <a class="action" href="{{ url_for('app.subbasins', _id=_id) }}">
+            Sub Basins
+        </a>
+    </li>
 </ul>
 <h2>Assets</h2>
 {{ assets_table|safe }}

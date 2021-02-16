@@ -86,7 +86,7 @@ class ValueChanger(param.Parameterized):
             name="Max Value", width=100, align="end"
         )
         self.colormap_range_slider = pn.widgets.RangeSlider(width=400, show_value=False)
-        self.colormap_delta = pn.widgets.IntInput(
+        self.colormap_delta = pn.widgets.FloatInput(
             name="Delta between values", value=0, align="end"
         )
         # Link the viewing of multiple graphs together
@@ -105,6 +105,14 @@ class ValueChanger(param.Parameterized):
         self.undo_button.on_click(self.undo)
         self.redo_button.on_click(self.redo)
         self.save_button.on_click(self.save)
+        self.save_button.js_on_click(
+            args={
+                "target": pn.state.curdoc.session_context.request.arguments["redirect"][
+                    0
+                ].decode()
+            },
+            code="window.location.href = target",
+        )
         self._auto_update_cmap_min = True
         self._auto_update_cmap_max = True
 
@@ -228,10 +236,12 @@ class ValueChanger(param.Parameterized):
                 hvds.select(selection_expr).data.index
             ] *= (100 + value) / 100.0
         self.ds[self.attribute.value] = tuple(
-            list(self.ds[self.attribute.value].dims),
-            hvds.data[self.attribute.value].values.reshape(
-                *self.ds[self.attribute.value].shape
-            ),
+            (
+                list(self.ds[self.attribute.value].dims),
+                hvds.data[self.attribute.value].values.reshape(
+                    *self.ds[self.attribute.value].shape
+                ),
+            )
         )
         ds = self.ds.copy(deep=True)
         self.ds = ds
@@ -284,7 +294,7 @@ class ValueChanger(param.Parameterized):
 
     def save(self, event):
         with self.app.app_context():
-            save_revision(self.data_file_id, self.ds, 'raw')
+            save_revision(self.data_file_id, self.ds, "raw")
 
     def _apply_action(self, action):
         if action["calculation_type"] in ["Absolute", "Percentage", "Relatif"]:
@@ -448,7 +458,7 @@ class ValueChanger(param.Parameterized):
             return None
         return (
             list(
-                range(
+                numpy.arange(
                     self.colormap_min.value,
                     self.colormap_max.value,
                     self.colormap_delta.value,
