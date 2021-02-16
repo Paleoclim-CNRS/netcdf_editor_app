@@ -135,3 +135,6 @@ docs/_site/*
 
 # Mac
 .DS_STORE
+
+# Dev
+settings.json

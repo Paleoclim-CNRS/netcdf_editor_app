@@ -43,6 +43,11 @@ Datafile chosen: {{ data_file_name }}
             Passage Problems
         </a>
     </li>
+    <li>
+        <a class="action" href="{{ url_for('app.pft', _id=_id) }}">
+            Plant Functional Type
+        </a>
+    </li>
 </ul>
 <h2>Assets</h2>
 {{ assets_table|safe }}
