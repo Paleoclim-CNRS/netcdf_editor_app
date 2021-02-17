@@ -42,7 +42,7 @@ def load_file(_id, file_type=None, revision=-1):
     try:
         ds = xr.open_dataset(filepath)
     except ValueError:
-        ds = xr.open_dataset(filepath, decode_times = False)
+        ds = xr.open_dataset(filepath, decode_times=False)
     return ds
 
 
