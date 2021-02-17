@@ -37,7 +37,11 @@ import json
 import hvplot.xarray
 
 import holoviews as hv
-from bokeh.embed import components, server_document
+from bokeh.embed import components, server_document, file_html
+from bokeh.resources import CDN
+from bokeh.layouts import column
+from bokeh.models import ColumnDataSource, CustomJS, Slider, Select
+from bokeh.plotting import Figure, output_file, show
 
 bp = Blueprint("app", __name__)
 
@@ -122,6 +126,59 @@ def set_coords(_id):
     return render_template("app/set_coords.html", coordinate_names=coordinate_names)
 
 
+@bp.route("/<int:_id>/<string:file_type>/view", methods=["GET"])
+@login_required
+def view_database_file(_id, file_type):
+
+    # x = [x*0.005 for x in range(0, 200)]
+    # y = x
+
+    # source = ColumnDataSource(data=dict(x=x, y=y))
+
+    # plot = Figure(plot_width=400, plot_height=400)
+    # plot.line('x', 'y', source=source, line_width=3, line_alpha=0.6)
+
+    # callback = CustomJS(args=dict(source=source), code="""
+    #     var data = source.data;
+    #     var f = cb_obj.value
+    #     var x = data['x']
+    #     var y = data['y']
+    #     for (var i = 0; i < x.length; i++) {
+    #         y[i] = Math.pow(x[i], f)
+    #     }
+    #     source.change.emit();
+    # """)
+
+    # slider = Slider(start=0.1, end=4, value=1, step=.1, title="power")
+    # slider.js_on_change('value', callback)
+
+    # script, div = components(column(slider, plot))
+
+
+
+    ds = load_file(_id, file_type)
+    d = {}
+    for data_var in ds.data_vars:
+        d[data_var] = [ds[data_var].values]
+    d['to_plot'] = [ds[list(ds.data_vars)[0]].values]
+    source = ColumnDataSource(d)
+
+    callback = CustomJS(args=dict(source=source), code = """
+        var data = source.data;
+        data['to_plot'] = data[cb_obj.value];
+        source.change.emit();
+    """)
+    select = Select(title="Variable:", options=list(ds.data_vars))
+    select.js_on_change('value', callback) 
+
+    p = Figure(x_range=(-180, 180), y_range=(-90, 90), aspect_ratio=2.5)
+    p.sizing_mode = "scale_width"
+    p.image(image='to_plot', x=-180, y=-90, dw=360, dh=180, source=source, palette="Viridis11")
+    script, div = components(column(column(select), p, sizing_mode='stretch_width'))
+
+    return render_template("app/bokeh_plot.html", script=script, div=div, data_file_id=_id, title=file_type.capitalize() )
+
+
 @bp.route("/<int:_id>/steps")
 @login_required
 def steps(_id):
@@ -133,13 +190,16 @@ def steps(_id):
         data.append(
             [
                 name.capitalize(),
+                f"<form action=\"{ url_for('app.view_database_file', _id=_id, file_type=name.lower()) }\" method=\"GET\"> \
+                    <button type=\"submit\" class=\"btn btn-info\"><i class=\"fas fa-map\"></i> View</button> \
+                </form>",
                 f"<form action=\"{ url_for('app.download', _id=_id, file_type=name.lower()) }\" method=\"GET\"> \
-                <button type=\"submit\" class=\"btn btn-primary\"><i class=\"fas fa-download\"></i> Download</button> \
-            </form>",
+                    <button type=\"submit\" class=\"btn btn-primary\"><i class=\"fas fa-download\"></i> Download</button> \
+                </form>",
             ]
         )
 
-    df = pd.DataFrame(data, columns=["File Type", "Download Link"])
+    df = pd.DataFrame(data, columns=["File Type", "View", "Download Link"])
     return render_template(
         "app/steps.html",
         data_file_name=data_file_name,
