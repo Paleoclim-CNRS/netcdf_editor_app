@@ -39,7 +39,10 @@ def load_file(_id, file_type=None, revision=-1):
     # Get filename
     filepath = get_file_path(_id, file_type=file_type, revision=revision)
     # Load file
-    ds = xr.open_dataset(filepath)
+    try:
+        ds = xr.open_dataset(filepath)
+    except ValueError:
+        ds = xr.open_dataset(filepath, decode_times = False)
     return ds
 
 
