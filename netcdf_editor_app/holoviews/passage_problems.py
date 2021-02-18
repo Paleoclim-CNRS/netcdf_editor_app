@@ -13,6 +13,10 @@ colormaps = hv.plotting.list_cmaps()
 class PassageProblems(ValueChanger):
     file_type = "routing"
 
+    def __init__(self, **params):
+        super().__init__(*params)
+        self.attribute.value = 'topo'
+
     def _calculate_passage_problems(self):
         # Define template we are looking for passages
         # Where only diffusion occurs this means we are looking
@@ -48,6 +52,8 @@ class PassageProblems(ValueChanger):
 
         potential_points = potential_points.astype(object)
         potential_points[potential_points == -1] = numpy.NaN
+
+        # potential_points = numpy.zeros(self.ds.trip.values.shape)
 
         return potential_points
 
@@ -85,7 +91,7 @@ class PassageProblems(ValueChanger):
             )
         )
         return default_grpahs + passage_problems
-
+    
 
 if "bokeh_app" in __name__:
     pp = PassageProblems()
