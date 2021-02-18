@@ -758,10 +758,11 @@ def create_routing_netcdf(
     topo, trip, basins, topo_index, dzz, distbox, orog, flength, rlat, rlon
 ):
     ds_routing = xr.Dataset(
-        coords={},
-        data_vars={
+        coords={
             "nav_lon": (["y", "x"], rlon),
             "nav_lat": (["y", "x"], rlat),
+        },
+        data_vars={
             "trip": (["y", "x"], trip[::-1]),
             "basins": (["y", "x"], basins[::-1]),
             "topoind": (["y", "x"], topo_index[::-1]),

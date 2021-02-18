@@ -184,13 +184,28 @@ def steps(_id):
                 f"<form action=\"{ url_for('app.view_database_file', _id=_id, file_type=name.lower()) }\" method=\"GET\"> \
                     <button type=\"submit\" class=\"btn btn-info\"><i class=\"fas fa-map\"></i> View</button> \
                 </form>",
+                f"<form action=\"{ url_for('app.variable_explorer', _id=_id, file_type=name.lower()) }\" method=\"GET\"> \
+                    <button type=\"submit\" class=\"btn btn-info\"><i class=\"fas fa-columns\"></i> View</button> \
+                </form>",
+                f"<form action=\"{ url_for('app.revision_comparison', _id=_id, file_type=name.lower()) }\" method=\"GET\"> \
+                    <button type=\"submit\" class=\"btn btn-info\"><i class=\"fas fa-arrows-alt-h\"></i> View</button> \
+                </form>",
                 f"<form action=\"{ url_for('app.download', _id=_id, file_type=name.lower()) }\" method=\"GET\"> \
                     <button type=\"submit\" class=\"btn btn-primary\"><i class=\"fas fa-download\"></i> Download</button> \
                 </form>",
             ]
         )
 
-    df = pd.DataFrame(data, columns=["File Type", "View", "Download Link"])
+    df = pd.DataFrame(
+        data,
+        columns=[
+            "File Type",
+            "View",
+            "Complex Viewer",
+            "Revision Comparison",
+            "Download Link",
+        ],
+    )
     return render_template(
         "app/steps.html",
         data_file_name=data_file_name,
@@ -219,11 +234,15 @@ def map(_id):
     return render_template("app/map.html", script=script, div=div, data_file_id=_id)
 
 
-@bp.route("/<int:_id>/revision_comparison")
+@bp.route("/<int:_id>/<string:file_type>/revision_comparison")
 @login_required
-def revision_comparison(_id):
-    ds_latest = load_file(_id, -1)
-    ds_previous = load_file(_id, -2)
+def revision_comparison(_id, file_type):
+    try:
+        ds_latest = load_file(_id, file_type, -1)
+        ds_previous = load_file(_id, file_type, -2)
+    except IndexError:
+        flash("Not enough revisions")
+        return redirect(url_for("app.steps", _id=_id))
     ds = ds_latest - ds_previous
     lon, lat = get_lon_lat_names(_id)
     plot = ds.hvplot(x=lon, y=lat).opts(responsive=True, cmap="terrain")
@@ -233,12 +252,16 @@ def revision_comparison(_id):
     return render_template("app/map.html", script=script, div=div, data_file_id=_id)
 
 
-@bp.route("/<int:_id>/variable_explorer")
+@bp.route("/<int:_id>/<string:file_type>/variable_explorer")
 @login_required
-def variable_explorer(_id):
+def variable_explorer(_id, file_type):
     script = server_document(
         url=f"http://{os.environ['PANEL_HOST']}:{os.environ['PANEL_SOCKET']}/value_changer",
-        arguments={"id": _id, "redirect": url_for("app.steps", _id=_id)},
+        arguments={
+            "id": _id,
+            "redirect": url_for("app.steps", _id=_id),
+            "file_type": file_type,
+        },
     )
     # Arguments are reached through Bokeh curdoc.session_context.request.arguments
     # And hence through panel.state.curdoc.session_context.request.arguments

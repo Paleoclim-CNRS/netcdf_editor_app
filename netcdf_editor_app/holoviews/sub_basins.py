@@ -87,7 +87,6 @@ class InternalOceans(ValueChanger):
                 dim_order=[*list(self.ds[self.attribute.value].dims)]
             ).reset_index()
         )
-        print(type(hvds[self.attribute.value] == 0), (hvds[self.attribute.value] == 0))
         land_indexs = hvds[self.attribute.value] == 0
         hvds.data[self.attribute.value].loc[
             hvds.select(selection_expr).data.index

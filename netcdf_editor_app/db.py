@@ -142,7 +142,6 @@ def get_file_path(_id, file_type=None, full=True, revision=-1):
             "SELECT revision FROM revisions WHERE data_file_id = ? AND file_type = ? ORDER BY revision ASC",
             (str(_id), file_type),
         ).fetchall()
-
     revisions = [rev["revision"] for rev in revisions]
     revision_nb = revisions[revision]
     filepath = db.execute(

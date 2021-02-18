@@ -75,6 +75,10 @@ class InternalOceans(ValueChanger):
             )
         )
         return default_grpahs + internal_oceans
+    
+    def save(self, event):
+        with self.app.app_context():
+            save_revision(self.data_file_id, self.ds, "internal_oceans")
 
 
 if "bokeh_app" in __name__:

@@ -124,6 +124,10 @@ class ValueChanger(param.Parameterized):
         self.colormap_max.param.watch(self._colormap_callback, "value")
         self.colormap_range_slider.param.watch(self._colormap_callback, "value")
         self.app = create_app()
+        try:
+            self.file_type = pn.state.curdoc.session_context.request.arguments["file_type"][0].decode()
+        except KeyError:
+            pass
         self.data_file_id = int(
             pn.state.curdoc.session_context.request.arguments["id"][0]
         )
@@ -294,7 +298,7 @@ class ValueChanger(param.Parameterized):
 
     def save(self, event):
         with self.app.app_context():
-            save_revision(self.data_file_id, self.ds, "raw")
+            save_revision(self.data_file_id, self.ds, self.file_type)
 
     def _apply_action(self, action):
         if action["calculation_type"] in ["Absolute", "Percentage", "Relatif"]:
