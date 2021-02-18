@@ -436,7 +436,7 @@ def pft(_id):
         # Load routing file with final topography
         ds = load_file(_id, "routing")
         assert set(ds.dims) == set(("x", "y"))
-        assert len(ds.coords) == 0
+        assert len(ds.coords) == 2
         # The PFT values are on a 360 x 720 grid
         # So we need to interpolate the values onto this grid
         lat_vals = numpy.arange(0, 180, 0.5)

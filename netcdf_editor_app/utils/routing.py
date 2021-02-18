@@ -787,12 +787,15 @@ def create_bathy_paleo_orca(topo):
         os.path.dirname(os.path.abspath(__file__)), "paleorca2_40Ma_grid.nc"
     )
     ds_orca = xr.open_dataset(orca_file)
+    # Remove the missing value encoding fields as this causes problems because _FillValues is set to nan
+    del ds_orca.lat.encoding['missing_value']
+    del ds_orca.lon.encoding['missing_value']
     # create output dataset
     ds = xr.Dataset(
         coords={"lat": numpy.arange(-89.5, 90), "lon": numpy.arange(-179.5, 180)},
         data_vars={"Bathymetry": (["lat", "lon"], bathy)},
     )
-    ds = ds.interp(ds_orca.coords, method="nearest")
+    ds = ds.interp(ds_orca.coords, method="nearest", kwargs={'fill_value': None})
     ds = ds.rename({"lat": "nav_lat", "lon": "nav_lon"})
     ds.nav_lat.attrs = {
         "standard_name": "latitude",

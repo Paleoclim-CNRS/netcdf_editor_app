@@ -28,7 +28,6 @@ class InternalOceans(ValueChanger):
         labeled_array = labeled_array.astype(object)
         # continents have a value of 0
         labeled_array[labeled_array == 0] = numpy.NaN
-
         return labeled_array
 
     @pn.depends("ds", "attribute.value")
@@ -75,10 +74,6 @@ class InternalOceans(ValueChanger):
             )
         )
         return default_grpahs + internal_oceans
-    
-    def save(self, event):
-        with self.app.app_context():
-            save_revision(self.data_file_id, self.ds, "internal_oceans")
 
 
 if "bokeh_app" in __name__:

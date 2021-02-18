@@ -11,7 +11,7 @@ colormaps = hv.plotting.list_cmaps()
 
 
 class PassageProblems(ValueChanger):
-    file_type = "routing"
+    file_type = "bathy"
 
     def __init__(self, **params):
         super().__init__(*params)
@@ -34,7 +34,7 @@ class PassageProblems(ValueChanger):
 
         # we recode the values of land to -1 as
         # we did in the template
-        values = (self.ds[self.attribute.value].values <= 0).astype(int)
+        values = (self.ds[self.attribute.value].values > 0).astype(int)
         values[values == 0] = -1
 
         # Create an empty array where we are going to stock the values
