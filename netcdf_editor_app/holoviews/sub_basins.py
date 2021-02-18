@@ -10,7 +10,7 @@ from netcdf_editor_app.db import load_file, save_revision
 colormaps = hv.plotting.list_cmaps()
 
 
-class InternalOceans(ValueChanger):
+class SubBasins(ValueChanger):
     file_type = "bathy"
 
     def _default_ocean_values(self, bathy):
@@ -142,5 +142,5 @@ class InternalOceans(ValueChanger):
 
 
 if "bokeh_app" in __name__:
-    int_oc = InternalOceans()
-    int_oc.plot().servable("NetCDF Editor")
+    sub_basins = SubBasins()
+    sub_basins.plot().servable("NetCDF Editor")
