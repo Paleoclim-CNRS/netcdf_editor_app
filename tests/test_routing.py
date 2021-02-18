@@ -214,9 +214,9 @@ def assert_ds_routing_variable_names(ds_routing):
 
 
 def assert_ds_routing_coords_names(ds_routing):
-    # assert 'nav_lon' in list(ds_routing.coords)
-    # assert 'nav_lat' in list(ds_routing.coords)
-    assert set(ds_routing.coords) == set(ds_stn.coords)
+    assert 'nav_lon' in list(ds_routing.coords)
+    assert 'nav_lat' in list(ds_routing.coords)
+    # assert set(ds_routing.coords) == set(ds_stn.coords)
 
 
 def assert_ds_routing_variable_attrs(ds_routing):
