@@ -12,6 +12,8 @@ stages:
 branch:
   include:
   - main
+  - flask
+  - flask-docker-refactor
   exclude:
   - gh-pages
 notification: {}
