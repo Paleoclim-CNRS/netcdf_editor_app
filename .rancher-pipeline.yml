@@ -1,9 +1,22 @@
 stages:
-- name: Publish
+- name: Build
   steps:
-  - runScriptConfig:
-      image: docker/compose
-      shellScript: docker-compose --env-file ./config/.env.prod up --build
+  - publishImageConfig:
+      dockerfilePath: services/flask/Dockerfile
+      buildContext: Multi_Page_WebApp
+      tag: netcdf_editor_flask_app:${CICD_EXECUTION_SEQUENCE}
+  - publishImageConfig:
+      dockerfilePath: services/panel/Dockerfile
+      buildContext: Multi_Page_WebApp
+      tag: netcdf_editor_panel_app:${CICD_EXECUTION_SEQUENCE}
+  - publishImageConfig:
+      dockerfilePath: services/nginx/Dockerfile
+      buildContext: Multi_Page_WebApp
+      tag: netcdf_editor_nginx_app:${CICD_EXECUTION_SEQUENCE}
+- name: Deploy
+  steps:
+  - applyYamlConfig:
+      path: ./deployment.yaml
 branch:
   include:
   - main
