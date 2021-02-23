@@ -9,6 +9,9 @@ stages:
       dockerfilePath: services/panel/Dockerfile
       buildContext: Multi_Page_WebApp
       tag: netcdf_editor_panel_app:${CICD_EXECUTION_SEQUENCE}
+      env:
+        PANEL_HOST: 127.0.0.1
+        PANEL_SOCKET: 43829
   - publishImageConfig:
       dockerfilePath: services/nginx/Dockerfile
       buildContext: Multi_Page_WebApp
