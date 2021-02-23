@@ -148,7 +148,7 @@ def view_database_file(_id, file_type):
     select = Select(title="Variable:", options=list(ds.data_vars))
     select.js_on_change("value", callback)
 
-    p = Figure(x_range=(-180, 180), y_range=(-90, 90), aspect_ratio=2.5)
+    p = Figure(x_range=(-180, 180), y_range=(-90, 90), aspect_ratio=2.5, tools='pan,wheel_zoom,box_zoom,reset, hover')
     p.sizing_mode = "scale_width"
     p.image(
         image="to_plot",
