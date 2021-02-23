@@ -1,14 +1,9 @@
 stages:
 - name: Publish
   steps:
-  - publishImageConfig:
-      dockerfilePath: ./app.Dockerfile
-      buildContext: .
-      tag: netcdf_editor:${CICD_EXECUTION_SEQUENCE}
-- name: Deploy
-  steps:
-  - applyYamlConfig:
-      path: ./deployment.yaml
+  - runScriptConfig:
+      image: docker/compose
+      shellScript: docker-compose --env-file ./config/.env.prod up --build
 branch:
   include:
   - main
