@@ -11,7 +11,7 @@ stages:
       tag: netcdf_editor_panel_app:${CICD_EXECUTION_SEQUENCE}
   - publishImageConfig:
       dockerfilePath: ./Multi_Page_WebApp/services/nginx/Dockerfile
-      buildContext: Multi_Page_WebApp
+      buildContext: ./Multi_Page_WebApp/services/nginx
       tag: netcdf_editor_nginx_app:${CICD_EXECUTION_SEQUENCE}
 - name: Deploy
   steps:
