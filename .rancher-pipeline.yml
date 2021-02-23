@@ -2,18 +2,15 @@ stages:
 - name: Build
   steps:
   - publishImageConfig:
-      dockerfilePath: services/flask/Dockerfile
+      dockerfilePath: ./services/flask/Dockerfile
       buildContext: Multi_Page_WebApp
       tag: netcdf_editor_flask_app:${CICD_EXECUTION_SEQUENCE}
   - publishImageConfig:
-      dockerfilePath: services/panel/Dockerfile
+      dockerfilePath: ./services/panel/Dockerfile
       buildContext: Multi_Page_WebApp
       tag: netcdf_editor_panel_app:${CICD_EXECUTION_SEQUENCE}
-      env:
-        PANEL_HOST: 127.0.0.1
-        PANEL_SOCKET: 43829
   - publishImageConfig:
-      dockerfilePath: services/nginx/Dockerfile
+      dockerfilePath: ./services/nginx/Dockerfile
       buildContext: Multi_Page_WebApp
       tag: netcdf_editor_nginx_app:${CICD_EXECUTION_SEQUENCE}
 - name: Deploy
