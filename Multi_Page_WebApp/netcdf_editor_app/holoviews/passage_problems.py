@@ -1,4 +1,4 @@
-from value_changer import ValueChanger
+from internal_oceans import InternalOceans
 import panel as pn
 import xarray as xr
 import numpy
@@ -10,8 +10,9 @@ import holoviews as hv
 colormaps = hv.plotting.list_cmaps()
 
 
-class PassageProblems(ValueChanger):
+class PassageProblems(InternalOceans):
     file_type = "bathy"
+    elevation_positif = False
 
     def __init__(self, **params):
         super().__init__(*params)

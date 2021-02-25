@@ -12,13 +12,17 @@ colormaps = hv.plotting.list_cmaps()
 
 class InternalOceans(ValueChanger):
     file_type = "raw"
+    elevation_positif=True
 
     def _calculate_internal_oceans(self):
         # Calculate a binary array of above and below see level
         # from scipy doc:  Any non-zero values in `input` are
         # counted as features and zero values are considered the background.
         # This is why we choose ocean = True
-        ocean = self.ds[self.attribute.value] <= 0
+        if self.elevation_positif:
+            ocean = self.ds[self.attribute.value] <= 0
+        else:
+            ocean = self.ds[self.attribute.value] > 0
 
         # Use scipy to calculate internal oceans
         labeled_array, num_features = measurements.label(ocean)

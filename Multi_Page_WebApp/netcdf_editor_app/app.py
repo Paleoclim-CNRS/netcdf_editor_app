@@ -417,7 +417,7 @@ def passage_problems(_id):
             </div>"
     else:
         script = server_document(
-            url=f"{url_for('index')}panel/passage_pr(blems",
+            url=f"{url_for('index')}panel/passage_problems",
             arguments={"id": _id, "redirect": url_for("app.steps", _id=_id)},
         )
     # Arguments are reached through Bokeh curdoc.session_context.request.arguments
