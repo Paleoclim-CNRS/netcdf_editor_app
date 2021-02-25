@@ -1,0 +1,32 @@
+version: '3'
+services:
+
+  flask_app:
+    build:
+      context: Multi_Page_WebApp
+      dockerfile: services/flask/Dockerfile.dev
+    env_file: ${FLASK_CONFIG}
+    environment: 
+      PANEL_HOST: 127.0.0.1
+      PANEL_SOCKET: 5006
+    image: netcdf_editor_flask_app:latest 
+    ports:
+      - 5000:5000
+    entrypoint: python -m flask run
+    volumes:
+      - ./Multi_Page_WebApp:/usr/src/app
+  
+  panel_app:
+    build:
+      context: Multi_Page_WebApp
+      dockerfile: services/panel/Dockerfile
+    env_file: ${PANEL_CONFIG}
+    image: netcdf_editor_panel_app:latest
+    ports: 
+      - 5006:5006
+    volumes:
+       - ./Multi_Page_WebApp:/usr/src/app
+
+volumes:
+  instance_storage:
+
