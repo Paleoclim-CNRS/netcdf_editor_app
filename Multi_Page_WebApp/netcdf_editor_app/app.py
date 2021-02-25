@@ -322,6 +322,7 @@ def regrid(_id):
             ds = ds.interp(
                 interp_options,
                 method=interpolator,
+                kwargs=dict(fill_value=None)
             )
             # Save file
             save_revision(_id, ds, "raw")
