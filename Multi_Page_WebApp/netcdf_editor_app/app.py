@@ -274,6 +274,7 @@ def variable_explorer(_id, file_type):
 @login_required
 def regrid(_id):
     if request.method == "POST":
+        limits = request.form['limits']
         lon_step = float(request.form["Longitude Step"])
         lat_step = float(request.form["Latitude Step"])
         interpolator = request.form["interpolator"]
@@ -285,6 +286,8 @@ def regrid(_id):
             error += "Incorrect Latitude step; "
         elif interpolator not in ["linear", "nearest"]:
             error += "Unknown interpolator"
+        elif limits not in ["default", "data"]:
+            error += "Unknown limit type"
 
         if not len(error):
             # Load file
@@ -292,19 +295,24 @@ def regrid(_id):
             lon, lat = get_lon_lat_names(_id)
             # Extremities
             new_values = []
-            for coord, step in zip([lon, lat], [lon_step, lat_step]):
-                # Get sorted values
-                sorted_vals = numpy.sort(numpy.unique(ds[coord]))
-                min_val = (
-                    ds[coord].min()
-                    - (sorted_vals[1] - sorted_vals[0]) / 2.0
-                    + step / 2.0
-                )
-                max_val = (
-                    ds[coord].max()
-                    + (sorted_vals[-1] - sorted_vals[-2]) / 2.0
-                    + step / 2.0
-                )
+            # Limits
+            default_limits = [180, 90]
+            for coord, step, default_limit  in zip([lon, lat], [lon_step, lat_step], default_limits):
+                if limits == 'default':
+                    lower = -default_limit
+                    upper = default_limit
+                elif limits == 'data':
+                    # Get sorted values
+                    sorted_vals = numpy.sort(numpy.unique(ds[coord]))
+                    lower = ds[coord].min() - (sorted_vals[1] - sorted_vals[0]) / 2.0
+                    upper = ds[coord].max() + (sorted_vals[-1] - sorted_vals[-2]) / 2.0
+                else:
+                    raise AttributeError("Unknown data type passed from UI")
+
+                min_val = lower + step / 2.0
+                max_val = upper + step / 2.0
+
+                # TODO maybe we should use numpy.linspace here?
                 new_values.append(numpy.arange(min_val, max_val, step))
             # Interpolate data file
             interp_options = {
@@ -318,8 +326,8 @@ def regrid(_id):
             # Save file
             save_revision(_id, ds, "raw")
             flash(
-                "File regrided using {} interpolation with Longitude steps {} and Latitude steps {}".format(
-                    interpolator, lon_step, lat_step
+                "File regrided using {} interpolation with Longitude steps {} and Latitude steps {} and {} limits".format(
+                    interpolator, lon_step, lat_step, limits
                 )
             )
             try:

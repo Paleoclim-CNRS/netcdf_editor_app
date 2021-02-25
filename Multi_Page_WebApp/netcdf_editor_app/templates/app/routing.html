@@ -33,6 +33,7 @@ Differences:
         <form method="POST" action="{{ url_for('app.regrid', _id=_id) }}">
             <input type="hidden" name="Longitude Step" id="lon-step" placeholder="Longitude Step" value=1 required>
             <input type="hidden" name="Latitude Step" id="lat-step" placeholder="Latitude Step" value=1 required>
+            <input type="hidden" name="limits" value="default">
             <p>Interpolation Method:</p>
             <div>
                 <input type="radio" name="interpolator" value="linear" checked>
