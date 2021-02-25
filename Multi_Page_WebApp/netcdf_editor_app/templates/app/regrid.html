@@ -38,12 +38,17 @@
     value=1 required>
   <p>Interpolation Method:</p>
   <div>
-    <input type="radio" name="interpolator" value="linear" checked>
-    <label for="bilinear">Bilinear</label>
-
-    <input type="radio" name="interpolator" value="nearest">
+    <input type="radio" name="interpolator" value="nearest" checked>
     <label for="nearest-neighbor">Nearest Neighbor</label>
 
+    <input type="radio" name="interpolator" value="linear">
+    <label for="bilinear">Bilinear</label>
+  </div>
+  <div class="alert alert-warning" role="alert" id='warning-interpolator'>
+    <p>
+      It has been observered that NaN values can occur around the edges usign this method if this is the case please use nearest
+      neighbor regridding
+    </p>
   </div>
   <button class="btn btn-success btn-lg" type="submit" id="regrid-form-submit">
     <i class="fas fa-calculator"></i>
@@ -58,8 +63,8 @@
     var limits = document.form.limits;
     for (var i = 0; i < limits.length; i++) {
       limits[i].addEventListener('change', function () {
-        
-        
+
+
         if (this.value == 'default') {
           $('#info-default-limits').show();
           $('#danger-data-limits').hide();
@@ -72,6 +77,18 @@
     }
     $('#info-default-limits').show();
     $('#danger-data-limits').hide();
+
+    var interpolators = document.form.interpolator;
+    for (var i = 0; i < interpolators.length; i++) {
+      interpolators[i].addEventListener('change', function () {
+        if (this.value == 'linear') {
+          $('#warning-interpolator').show();
+        } else {
+          $('#warning-interpolator').hide();
+        }
+      })
+    }
+    $('#warning-interpolator').hide();
   })
 </script>
 {% endblock %}
