@@ -6,9 +6,6 @@ services:
       context: Multi_Page_WebApp
       dockerfile: services/flask/Dockerfile.dev
     env_file: ${FLASK_CONFIG}
-    environment: 
-      PANEL_HOST: 127.0.0.1
-      PANEL_SOCKET: 5006
     image: netcdf_editor_flask_app:latest 
     ports:
       - 5000:5000
