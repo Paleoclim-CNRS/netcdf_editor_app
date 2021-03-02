@@ -12,6 +12,14 @@
 
 
 {% block content %}
+{% if not_seen %}
+<div class="alert alert-danger" role="alert" \
+style="display: flex; align-items: center; justify-content: center; flex-direction: column;">
+Routing file not found in Database please perform Routing step first
+<br></br> 
+<button onclick=window.location.href="{{ url_for('app.routing', _id=_id) }}" id="myButton" class="btn btn-primary" >Routing</button>
+</div>
+{% else %}
 <table id="myTable" class="table" data-toggle="table" data-mobile-responsive="true">
 
     <thead class="thead-dark">
@@ -288,6 +296,8 @@
     <input type="hidden" name="data" id="data" />
     <input type="submit" class="btn btn-success btn-lg" id="generateBTN" value='Generate PFT file' />
 </form>
+
+{% endif %}
 
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
