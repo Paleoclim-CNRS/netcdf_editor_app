@@ -457,7 +457,12 @@ def pft(_id):
         save_revision(_id, ds, "pft")
         return redirect(url_for("app.steps", _id=_id))
 
-    return render_template("app/pft.html", _id=_id)
+    seen_file_types = get_file_types(_id)
+    not_seen = False
+    if "routing" not in seen_file_types:
+        not_seen=True
+
+    return render_template("app/pft.html", _id=_id, not_seen=not_seen)
 
 
 @bp.route("/<int:_id>/sub_basins")
