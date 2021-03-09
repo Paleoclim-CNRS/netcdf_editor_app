@@ -14,7 +14,28 @@ from scipy.signal import convolve2d
 import hvplot.xarray
 import holoviews as hv
 
+import palettable
+
+
+CUSTOM_COLORMAPS = {
+    'Oleron': palettable.scientific.sequential.Oleron_18.mpl_colormap,
+    'Oslo':  palettable.scientific.sequential.Oslo_18.mpl_colormap,
+    'Bilbao':  palettable.scientific.sequential.Bilbao_18.mpl_colormap,
+    'Vik': palettable.scientific.diverging.Vik_18.mpl_colormap,
+    'Cork': palettable.scientific.diverging.Cork_18.mpl_colormap,
+    'LaPaz': palettable.scientific.sequential.LaPaz_18.mpl_colormap,
+    'Batlow': palettable.scientific.sequential.Batlow_18.mpl_colormap
+}
+
+keys, values = list(CUSTOM_COLORMAPS.keys()), list(CUSTOM_COLORMAPS.values())
+for i in range(len(keys)):
+    key = keys[i]
+    value = values[i]
+    CUSTOM_COLORMAPS[key + '_r'] = value.reversed()
+
 colormaps = hv.plotting.list_cmaps()
+colormaps.extend(CUSTOM_COLORMAPS.keys())
+colormaps = sorted(colormaps, key=lambda L: (L.lower(), L))
 
 opts.defaults(
     opts.Image(
@@ -77,12 +98,12 @@ class ValueChanger(param.Parameterized):
         self.colormap = pn.widgets.Select(
             name="Colormap",
             options=colormaps,
-            value="terrain",
+            value='Oleron',
             max_width=200,
             align="start",
         )
-        self.colormap_min = pn.widgets.IntInput(name="Min Value", width=100)
-        self.colormap_max = pn.widgets.IntInput(
+        self.colormap_min = pn.widgets.FloatInput(name="Min Value", width=100)
+        self.colormap_max = pn.widgets.FloatInput(
             name="Max Value", width=100, align="end"
         )
         self.colormap_range_slider = pn.widgets.RangeSlider(width=400, show_value=False)
@@ -439,9 +460,14 @@ class ValueChanger(param.Parameterized):
         }
         return grid_style
 
+    def _cmap(self):
+        if self.colormap.value in CUSTOM_COLORMAPS.keys():
+            return CUSTOM_COLORMAPS[self.colormap.value]
+        return self.colormap.value
+
     def _update_clims(self):
-        min_value = int(self.ds[self.attribute.value].min())
-        max_value = int(self.ds[self.attribute.value].max())
+        min_value = float(self.ds[self.attribute.value].min())
+        max_value = float(self.ds[self.attribute.value].max())
         # Update the limits of the range slider witht the new values
         self.colormap_range_slider.start = min_value
         self.colormap_range_slider.end = max_value
@@ -492,7 +518,7 @@ class ValueChanger(param.Parameterized):
     )
     def _opts(self, element):
         return element.opts(
-            cmap=self.colormap.value,
+            cmap=self._cmap(),
             clim=self._clims(),
             color_levels=self._color_levels(),
             colorbar_opts=self._colorbar_opts(),
@@ -504,6 +530,7 @@ class ValueChanger(param.Parameterized):
         return hv.Image(
             self.ds[self.attribute.value],
             [*self._get_ordered_coordinate_dimension_names()],
+            group="Map"
         )
 
     def _get_graphs(self):

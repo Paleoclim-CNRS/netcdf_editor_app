@@ -87,7 +87,10 @@ def upload_file(file, file_type="raw"):
 def save_revision(_id, ds, file_type):
     temp_name = next(tempfile._get_candidate_names()) + ".nc"
     # Save the file to the file system
-    ds.to_netcdf(os.path.join(current_app.config["UPLOAD_FOLDER"], temp_name))
+    # We use NETCDF3_64Bit files because on some of the calculators the later libraries have not been installed
+    # to handle netcdf4(?) or 5(this is sure)
+    # However Anta Sarr ran a simulation using netcdf5 files so the simulator appears to accept the files
+    ds.to_netcdf(os.path.join(current_app.config["UPLOAD_FOLDER"], temp_name), format="NETCDF3_64BIT")
     # ADD the file to the revisions table
     db = get_db()
     # Get latest revision

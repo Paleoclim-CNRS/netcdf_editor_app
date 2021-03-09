@@ -1,0 +1,94 @@
+{% extends 'base.html' %}
+
+{% block header %}
+<h1>{% block title %}Regrid{% endblock %}</h1>
+{% endblock %}
+
+{% block content %}
+<form name='form' method="POST">
+  <legend>Limits</legend>
+  <div>
+    <input type="radio" name="limits" value="default" checked>
+    <label for="default">Default</label>
+
+    <input type="radio" name="limits" value="data">
+    <label for="data">Data Limits</label>
+
+  </div>
+
+  <div class="alert alert-info" role="alert" id='info-default-limits'>
+    <p>
+      Default limits are being used, this means latitude values from -90 to +90 and longitude values from -180 to 180.
+    </p>
+    <p>
+      It is advised to use this method by default unless you have a specific reason not to.
+    </p>
+  </div>
+
+  <div class="alert alert-danger" role="alert" id='danger-data-limits'>
+    <p>
+      It is not advised to use this method unless you have a specific reason not to.
+    </p>
+  </div>
+
+  <legend>Steps</legend>
+  <p>Longitude: </p><input type="number" name="Longitude Step" id="lon-step" placeholder="Longitude Step" min=0
+    step=0.01 value=1 required>
+  <p>Latitude: </p><input type="number" name="Latitude Step" id="lat-step" placeholder="Latitude Step" min=0 step=0.01
+    value=1 required>
+  <p>Interpolation Method:</p>
+  <div>
+    <input type="radio" name="interpolator" value="nearest" checked>
+    <label for="nearest-neighbor">Nearest Neighbor</label>
+
+    <input type="radio" name="interpolator" value="linear">
+    <label for="bilinear">Bilinear</label>
+  </div>
+  <div class="alert alert-warning" role="alert" id='warning-interpolator'>
+    <p>
+      It has been observered that NaN values can occur around the edges usign this method if this is the case please use nearest
+      neighbor regridding
+    </p>
+  </div>
+  <button class="btn btn-success btn-lg" type="submit" id="regrid-form-submit">
+    <i class="fas fa-calculator"></i>
+    Regrid
+  </button>
+</form>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+
+<script>
+  $(document).ready(function () {
+    var limits = document.form.limits;
+    for (var i = 0; i < limits.length; i++) {
+      limits[i].addEventListener('change', function () {
+
+
+        if (this.value == 'default') {
+          $('#info-default-limits').show();
+          $('#danger-data-limits').hide();
+        }
+        if (this.value == 'data') {
+          $('#info-default-limits').hide();
+          $('#danger-data-limits').show();
+        }
+      });
+    }
+    $('#info-default-limits').show();
+    $('#danger-data-limits').hide();
+
+    var interpolators = document.form.interpolator;
+    for (var i = 0; i < interpolators.length; i++) {
+      interpolators[i].addEventListener('change', function () {
+        if (this.value == 'linear') {
+          $('#warning-interpolator').show();
+        } else {
+          $('#warning-interpolator').hide();
+        }
+      })
+    }
+    $('#warning-interpolator').hide();
+  })
+</script>
+{% endblock %}

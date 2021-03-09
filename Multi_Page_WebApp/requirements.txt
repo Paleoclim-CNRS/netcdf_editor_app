@@ -1,3 +1,2 @@
 -r requirements.flask.txt
--r requirements.test.txt
 -r requirements.viz.txt

@@ -256,7 +256,7 @@ def revision_comparison(_id, file_type):
 @login_required
 def variable_explorer(_id, file_type):
     script = server_document(
-        url=f"http://{os.environ['PANEL_HOST']}:{os.environ['PANEL_SOCKET']}/value_changer",
+        url=f"{url_for('index')}panel/value_changer",
         arguments={
             "id": _id,
             "redirect": url_for("app.steps", _id=_id),
@@ -274,6 +274,7 @@ def variable_explorer(_id, file_type):
 @login_required
 def regrid(_id):
     if request.method == "POST":
+        limits = request.form['limits']
         lon_step = float(request.form["Longitude Step"])
         lat_step = float(request.form["Latitude Step"])
         interpolator = request.form["interpolator"]
@@ -285,6 +286,8 @@ def regrid(_id):
             error += "Incorrect Latitude step; "
         elif interpolator not in ["linear", "nearest"]:
             error += "Unknown interpolator"
+        elif limits not in ["default", "data"]:
+            error += "Unknown limit type"
 
         if not len(error):
             # Load file
@@ -292,19 +295,24 @@ def regrid(_id):
             lon, lat = get_lon_lat_names(_id)
             # Extremities
             new_values = []
-            for coord, step in zip([lon, lat], [lon_step, lat_step]):
-                # Get sorted values
-                sorted_vals = numpy.sort(numpy.unique(ds[coord]))
-                min_val = (
-                    ds[coord].min()
-                    - (sorted_vals[1] - sorted_vals[0]) / 2.0
-                    + step / 2.0
-                )
-                max_val = (
-                    ds[coord].max()
-                    + (sorted_vals[-1] - sorted_vals[-2]) / 2.0
-                    + step / 2.0
-                )
+            # Limits
+            default_limits = [180, 90]
+            for coord, step, default_limit  in zip([lon, lat], [lon_step, lat_step], default_limits):
+                if limits == 'default':
+                    lower = -default_limit
+                    upper = default_limit
+                elif limits == 'data':
+                    # Get sorted values
+                    sorted_vals = numpy.sort(numpy.unique(ds[coord]))
+                    lower = ds[coord].min() - (sorted_vals[1] - sorted_vals[0]) / 2.0
+                    upper = ds[coord].max() + (sorted_vals[-1] - sorted_vals[-2]) / 2.0
+                else:
+                    raise AttributeError("Unknown data type passed from UI")
+
+                min_val = lower + step / 2.0
+                max_val = upper + step / 2.0
+
+                # TODO maybe we should use numpy.linspace here?
                 new_values.append(numpy.arange(min_val, max_val, step))
             # Interpolate data file
             interp_options = {
@@ -314,12 +322,13 @@ def regrid(_id):
             ds = ds.interp(
                 interp_options,
                 method=interpolator,
+                kwargs=dict(fill_value=None)
             )
             # Save file
             save_revision(_id, ds, "raw")
             flash(
-                "File regrided using {} interpolation with Longitude steps {} and Latitude steps {}".format(
-                    interpolator, lon_step, lat_step
+                "File regrided using {} interpolation with Longitude steps {} and Latitude steps {} and {} limits".format(
+                    interpolator, lon_step, lat_step, limits
                 )
             )
             try:
@@ -337,7 +346,7 @@ def regrid(_id):
 @login_required
 def internal_oceans(_id):
     script = server_document(
-        url=f"http://{os.environ['PANEL_HOST']}:{os.environ['PANEL_SOCKET']}/internal_oceans",
+        url=f"{url_for('index')}panel/internal_oceans",
         arguments={"id": _id, "redirect": url_for("app.steps", _id=_id)},
     )
     # Arguments are reached through Bokeh curdoc.session_context.request.arguments
@@ -408,7 +417,7 @@ def passage_problems(_id):
             </div>"
     else:
         script = server_document(
-            url=f"http://{os.environ['PANEL_HOST']}:{os.environ['PANEL_SOCKET']}/passage_problems",
+            url=f"{url_for('index')}panel/passage_problems",
             arguments={"id": _id, "redirect": url_for("app.steps", _id=_id)},
         )
     # Arguments are reached through Bokeh curdoc.session_context.request.arguments
@@ -448,16 +457,23 @@ def pft(_id):
         save_revision(_id, ds, "pft")
         return redirect(url_for("app.steps", _id=_id))
 
-    return render_template("app/pft.html", _id=_id)
+    seen_file_types = get_file_types(_id)
+    not_seen = False
+    if "routing" not in seen_file_types:
+        not_seen=True
+
+    return render_template("app/pft.html", _id=_id, not_seen=not_seen)
 
 
 @bp.route("/<int:_id>/sub_basins")
 @login_required
 def subbasins(_id):
     script = server_document(
-        url=f"http://{os.environ['PANEL_HOST']}:{os.environ['PANEL_SOCKET']}/sub_basins",
+        url=f"{url_for('index')}panel/sub_basins",
         arguments={"id": _id, "redirect": url_for("app.steps", _id=_id)},
+
     )
     # Arguments are reached through Bokeh curdoc.session_context.request.arguments
     # And hence through panel.state.curdoc.session_context.request.arguments
     return render_template("app/panel_app.html", script=script, title="Sub Basins")
+
