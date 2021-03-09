@@ -14,7 +14,20 @@ from scipy.signal import convolve2d
 import hvplot.xarray
 import holoviews as hv
 
+import palettable
+
+
+CUSTOM_COLORMAPS = {
+    'Oleron': palettable.scientific.sequential.Oleron_18.mpl_colormap,
+    'Vik': palettable.scientific.diverging.Vik_18.mpl_colormap,
+    'Cork': palettable.scientific.diverging.Cork_18.mpl_colormap,
+    'LaPaz': palettable.scientific.sequential.LaPaz_18.mpl_colormap,
+    'Batlow': palettable.scientific.sequential.Batlow_18.mpl_colormap
+}
+
 colormaps = hv.plotting.list_cmaps()
+colormaps.extend(CUSTOM_COLORMAPS.keys())
+colormaps = sorted(colormaps, key=lambda L: (L.lower(), L))
 
 opts.defaults(
     opts.Image(
@@ -77,7 +90,7 @@ class ValueChanger(param.Parameterized):
         self.colormap = pn.widgets.Select(
             name="Colormap",
             options=colormaps,
-            value="terrain",
+            value='Oleron',
             max_width=200,
             align="start",
         )
@@ -439,6 +452,11 @@ class ValueChanger(param.Parameterized):
         }
         return grid_style
 
+    def _cmap(self):
+        if self.colormap.value in CUSTOM_COLORMAPS.keys():
+            return CUSTOM_COLORMAPS[self.colormap.value]
+        return self.colormap.value
+
     def _update_clims(self):
         min_value = int(self.ds[self.attribute.value].min())
         max_value = int(self.ds[self.attribute.value].max())
@@ -492,7 +510,7 @@ class ValueChanger(param.Parameterized):
     )
     def _opts(self, element):
         return element.opts(
-            cmap=self.colormap.value,
+            cmap=self._cmap(),
             clim=self._clims(),
             color_levels=self._color_levels(),
             colorbar_opts=self._colorbar_opts(),
