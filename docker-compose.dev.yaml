@@ -16,7 +16,7 @@ services:
     image: netcdf_editor_flask_app:latest 
     expose:
       - 5000
-    entrypoint: python -m flask run
+    entrypoint: flask run
     volumes:
       - ./Multi_Page_WebApp:/usr/src/app
   
