@@ -19,11 +19,19 @@ import palettable
 
 CUSTOM_COLORMAPS = {
     'Oleron': palettable.scientific.sequential.Oleron_18.mpl_colormap,
+    'Oslo':  palettable.scientific.sequential.Oslo_18.mpl_colormap,
+    'Bilbao':  palettable.scientific.sequential.Bilbao_18.mpl_colormap,
     'Vik': palettable.scientific.diverging.Vik_18.mpl_colormap,
     'Cork': palettable.scientific.diverging.Cork_18.mpl_colormap,
     'LaPaz': palettable.scientific.sequential.LaPaz_18.mpl_colormap,
     'Batlow': palettable.scientific.sequential.Batlow_18.mpl_colormap
 }
+
+keys, values = list(CUSTOM_COLORMAPS.keys()), list(CUSTOM_COLORMAPS.values())
+for i in range(len(keys)):
+    key = keys[i]
+    value = values[i]
+    CUSTOM_COLORMAPS[key + '_r'] = value.reversed()
 
 colormaps = hv.plotting.list_cmaps()
 colormaps.extend(CUSTOM_COLORMAPS.keys())
