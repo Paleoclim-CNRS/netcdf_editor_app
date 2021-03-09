@@ -80,6 +80,20 @@ class PassageProblems(InternalOceans):
         )
         return passage_problems_image
 
+    def _update_clims(self):
+        # Color clipping occurs at min val NOT included
+        # When first setting up viewer for passage problems we do not want to see the bathy = 0 -> the land
+        min_value = float(self.ds[self.attribute.value].min()) + 0.5
+        max_value = float(self.ds[self.attribute.value].max())
+        # Update the limits of the range slider witht the new values
+        self.colormap_range_slider.start = min_value
+        self.colormap_range_slider.end = max_value
+        # Don't necessarily update the min / max values of the colormap
+        if self._auto_update_cmap_min:
+            self.colormap_min.value = min_value
+        if self._auto_update_cmap_max:
+            self.colormap_max.value = max_value
+
     def _get_graphs(self):
         default_grpahs = super()._get_graphs()
         passage_problems = hv.DynamicMap(self.load_passage_problems).opts(
@@ -89,6 +103,12 @@ class PassageProblems(InternalOceans):
                 clim=(1.2, 1.5),
                 colorbar=False,
                 tools=[],
+            )
+        )
+        default_grpahs.opts(
+            hv.opts.Image(
+                "Map",
+                clipping_colors={"min": "#dedede", "max": "#ffffff"},
             )
         )
         return default_grpahs + passage_problems
