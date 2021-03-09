@@ -27,6 +27,48 @@ class InternalOceans(ValueChanger):
         # Use scipy to calculate internal oceans
         labeled_array, num_features = measurements.label(ocean)
 
+        # We need to fix the longitude periodicity
+        # Algo
+        # 1. Find where different
+        # 2. Find all connected values
+        # 3. Replace par min value
+        ids = labeled_array[:, 0] != labeled_array[:, -1]
+
+        # Loop Through and add connected labels
+        connections = []
+        for val in numpy.where(ids)[0]:
+            # Get the values on the edges
+            left, right = labeled_array[val, [0, -1]]
+            # If we are next to land then we don't care so carry on
+            if left == 0 or right == 0:
+                continue
+            # Variable to test if the values have been encountered before
+            added = False
+            # loop over each connection
+            for i in range(len(connections)):
+                # See if one of the values has already been seen
+                if left in connections[i] or right in connections[i]:
+                    # If it has been seen add both values
+                    #TODO probably better way than adding then removing but the arrays shouldnt be too big
+                    connections[i].extend([left, right])
+                    # Remove the excess values
+                    connections[i] = list(set(connections[i]))
+                    # Tell the algo not to create a new connections set
+                    added = True
+                    break
+            # If neither of the values have been encountered before then add them
+            if not added:
+                connections.append([left, right])
+        
+        # Replace the values in the array with the minimum seen connected value
+        for conn in connections:
+            # Get the smallest seen value
+            replacement_val = min(conn)
+            # For each value replace all the values in the array with the minimum
+            #TODO this is will also set the smallest value -> unnecessary
+            for val in conn:
+                labeled_array[labeled_array==val] = replacement_val
+
         # Replace continents with numpy.NaN
         # Originally they are ints or floats and numpy.NaN can't be set
         labeled_array = labeled_array.astype(object)
