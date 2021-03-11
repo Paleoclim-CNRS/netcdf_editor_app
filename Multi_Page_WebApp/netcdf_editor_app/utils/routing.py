@@ -235,6 +235,8 @@ def _ensure_south_up(topo, latitudes):
 
 def fix_topo(topo, latitudes):
     topo = topo.copy()
+    # Some files with trailing float problems (1e-14) have been observed this should fix that
+    topo = numpy.round(topo, 3)
     topo = _ensure_south_up(topo, latitudes)
     topo = _fill_depressions_in_topo(topo)
     topo = _add_gradient_to_flats(topo)
