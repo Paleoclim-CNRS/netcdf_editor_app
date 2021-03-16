@@ -166,7 +166,18 @@ It is possible to use 0 as values that we do not care about hence the templates 
 ![](img/workflow.png)
 
 ### Local
-The repository is setup to be able to run on local hardware (user's laptop or on premise cloud). To run locally simply clone this repository and run:
+The repository is setup to be able to run on local hardware (user's laptop or on premise cloud). You will need docker and docker-compose installed.
+
+1. Clone this repository and check out the appropriate brach. `git clone https://github.com/CEREGE-CL/netcdf_editor_app.git`
+1. Change into the directory `cd netcdf-editor-app`
+1. make sure you aren't already running the code `docker-compose --env-file=config/.env.prod down` the env file doesn't matter it is just so docker doesn't complain
+1. Checkout the branch you want
+1. Make sure it is up to date `git reset --hard @{u}` (resets to latest changes on repo)
+1. Start the containers `docker-compose --env-file=config/.env.prod up --build -d` (`-d` means detached mode so once the containers all start the command line is returned to you) you can also you `config/.env/dev`
+1. Connect to the container
+    - Do not pay attention to what is happening in the scripts / logs here because that is what is happening inside the containers! We interact with the app via `nginx` app (look inside the dockercompose file and config files to find the port that is being used). You can find the port being used by running `docker contianer ls` and looking for `netcdf_editor_app_nginx` under ports you will see something like `0.0.0.0:5000->80/tcp` this means it is running on the local port `5000`. If the machine is behind a jump server or proxy you are going to need to connect via that.
+
+ To run locally simply clone this repository and run:
 
 ```docker-compose -f "docker-compose.yml" up --build```
 
