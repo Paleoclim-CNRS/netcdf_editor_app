@@ -1,8 +1,0 @@
-panel
-holoviz
-shapely
-xarray
-h5netcdf
-scipy
-requests
-spatialpandas

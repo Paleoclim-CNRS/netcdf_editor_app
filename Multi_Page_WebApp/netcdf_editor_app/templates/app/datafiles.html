@@ -1,0 +1,32 @@
+{% extends 'base.html' %}
+
+{% block header %}
+<h1>{% block title %}Data Files{% endblock %}</h1>
+{% if g.user %}
+<form action="{{ url_for('app.upload') }}" method="GET">
+    <button type="submit" class="btn btn-primary btn-lg"><i class="fas fa-upload"></i> Upload</button>
+</form>
+{% endif %}
+{% endblock %}
+
+{% block content %}
+{% for df in data_files %}
+<article class="post">
+    <header>
+        <div>
+            <a class="action" href="{{ url_for('app.steps', _id=df['id']) }}">
+                <h1>{{ df['filename'] }} Last Modified on {{ df['created'].strftime('%Y-%m-%d')
+                    }}</h1>
+            </a>
+        </div>
+        <a class="action" href="{{ url_for('app.set_coords', _id=df['id']) }}">Set Coordinates</a>
+        <form action="{{ url_for('app.delete', _id=df['id']) }}" method="POST">
+            <button type="submit" class="btn btn-danger btn-sm"><i class="fas fa-trash"></i> DELETE</button>
+        </form>
+    </header>
+</article>
+{% if not loop.last %}
+<hr>
+{% endif %}
+{% endfor %}
+{% endblock %}

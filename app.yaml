@@ -1,7 +1,0 @@
-runtime: python
-env: flex
-entrypoint: panel serve --num-procs=1 --port=8080 --address=0.0.0.0 --allow-websocket-origin=* --websocket-max-message-size=100000000 app.ipynb
-
-
-runtime_config:
-  python_version: 3

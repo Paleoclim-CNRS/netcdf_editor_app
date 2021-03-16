@@ -1,0 +1,75 @@
+{% extends 'base.html' %}
+
+{% block header %}
+<h1>{% block title %}Run Processing{% endblock %}</h1>
+{% endblock %}
+
+
+{% block content %}
+This will:
+<ul>
+    <li>Fill depression in topography</li>
+    <li>Run equivalent of make_runoff_JB</li>
+    <li>Run equivalent of make_pre_stn</li>
+    <li>Run equivalent of make_stn</li>
+</ul>
+
+Differences:
+<ul>
+    <li>nav_lat and nav_lon are assigned as coorindates and not data variables in the final netcdf file</li>
+    <li>topo is also output in final netcdf file</li>
+</ul>
+<div style="display: flex; align-items: center; justify-content: center;">
+    <div id="loading" style="display: none; padding: 10vh;">
+        <div class="loader"></div>
+        <p style="padding-top: 2em;">This Generally takes a few moments ...</p>
+    </div>
+</div>
+
+<div id="proc" class="center">
+    {% if show_regrid %}
+    <div class="alert alert-danger" role="alert">
+        Wrong Shape got {{ data_shape }} expected (180, 360) Please regrid
+        <form method="POST" action="{{ url_for('app.regrid', _id=_id) }}">
+            <input type="hidden" name="Longitude Step" id="lon-step" placeholder="Longitude Step" value=1 required>
+            <input type="hidden" name="Latitude Step" id="lat-step" placeholder="Latitude Step" value=1 required>
+            <input type="hidden" name="limits" value="default">
+            <p>Interpolation Method:</p>
+            <div>
+                <input type="radio" name="interpolator" value="linear" checked>
+                <label for="bilinear">Bilinear</label>
+
+                <input type="radio" name="interpolator" value="nearest">
+                <label for="nearest-neighbor">Nearest Neighbor</label>
+
+            </div>
+            <button type="submit" class="btn btn-success btn-lg">
+                <i class="fas fa-calculator"></i>
+                Regrid
+            </button>
+            <input type="hidden" name="next" value="{{ url_for('app.routing', _id=_id) }}">
+        </form>
+    </div>
+    {% endif %}
+    <form method=post>
+        <label for="topo_var">Topography Variable:</label>
+        <select name="topo_var">
+            {% for name in variable_names %}
+            <option value={{ name }}>{{ name }}</option>
+            {% endfor %}
+        </select>
+        <br></br>
+        {% if show_regrid %}
+        <button type="submit" class="btn btn-success btn-lg" onclick="$('#loading').show();$('#proc').hide();" disabled>
+            <i class="fas fa-calculator"></i>
+            Start Processing
+        </button>
+        {% else %}
+        <button type="submit" class="btn btn-success btn-lg" onclick="$('#loading').show();$('#proc').hide();">
+            <i class="fas fa-calculator"></i>
+            Start Processing
+        </button>
+        {% endif %}
+    </form>
+</div>
+{% endblock %}

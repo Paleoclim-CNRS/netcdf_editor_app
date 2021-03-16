@@ -1,9 +1,37 @@
 version: '3'
 services:
-  app:
-    build:
-      context: .
-      dockerfile: app.Dockerfile
-    image: netcdf_editor:latest
+  nginx:
+    build: Multi_Page_WebApp/services/nginx
     ports:
-     - "8080:8080"
+      - ${NGINX_PORT}:80
+    depends_on: 
+      - flask_app
+      - panel_app
+    
+  flask_app:
+    build:
+      context: Multi_Page_WebApp
+      dockerfile: services/flask/Dockerfile
+    env_file: ${FLASK_CONFIG}
+    image: netcdf_editor_flask_app:latest 
+    expose:
+      - 5000
+    entrypoint: gunicorn --bind 0.0.0.0:5000 "netcdf_editor_app:create_app()"
+    # entrypoint: python -m flask run
+    volumes:
+      - instance_storage:/usr/src/app/instance
+  
+  panel_app:
+    build:
+      context: Multi_Page_WebApp
+      dockerfile: services/panel/Dockerfile
+    env_file: ${PANEL_CONFIG}
+    image: netcdf_editor_panel_app:latest
+    expose: 
+      - 5006
+    volumes:
+      - instance_storage:/usr/src/app/instance
+
+volumes:
+  instance_storage:
+
