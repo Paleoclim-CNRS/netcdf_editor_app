@@ -32,6 +32,8 @@ from netcdf_editor_app.utils.routing import run_routines
 from netcdf_editor_app.utils.pft import generate_pft_netcdf
 
 import numpy
+from scipy.ndimage import median_filter
+import xarray as xr
 import pandas as pd
 import json
 import hvplot.xarray
@@ -262,6 +264,7 @@ def variable_explorer(_id, file_type):
             "redirect": url_for("app.steps", _id=_id),
             "file_type": file_type,
         },
+        # resources=CDN
     )
     # Arguments are reached through Bokeh curdoc.session_context.request.arguments
     # And hence through panel.state.curdoc.session_context.request.arguments
@@ -477,3 +480,74 @@ def subbasins(_id):
     # And hence through panel.state.curdoc.session_context.request.arguments
     return render_template("app/panel_app.html", script=script, title="Sub Basins")
 
+@bp.route("/<int:_id>/heatflow", methods=("GET", "POST"))
+@login_required
+def heatflow(_id):
+    if request.method == 'POST':
+        age = float(request.form['age'])
+        error = ""
+
+        if age < 0:
+            error += "Age can not be below 0; "
+        elif int(age) != age:
+            error += "Age must be a whole number; "
+        elif age > 230:
+            error += "Age must be more recent than 230 Million Years"
+
+
+        if not len(error):
+            # ds = get_age_file(age)
+            ds = load_file(_id, "bathy")
+            sfage0 = ((ds.Bathymetry - 2600.) / 365) ** 2
+            sfage20 = (-1/0.0278) * numpy.log((ds.Bathymetry - 5651.) / (-2473))
+
+            masksf0 = xr.where(sfage0 > 20, 0, 1)
+            masksf20 = xr.where(sfage20 >= 20, 1, 0)
+
+            sfage = sfage0 * masksf0 + sfage20 * masksf20
+
+            maskdepth = xr.where(ds.Bathymetry > 2500, 1, 0)
+
+            heat0 = 490/(sfage ** 0.5)
+            heat0m = heat0 * maskdepth
+
+            heat0oc = xr.where(heat0m > 400, 400, heat0m)
+            heat0ma = xr.where((ds.Bathymetry > 0) & (ds.Bathymetry < 2500), 48, 0)
+            heat0ocm = xr.where(heat0oc > 0, heat0oc, 0)
+            heat0mam = xr.where(heat0ma > 0, heat0ma, 0)
+            heat = heat0ocm + heat0mam
+
+            def xgradient(x):
+                return numpy.abs(numpy.gradient(numpy.gradient(x, axis=0), axis=1))
+
+            gradxbathy = xr.apply_ufunc(xgradient, ds.Bathymetry)
+
+            maskbathy = xr.where(ds.Bathymetry > 0, 1, 0)
+            maskgrad = xr.where((gradxbathy > 500) & (heat > 100), 0, 1)
+
+            void_heat = xr.where(heat * maskgrad > 0, heat * maskgrad, numpy.NaN)
+
+            def fill_xy(arr, mask, nb_passes):
+                arr = arr.copy(deep=True)
+                vals = arr.values
+                for _ in range(nb_passes):
+                    convolution = median_filter(vals, (3,3))
+                    vals = numpy.where(mask == 1, convolution, vals)
+                arr.values = vals
+                return arr
+            
+            mask_void = xr.where(void_heat.isnull() & (ds.Bathymetry > 0), 1, 0)
+            fill_void_heat = fill_xy(void_heat, mask_void, 2)
+            heatflow = fill_void_heat * maskbathy
+            ds_out = xr.Dataset()
+            ds_out['heatflow'] = heatflow
+            ds_out["heatflow"].attrs = {
+                "units": "W/m^2",
+                "long_name": "heat flow",
+            }
+            save_revision(_id, ds_out, 'heatflow')
+
+        return redirect(url_for("app.steps", _id=_id))
+        
+        flash(error)
+    return render_template("app/heatflow.html")
