@@ -6,7 +6,8 @@ ENV H5DIR /usr/local/hdf5
 ENV NCDIR /usr/local/netcdf
 
 RUN apt update && \
-    apt install -y perl make m4 mpich subversion wget curl zlib1g-dev libcurl4-gnutls-dev\
+    apt install -y perl make m4 mpich subversion wget curl zlib1g-dev libcurl4-gnutls-dev \
+    nco python3 python3-pip uuid && python3 -m pip install netcdf4 scipy \
     && ln -s /usr/bin/make /usr/bin/gmake
 
 RUN cpan install URI
@@ -41,15 +42,14 @@ RUN cd XIOS && \
 RUN svn co http://forge.ipsl.jussieu.fr/igcmg/svn/TOOLS/MOSAIX MOSAIX
 RUN sed -i '/-L%{XIOS_DIR}\/lib/c\%LD_FLAGS         -L%{XIOS_DIR}/lib -lxios %BASE_LD %ARCH_LD' MOSAIX/bld.cfg
 RUN cd MOSAIX && ./make_mosaix
-ENV LD_LIBRARY_PATH $NCDIR/lib:$H5DIR/lib:/src/XIOS/lib
-ENV R_IN ${HOME}/Scratch/IGCM
-ENV TMPDIR ${HOME}/Scratch/TMP
-ENV SUBMIT_DIR $(pwd)
-ENV MpiRun "/usr/bin/mpirun -n 4"
-ENV PyRun "time"
+ENV LD_LIBRARY_PATH=$NCDIR/lib:$H5DIR/lib:/src/XIOS/lib\
+    PATH=$NCDIR/bin:$PATH \
+    R_IN=${HOME}/Scratch/IGCM \
+    TMPDIR=${HOME}/Scratch/TMP \
+    SUBMIT_DIR=$(pwd) \
+    MpiRun="/usr/bin/mpirun -n 1" \
+    PyRun=""
+COPY create_weights.patch Runoff.patch /src/MOSAIX/
+RUN cd MOSAIX && patch < Runoff.patch && patch < create_weights.patch
 COPY ORCA2.3_coordinates_mask.nc ${HOME}/Scratch/IGCM/OCE/NEMO/ORCA2.3/
-COPY eORCA1.2_coordinates_mask.nc ${HOME}/Scratch/IGCM/OCE/NEMO/eORCA1.2/
 COPY LMD9695_grid.nc ${HOME}/Scratch/IGCM/ATM/GRID/
-COPY LMD144142_grid.nc ${HOME}/Scratch/IGCM/ATM/GRID/
-# Edit CreateWeights change CPLMODEL and remove exit in case
-# RUN apt install -y vim nco python3
