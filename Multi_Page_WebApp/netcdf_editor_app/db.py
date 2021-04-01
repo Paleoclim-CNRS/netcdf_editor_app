@@ -5,6 +5,7 @@ import tempfile
 import click
 from flask import current_app, g
 from flask.cli import with_appcontext
+from flask import flash
 
 from werkzeug.utils import secure_filename
 
@@ -102,6 +103,7 @@ def save_revision(_id, ds, file_type):
         (str(_id), temp_name, revision_nb, file_type),
     )
     db.commit()
+    flash(f"Saved new version of {file_type}")
 
 
 def get_latest_file_versions():
