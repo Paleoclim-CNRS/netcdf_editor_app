@@ -26,6 +26,7 @@ from netcdf_editor_app.db import (
     set_data_file_coords,
     upload_file,
     get_filename,
+    get_file_type_counts,
 )
 
 from netcdf_editor_app.utils.routing import run_routines
@@ -179,11 +180,13 @@ def steps(_id):
     data_file_name = get_filename(_id)
 
     seen_file_types = get_file_types(_id)
+    file_type_counts = get_file_type_counts(_id)
     data = []
     for name in seen_file_types:
         data.append(
             [
                 name.capitalize(),
+                f"<div style='text-align:center'>{file_type_counts[name]}</div>",
                 f"<form action=\"{ url_for('app.view_database_file', _id=_id, file_type=name.lower()) }\" method=\"GET\"> \
                     <button type=\"submit\" class=\"btn btn-info\"><i class=\"fas fa-map\"></i> View</button> \
                 </form>",
@@ -203,6 +206,7 @@ def steps(_id):
         data,
         columns=[
             "File Type",
+            "Number Revisions",
             "View",
             "Complex Viewer",
             "Revision Comparison",

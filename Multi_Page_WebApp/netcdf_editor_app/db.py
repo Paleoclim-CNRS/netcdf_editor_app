@@ -118,6 +118,16 @@ def get_latest_file_versions():
     data_files = db.execute(query).fetchall()
     return data_files
 
+def get_file_type_counts(_id):
+    db = get_db()
+    revisions = db.execute(
+        "SELECT file_type, count(file_type) \
+        FROM revisions WHERE data_file_id = ? GROUP BY file_type;", (str(_id),)
+    ).fetchall()
+    file_type_counts = {}
+    for r in revisions:
+        file_type_counts[r[0]] = r[1]
+    return file_type_counts
 
 def get_file_types(_id):
     db = get_db()

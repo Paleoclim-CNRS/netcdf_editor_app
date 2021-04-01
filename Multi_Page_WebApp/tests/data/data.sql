@@ -10,4 +10,5 @@ VALUES
 INSERT INTO revisions (id, data_file_id, filepath, revision, file_type)
 VALUES
   (1, 1, 'tmp1.tmp', 0, 'raw'),
-  (2, 1, 'tmp2.tmp', 1, 'routing');
+  (2, 1, 'tmp2.tmp', 1, 'routing'),
+  (3, 1, 'tmp1_1.tmp', 2, 'raw');
