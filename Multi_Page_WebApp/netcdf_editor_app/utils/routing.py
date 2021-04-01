@@ -762,17 +762,17 @@ def create_routing_netcdf(
     ds_routing = xr.Dataset(
         coords={
             "nav_lon": (["y", "x"], rlon),
-            "nav_lat": (["y", "x"], rlat),
+            "nav_lat": (["y", "x"], rlat[::-1]),
         },
         data_vars={
-            "trip": (["y", "x"], trip[::-1]),
-            "basins": (["y", "x"], basins[::-1]),
-            "topoind": (["y", "x"], topo_index[::-1]),
-            "hdiff": (["y", "x"], dzz[::-1]),
-            "riverl": (["y", "x"], distbox[::-1]),
-            "orog": (["y", "x"], orog[::-1]),
-            "disto": (["y", "x"], flength[::-1]),
-            "topo": (["y", "x"], topo[::-1]),
+            "trip": (["y", "x"], trip),
+            "basins": (["y", "x"], basins),
+            "topoind": (["y", "x"], topo_index),
+            "hdiff": (["y", "x"], dzz),
+            "riverl": (["y", "x"], distbox),
+            "orog": (["y", "x"], orog),
+            "disto": (["y", "x"], flength),
+            "topo": (["y", "x"], topo),
         },
     )
     ds_routing = _set_attributes_ds_routing(ds_routing)
