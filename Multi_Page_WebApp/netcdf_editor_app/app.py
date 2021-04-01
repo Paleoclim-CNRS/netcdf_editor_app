@@ -30,8 +30,11 @@ from netcdf_editor_app.db import (
 
 from netcdf_editor_app.utils.routing import run_routines
 from netcdf_editor_app.utils.pft import generate_pft_netcdf
+from netcdf_editor_app.utils.heatflow import create_heatflow
+from netcdf_editor_app.utils.ahmcoef import create_ahmcoef
 
 import numpy
+import xarray as xr
 import pandas as pd
 import json
 import hvplot.xarray
@@ -262,6 +265,7 @@ def variable_explorer(_id, file_type):
             "redirect": url_for("app.steps", _id=_id),
             "file_type": file_type,
         },
+        # resources=CDN
     )
     # Arguments are reached through Bokeh curdoc.session_context.request.arguments
     # And hence through panel.state.curdoc.session_context.request.arguments
@@ -477,3 +481,33 @@ def subbasins(_id):
     # And hence through panel.state.curdoc.session_context.request.arguments
     return render_template("app/panel_app.html", script=script, title="Sub Basins")
 
+@bp.route("/<int:_id>/heatflow", methods=("GET", "POST"))
+@login_required
+def heatflow(_id):
+    if request.method == 'POST':
+        age = float(request.form['age'])
+        error = ""
+
+        if age < 0:
+            error += "Age can not be below 0; "
+        elif int(age) != age:
+            error += "Age must be a whole number; "
+        elif age > 230:
+            error += "Age must be more recent than 230 Million Years"
+
+
+        if not len(error):
+            # ds = get_age_file(age)
+            ds = load_file(_id, "bathy")
+            
+            ds_out = create_heatflow(ds)
+            save_revision(_id, ds_out, 'heatflow')
+
+            ds_out = create_ahmcoef(ds)
+            save_revision(_id, ds_out, 'ahmcoef')
+
+        return redirect(url_for("app.steps", _id=_id))
+        
+        flash(error)
+    show_routing = "bathy" not in get_file_types(_id)
+    return render_template("app/heatflow.html", _id=_id, show_routing=show_routing)

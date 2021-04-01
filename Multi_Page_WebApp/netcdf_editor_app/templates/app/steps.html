@@ -43,6 +43,11 @@ Datafile chosen: {{ data_file_name }}
             Sub Basins
         </a>
     </li>
+    <li>
+        <a class="action" href="{{ url_for('app.heatflow', _id=_id) }}">
+            Heatflow / AHMCoef
+        </a>
+    </li>
 </ul>
 <h2>Assets</h2>
 {{ assets_table|safe }}
