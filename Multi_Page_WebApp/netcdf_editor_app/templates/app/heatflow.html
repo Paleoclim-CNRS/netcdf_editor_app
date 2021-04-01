@@ -1,10 +1,16 @@
 {% extends 'base.html' %}
 
 {% block header %}
-<h1>{% block title %}Heatflow{% endblock %}</h1>
+<h1>{% block title %}Heatflow / AHMCoef{% endblock %}</h1>
 {% endblock %}
 
 {% block content %}
+{% if show_routing %}
+<div class="alert alert-danger" role="alert">
+    Routing has not been run so there is no Bathymetry availible. Please run <a href="{{ url_for('app.heatflow', _id=_id) }}"> Routing</a>
+
+</div>
+{% endif %}
 <div style="display: flex; align-items: center; justify-content: center;">
     <div id="loading" style="display: none; padding: 10vh;">
         <div class="loader"></div>
@@ -13,27 +19,17 @@
 </div>
 <div id="proc" class="center">
     <form method=post>
-        <label for="topo_var">Desired Age:</label>
-        <div class="alert alert-info">
-            This will download the file from <a href="https://www.earthbyte.org/webdav/ftp/Data_Collections/Zahirovic_etal_2016_ESR_AgeGrid/netCDF/">Earthbyte</a>
-        </div>
-        <input id="age" name="age" type="number" value="0" min="0" max="230"></input>
-        <br></br>
+        {% if show_routing %}
+        <button type="submit" class="btn btn-success btn-lg" onclick="$('#loading').show();$('#proc').hide();" disabled>
+            <i class="fas fa-calculator"></i>
+            Start Processing
+        </button>
+        {% else %}
         <button type="submit" class="btn btn-success btn-lg" onclick="$('#loading').show();$('#proc').hide();">
             <i class="fas fa-calculator"></i>
             Start Processing
         </button>
+        {% endif %}
     </form>
 </div>
-<script>
-    age.oninput = function () {
-    if (this.value < 0) {
-        this.value = 0; 
-    }
-    if (this.value > 230) {
-        this.value = 230
-    }
-    this.value = Math.round(this.value)
-}
-</script>
 {% endblock %}

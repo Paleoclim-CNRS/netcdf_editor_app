@@ -499,6 +499,7 @@ def heatflow(_id):
         if not len(error):
             # ds = get_age_file(age)
             ds = load_file(_id, "bathy")
+            
             ds_out = create_heatflow(ds)
             save_revision(_id, ds_out, 'heatflow')
 
@@ -508,4 +509,5 @@ def heatflow(_id):
         return redirect(url_for("app.steps", _id=_id))
         
         flash(error)
-    return render_template("app/heatflow.html")
+    show_routing = "bathy" not in get_file_types(_id)
+    return render_template("app/heatflow.html", _id=_id, show_routing=show_routing)
