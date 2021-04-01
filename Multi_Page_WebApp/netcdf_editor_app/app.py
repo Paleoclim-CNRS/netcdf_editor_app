@@ -485,26 +485,13 @@ def subbasins(_id):
 @login_required
 def heatflow(_id):
     if request.method == 'POST':
-        age = float(request.form['age'])
-        error = ""
+        ds = load_file(_id, "bathy")
+        
+        ds_out = create_heatflow(ds)
+        save_revision(_id, ds_out, 'heatflow')
 
-        if age < 0:
-            error += "Age can not be below 0; "
-        elif int(age) != age:
-            error += "Age must be a whole number; "
-        elif age > 230:
-            error += "Age must be more recent than 230 Million Years"
-
-
-        if not len(error):
-            # ds = get_age_file(age)
-            ds = load_file(_id, "bathy")
-            
-            ds_out = create_heatflow(ds)
-            save_revision(_id, ds_out, 'heatflow')
-
-            ds_out = create_ahmcoef(ds)
-            save_revision(_id, ds_out, 'ahmcoef')
+        ds_out = create_ahmcoef(ds)
+        save_revision(_id, ds_out, 'ahmcoef')
 
         return redirect(url_for("app.steps", _id=_id))
         
