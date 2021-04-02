@@ -26,6 +26,7 @@ from netcdf_editor_app.db import (
     set_data_file_coords,
     upload_file,
     get_filename,
+    get_file_type_counts,
 )
 
 from netcdf_editor_app.utils.routing import run_routines
@@ -34,17 +35,15 @@ from netcdf_editor_app.utils.heatflow import create_heatflow
 from netcdf_editor_app.utils.ahmcoef import create_ahmcoef
 
 import numpy
-import xarray as xr
 import pandas as pd
 import json
-import hvplot.xarray
+import hvplot.xarray  # noqa: F401
 
 import holoviews as hv
-from bokeh.embed import components, server_document, file_html
-from bokeh.resources import CDN
+from bokeh.embed import components, server_document
 from bokeh.layouts import column
-from bokeh.models import ColumnDataSource, CustomJS, Slider, Select
-from bokeh.plotting import Figure, output_file, show
+from bokeh.models import ColumnDataSource, CustomJS, Select
+from bokeh.plotting import Figure
 
 bp = Blueprint("app", __name__)
 
@@ -151,7 +150,12 @@ def view_database_file(_id, file_type):
     select = Select(title="Variable:", options=list(ds.data_vars))
     select.js_on_change("value", callback)
 
-    p = Figure(x_range=(-180, 180), y_range=(-90, 90), aspect_ratio=2.5, tools='pan,wheel_zoom,box_zoom,reset, hover')
+    p = Figure(
+        x_range=(-180, 180),
+        y_range=(-90, 90),
+        aspect_ratio=2.5,
+        tools="pan,wheel_zoom,box_zoom,reset, hover",
+    )
     p.sizing_mode = "scale_width"
     p.image(
         image="to_plot",
@@ -179,11 +183,13 @@ def steps(_id):
     data_file_name = get_filename(_id)
 
     seen_file_types = get_file_types(_id)
+    file_type_counts = get_file_type_counts(_id)
     data = []
     for name in seen_file_types:
         data.append(
             [
                 name.capitalize(),
+                f"<div style='text-align:center'>{file_type_counts[name]}</div>",
                 f"<form action=\"{ url_for('app.view_database_file', _id=_id, file_type=name.lower()) }\" method=\"GET\"> \
                     <button type=\"submit\" class=\"btn btn-info\"><i class=\"fas fa-map\"></i> View</button> \
                 </form>",
@@ -203,6 +209,7 @@ def steps(_id):
         data,
         columns=[
             "File Type",
+            "Number Revisions",
             "View",
             "Complex Viewer",
             "Revision Comparison",
@@ -278,7 +285,7 @@ def variable_explorer(_id, file_type):
 @login_required
 def regrid(_id):
     if request.method == "POST":
-        limits = request.form['limits']
+        limits = request.form["limits"]
         lon_step = float(request.form["Longitude Step"])
         lat_step = float(request.form["Latitude Step"])
         interpolator = request.form["interpolator"]
@@ -301,11 +308,13 @@ def regrid(_id):
             new_values = []
             # Limits
             default_limits = [180, 90]
-            for coord, step, default_limit  in zip([lon, lat], [lon_step, lat_step], default_limits):
-                if limits == 'default':
+            for coord, step, default_limit in zip(
+                [lon, lat], [lon_step, lat_step], default_limits
+            ):
+                if limits == "default":
                     lower = -default_limit
                     upper = default_limit
-                elif limits == 'data':
+                elif limits == "data":
                     # Get sorted values
                     sorted_vals = numpy.sort(numpy.unique(ds[coord]))
                     lower = ds[coord].min() - (sorted_vals[1] - sorted_vals[0]) / 2.0
@@ -324,9 +333,7 @@ def regrid(_id):
                 lat: new_values[1],
             }
             ds = ds.interp(
-                interp_options,
-                method=interpolator,
-                kwargs=dict(fill_value=None)
+                interp_options, method=interpolator, kwargs=dict(fill_value=None)
             )
             # Save file
             save_revision(_id, ds, "raw")
@@ -464,7 +471,7 @@ def pft(_id):
     seen_file_types = get_file_types(_id)
     not_seen = False
     if "routing" not in seen_file_types:
-        not_seen=True
+        not_seen = True
 
     return render_template("app/pft.html", _id=_id, not_seen=not_seen)
 
@@ -475,26 +482,25 @@ def subbasins(_id):
     script = server_document(
         url=f"{url_for('index')}panel/sub_basins",
         arguments={"id": _id, "redirect": url_for("app.steps", _id=_id)},
-
     )
     # Arguments are reached through Bokeh curdoc.session_context.request.arguments
     # And hence through panel.state.curdoc.session_context.request.arguments
     return render_template("app/panel_app.html", script=script, title="Sub Basins")
 
+
 @bp.route("/<int:_id>/heatflow", methods=("GET", "POST"))
 @login_required
 def heatflow(_id):
-    if request.method == 'POST':
+    if request.method == "POST":
         ds = load_file(_id, "bathy")
-        
+
         ds_out = create_heatflow(ds)
-        save_revision(_id, ds_out, 'heatflow')
+        save_revision(_id, ds_out, "heatflow")
 
         ds_out = create_ahmcoef(ds)
-        save_revision(_id, ds_out, 'ahmcoef')
+        save_revision(_id, ds_out, "ahmcoef")
 
         return redirect(url_for("app.steps", _id=_id))
-        
-        flash(error)
+
     show_routing = "bathy" not in get_file_types(_id)
     return render_template("app/heatflow.html", _id=_id, show_routing=show_routing)
