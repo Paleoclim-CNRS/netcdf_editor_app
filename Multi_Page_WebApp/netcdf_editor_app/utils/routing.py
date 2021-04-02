@@ -198,7 +198,7 @@ def _add_gradient_to_flats(topo):
 
     # Exit points from flat basins are defined as the points that have the same
     # altitude as a neighbor cell (is_flat) and at least one downward cell (is_pas)
-    exit_points = numpy.array(numpy.where((is_pas is True) & (is_flat is True)))
+    exit_points = numpy.array(numpy.where((is_pas == True) & (is_flat == True)))  # noqa: E712
 
     # Store an array of when the cell was seen for the first time
     # This is passed to our recursively function and filled over time
@@ -320,7 +320,7 @@ def calculate_trip(topo, omsk):
     # Convert indexs to trip values
     rtm = trip_values[ind].astype(float)
     # only take rtm values on land
-    rtm[omsk is True] = numpy.nan
+    rtm[omsk == True] = numpy.nan  # noqa: E712
 
     # TODO we probably need to ensure topo always has the south Up
     # The first row (Antartic) is considered to be the pole so say everything goes north from there
