@@ -356,13 +356,9 @@ def regrid(_id):
 @bp.route("/<int:_id>/internal_oceans")
 @login_required
 def internal_oceans(_id):
-    script = server_document(
-        url=f"{url_for('index')}panel/internal_oceans",
-        arguments={"id": _id, "redirect": url_for("app.steps", _id=_id)},
+    return render_template(
+        "app/panel_app.html", _id=_id, panel_app_name="internal_oceans", title="Internal Oceans"
     )
-    # Arguments are reached through Bokeh curdoc.session_context.request.arguments
-    # And hence through panel.state.curdoc.session_context.request.arguments
-    return render_template("app/panel_app.html", script=script, title="Internal Oceans")
 
 
 @bp.route("/<int:_id>/routing", methods=("GET", "POST"))
@@ -427,14 +423,9 @@ def passage_problems(_id):
                 '{url_for('app.routing', _id=_id)}';\" id=\"myButton\" class=\"btn btn-primary\" >Routing</button> \
             </div>"
     else:
-        script = server_document(
-            url=f"{url_for('index')}panel/passage_problems",
-            arguments={"id": _id, "redirect": url_for("app.steps", _id=_id)},
-        )
-    # Arguments are reached through Bokeh curdoc.session_context.request.arguments
-    # And hence through panel.state.curdoc.session_context.request.arguments
+        script = ""
     return render_template(
-        "app/panel_app.html", script=script, title="Passage Problems"
+        "app/panel_app.html", _id=_id, panel_app_name="passage_problems", script=script, title="Passage Problems"
     )
 
 

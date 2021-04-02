@@ -1,6 +1,5 @@
-panel ~=0.10
-bokeh < 2.3
-holoviews <1.14
+panel
+holoviews
 datashader
 hvplot
 shapely
