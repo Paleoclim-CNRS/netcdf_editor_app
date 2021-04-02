@@ -1,0 +1,29 @@
+{% extends 'base.html' %}
+
+{% block header %}
+<h1>{% block title %}Set Coords{% endblock %}</h1>
+{% endblock %}
+
+{% block content %}
+<form method='POST'>
+  <label for="Longitude">Longitude:</label>
+  <select name="Longitude">
+    {% for name in coordinate_names %}
+        <option value={{ name }} >{{ name }}</option>
+    {% endfor %}
+  </select>
+  <br><br>
+  <label for="Latitude">Latitude:</label>
+  <select name="Latitude">
+    {% for name in coordinate_names %}
+        <option value={{ name }} >{{ name }}</option>
+    {% endfor %}
+  </select>
+  <br><br>
+  <button type="submit" class="btn btn-success btn-lg"><i class="fas fa-check"></i> Submit</button>
+  <input
+    type="hidden"
+    name="next"
+    value="{{ request.referrer|escape }}"/>
+</form>
+{% endblock %}

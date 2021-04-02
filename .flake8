@@ -1,0 +1,6 @@
+[flake8]
+exclude =
+    .ipynb_checkpoints,
+    __pycache__,
+extend-ignore = E203, W503, C901
+max-line-length = 88

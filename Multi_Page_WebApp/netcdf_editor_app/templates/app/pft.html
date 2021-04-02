@@ -1,0 +1,497 @@
+{% extends 'base.html' %}
+
+{% block head %}
+<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/css/bootstrap.min.css"
+    integrity="sha384-9aIt2nRpC12Uk9gS9baDl411NQApFmC26EwAOH8WgZl5MYYxFfc+NcPb1dKGj7Sk" crossorigin="anonymous">
+<link href="https://cdn.datatables.net/1.10.21/css/dataTables.bootstrap4.min.css" rel="stylesheet" type="text/css">
+<link rel="stylesheet" href="https://unpkg.com/bootstrap-table@1.16.0/dist/bootstrap-table.min.css">
+{% endblock %}
+{% block header %}
+<h1>{% block title %}Plant Functional Type{% endblock %}</h1>
+{% endblock %}
+
+
+{% block content %}
+{% if not_seen %}
+<div class="alert alert-danger" role="alert" \
+style="display: flex; align-items: center; justify-content: center; flex-direction: column;">
+Routing file not found in Database please perform Routing step first
+<br></br> 
+<button onclick=window.location.href="{{ url_for('app.routing', _id=_id) }}" id="myButton" class="btn btn-primary" >Routing</button>
+</div>
+{% else %}
+<table id="myTable" class="table" data-toggle="table" data-mobile-responsive="true">
+
+    <thead class="thead-dark">
+        <tr>
+            <th>Latitude</th>
+            <th>PFT1</th>
+            <th>PFT2</th>
+            <th>PFT3</th>
+            <th>PFT4</th>
+            <th>PFT5</th>
+            <th>PFT6</th>
+            <th>PFT7</th>
+            <th>PFT8</th>
+            <th>PFT9</th>
+            <th>PFT10</th>
+            <th>PFT11</th>
+            <th>PFT12</th>
+            <th>PFT13</th>
+            <th>Total</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr class="data">
+            <td>
+                <div style="display: flex; align-items: baseline;">
+                    Up to: <input id="lat" type="number" min=0 max=90 step=5 value=15>
+                    <button class="btn btn-outline-danger btnDelete" id="delrow" style="margin-left: auto;"> <i
+                            class="fas fa-trash"></i> </button>
+                </div>
+            </td>
+            <td>
+                <input id="PFT1" type="number" min=0 max=100 step=10 value=0>
+            </td>
+            <td>
+                <input id="PFT2" type="number" min=0 max=100 step=10 value=75>
+            </td>
+            <td>
+                <input id="PFT3" type="number" min=0 max=100 step=10 value=25>
+            </td>
+            <td>
+                <input id="PFT4" type="number" min=0 max=100 step=10 value=0>
+            </td>
+            <td>
+                <input id="PFT5" type="number" min=0 max=100 step=10 value=0>
+            </td>
+            <td>
+                <input id="PFT6" type="number" min=0 max=100 step=10 value=0>
+            </td>
+            <td>
+                <input id="PFT7" type="number" min=0 max=100 step=10 value=0>
+            </td>
+            <td>
+                <input id="PFT8" type="number" min=0 max=100 step=10 value=0>
+            </td>
+            <td>
+                <input id="PFT9" type="number" min=0 max=100 step=10 value=0>
+            </td>
+            <td>
+                <input id="PFT10" type="number" min=0 max=100 step=10 value=0>
+            </td>
+            <td>
+                <input id="PFT11" type="number" min=0 max=100 step=10 value=0>
+            </td>
+            <td>
+                <input id="PFT12" type="number" min=0 max=100 step=10 value=0>
+            </td>
+            <td>
+                <input id="PFT13" type="number" min=0 max=100 step=10 value=0>
+            </td>
+            <td class="total" id="total1">
+            </td>
+        </tr>
+        <tr class="data">
+            <td>
+                <div style="display: flex; align-items: baseline;">
+                    Up to: <input id="lat" type="number" min=0 max=90 step=5 value=35>
+                    <button class="btn btn-outline-danger btnDelete" id="delrow" style="margin-left: auto;"> <i
+                            class="fas fa-trash"></i> </button>
+                </div>
+            </td>
+            <td>
+                <input id="PFT1" type="number" min=0 max=100 step=10 value=0>
+            </td>
+            <td>
+                <input id="PFT2" type="number" min=0 max=100 step=10 value=15>
+            </td>
+            <td>
+                <input id="PFT3" type="number" min=0 max=100 step=10 value=55>
+            </td>
+            <td>
+                <input id="PFT4" type="number" min=0 max=100 step=10 value=0>
+            </td>
+            <td>
+                <input id="PFT5" type="number" min=0 max=100 step=10 value=0>
+            </td>
+            <td>
+                <input id="PFT6" type="number" min=0 max=100 step=10 value=0>
+            </td>
+            <td>
+                <input id="PFT7" type="number" min=0 max=100 step=10 value=0>
+            </td>
+            <td>
+                <input id="PFT8" type="number" min=0 max=100 step=10 value=0>
+            </td>
+            <td>
+                <input id="PFT9" type="number" min=0 max=100 step=10 value=0>
+            </td>
+            <td>
+                <input id="PFT10" type="number" min=0 max=100 step=10 value=30>
+            </td>
+            <td>
+                <input id="PFT11" type="number" min=0 max=100 step=10 value=0>
+            </td>
+            <td>
+                <input id="PFT12" type="number" min=0 max=100 step=10 value=0>
+            </td>
+            <td>
+                <input id="PFT13" type="number" min=0 max=100 step=10 value=0>
+            </td>
+            <td class="total" id="total2">
+            </td>
+        </tr>
+        <tr class="data">
+            <td>
+                <div style="display: flex; align-items: baseline;">
+                    Up to: <input id="lat" type="number" min=0 max=90 step=5 value=50>
+                    <button class="btn btn-outline-danger btnDelete" id="delrow" style="margin-left: auto;"> <i
+                            class="fas fa-trash"></i> </button>
+                </div>
+            </td>
+            <td>
+                <input id="PFT1" type="number" min=0 max=100 step=10 value=0>
+            </td>
+            <td>
+                <input id="PFT2" type="number" min=0 max=100 step=10 value=0>
+            </td>
+            <td>
+                <input id="PFT3" type="number" min=0 max=100 step=10 value=0>
+            </td>
+            <td>
+                <input id="PFT4" type="number" min=0 max=100 step=10 value=0>
+            </td>
+            <td>
+                <input id="PFT5" type="number" min=0 max=100 step=10 value=70>
+            </td>
+            <td>
+                <input id="PFT6" type="number" min=0 max=100 step=10 value=30>
+            </td>
+            <td>
+                <input id="PFT7" type="number" min=0 max=100 step=10 value=0>
+            </td>
+            <td>
+                <input id="PFT8" type="number" min=0 max=100 step=10 value=0>
+            </td>
+            <td>
+                <input id="PFT9" type="number" min=0 max=100 step=10 value=0>
+            </td>
+            <td>
+                <input id="PFT10" type="number" min=0 max=100 step=10 value=0>
+            </td>
+            <td>
+                <input id="PFT11" type="number" min=0 max=100 step=10 value=0>
+            </td>
+            <td>
+                <input id="PFT12" type="number" min=0 max=100 step=10 value=0>
+            </td>
+            <td>
+                <input id="PFT13" type="number" min=0 max=100 step=10 value=0>
+            </td>
+            <td class="total" id="total3">
+            </td>
+        </tr>
+        <tr class="data">
+            <td>
+                <div style="display: flex; align-items: baseline;">
+                    Up to: <input id="lat" type="number" min=0 max=90 step=5 value=80>
+                    <button class="btn btn-outline-danger btnDelete" id="delrow" style="margin-left: auto;"> <i
+                            class="fas fa-trash"></i> </button>
+                </div>
+            </td>
+            <td>
+                <input id="PFT1" type="number" min=0 max=100 step=10 value=0>
+            </td>
+            <td>
+                <input id="PFT2" type="number" min=0 max=100 step=10 value=0>
+            </td>
+            <td>
+                <input id="PFT3" type="number" min=0 max=100 step=10 value=0>
+            </td>
+            <td>
+                <input id="PFT4" type="number" min=0 max=100 step=10 value=0>
+            </td>
+            <td>
+                <input id="PFT5" type="number" min=0 max=100 step=10 value=40>
+            </td>
+            <td>
+                <input id="PFT6" type="number" min=0 max=100 step=10 value=30>
+            </td>
+            <td>
+                <input id="PFT7" type="number" min=0 max=100 step=10 value=0>
+            </td>
+            <td>
+                <input id="PFT8" type="number" min=0 max=100 step=10 value=30>
+            </td>
+            <td>
+                <input id="PFT9" type="number" min=0 max=100 step=10 value=0>
+            </td>
+            <td>
+                <input id="PFT10" type="number" min=0 max=100 step=10 value=0>
+            </td>
+            <td>
+                <input id="PFT11" type="number" min=0 max=100 step=10 value=0>
+            </td>
+            <td>
+                <input id="PFT12" type="number" min=0 max=100 step=10 value=0>
+            </td>
+            <td>
+                <input id="PFT13" type="number" min=0 max=100 step=10 value=0>
+            </td>
+            <td class="total" id="total4">
+            </td>
+        </tr>
+        <tr class="data">
+            <td>
+                Up to: <input id="lat" type="number" min=90 max=90 step=5 value=90 disabled>
+            </td>
+            <td>
+                <input id="PFT1" type="number" min=0 max=100 step=10 value=0>
+            </td>
+            <td>
+                <input id="PFT2" type="number" min=0 max=100 step=10 value=0>
+            </td>
+            <td>
+                <input id="PFT3" type="number" min=0 max=100 step=10 value=0>
+            </td>
+            <td>
+                <input id="PFT4" type="number" min=0 max=100 step=10 value=0>
+            </td>
+            <td>
+                <input id="PFT5" type="number" min=0 max=100 step=10 value=0>
+            </td>
+            <td>
+                <input id="PFT6" type="number" min=0 max=100 step=10 value=30>
+            </td>
+            <td>
+                <input id="PFT7" type="number" min=0 max=100 step=10 value=0>
+            </td>
+            <td>
+                <input id="PFT8" type="number" min=0 max=100 step=10 value=0>
+            </td>
+            <td>
+                <input id="PFT9" type="number" min=0 max=100 step=10 value=40>
+            </td>
+            <td>
+                <input id="PFT10" type="number" min=0 max=100 step=10 value=30>
+            </td>
+            <td>
+                <input id="PFT11" type="number" min=0 max=100 step=10 value=0>
+            </td>
+            <td>
+                <input id="PFT12" type="number" min=0 max=100 step=10 value=0>
+            </td>
+            <td>
+                <input id="PFT13" type="number" min=0 max=100 step=10 value=0>
+            </td>
+            <td class="total" id="total5">
+            </td>
+        </tr>
+    </tbody>
+</table>
+<button class="btn btn-outline-success btn-lg" id="addrow" class="addnew" style="margin: 2em;"> Add </button>
+
+<form name="submit_form" id="submit_form" onsubmit="preprocessForm()" action="{{ url_for('app.pft', _id=_id) }}" method="POST">
+    <input type="hidden" name="data" id="data" />
+    <input type="submit" class="btn btn-success btn-lg" id="generateBTN" value='Generate PFT file' />
+</form>
+
+{% endif %}
+
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/js/bootstrap.min.js"
+    integrity="sha384-OgVRvuATP1z7JjHLkuOU7Xw704+h835Lr+6QL9UvYjZE3Ipu6Tp75j7Bh/kR0JKI"
+    crossorigin="anonymous"></script>
+
+<script src="https://unpkg.com/bootstrap-table@1.16.0/dist/bootstrap-table.min.js"></script>
+
+<script src="https://unpkg.com/bootstrap-table@1.16.0/dist/extensions/mobile/bootstrap-table-mobile.min.js"></script>
+
+<script>
+    $(document).ready(function () {
+        //Try to get tbody first with jquery children. works faster!
+
+        var tbody = $('#myTable').children('tbody');
+
+        //Then if no tbody just select your table 
+        var table = tbody.length ? tbody : $('#myTable');
+        sumRowVals();
+        sortTable();
+        var isValid = sumRowVals();
+
+        $('#addrow').click(function () {
+            addRow();
+            sortTable();
+            $("#myTable input").change(function () {
+                sumRowVals();
+                sortTable();
+            });
+        })
+
+        $("#myTable").on('click', '.btnDelete', function () {
+            $(this).closest('tr').remove();
+            var isValid = sumRowVals();
+        });
+
+        $("#myTable input").change(function () {
+            var isValid = sumRowVals();
+            sortTable();
+        });
+
+    });
+
+    function preprocessForm() {
+        var data = getData();
+        data = JSON.stringify({'dataArray': data});
+        $('#data').val(data);
+    }
+
+    function getData() {
+        var data = []
+        $("#myTable tr.data").each(function () {
+            var rowData = []
+            $("input[type=number]", this).each(function () {
+                rowData.push(parseFloat(this.value))
+            })
+            data.push(rowData)
+        });
+        return data
+    }
+
+    function addRow() {
+        var rowCount = $("#myTable tr").length;
+        //Add row
+        $('#myTable').find('tr:last').prev().after(`       <tr class="data">
+            <td>
+                <div style="display: flex; align-items: baseline;">
+                    Up to: <input id="lat" type="number" min=0 max=90 step=5 value=89>
+                    <button class="btn btn-outline-danger btnDelete" id="delrow" style="margin-left: auto;"> <i
+                            class="fas fa-trash"></i> </button>
+                </div>
+            </td>
+            <td>
+                <input id="PFT1" type="number" min=0 max=100 step=10 value=0>
+            </td>
+            <td>
+                <input id="PFT2" type="number" min=0 max=100 step=10 value=0>
+            </td>
+            <td>
+                <input id="PFT3" type="number" min=0 max=100 step=10 value=0>
+            </td>
+            <td>
+                <input id="PFT4" type="number" min=0 max=100 step=10 value=0>
+            </td>
+            <td>
+                <input id="PFT5" type="number" min=0 max=100 step=10 value=0>
+            </td>
+            <td>
+                <input id="PFT6" type="number" min=0 max=100 step=10 value=0>
+            </td>
+            <td>
+                <input id="PFT7" type="number" min=0 max=100 step=10 value=0>
+            </td>
+            <td>
+                <input id="PFT8" type="number" min=0 max=100 step=10 value=0>
+            </td>
+            <td>
+                <input id="PFT9" type="number" min=0 max=100 step=10 value=0>
+            </td>
+            <td>
+                <input id="PFT10" type="number" min=0 max=100 step=10 value=0>
+            </td>
+            <td>
+                <input id="PFT11" type="number" min=0 max=100 step=10 value=0>
+            </td>
+            <td>
+                <input id="PFT12" type="number" min=0 max=100 step=10 value=0>
+            </td>
+            <td>
+                <input id="PFT13" type="number" min=0 max=100 step=10 value=0>
+            </td>
+            <td class="total" id="total${rowCount - 1}">
+            </td>
+        </tr>`);
+        sumRowVals();
+    }
+
+    function sumRowVals() {
+        isvalid = true;
+        var rindx = 0;
+        $("#myTable tr").each(function () {
+            if (rindx > 0) {
+                var temp = 0;
+                var cindx = 1;
+                $("input[type=number]", this).each(function () {
+                    var elval = !isNaN(parseFloat(this.value)) ? parseFloat(this.value) : 0;
+                    if (cindx == 1) {
+                        elval = 0;
+                    }
+                    temp = temp + elval;
+                    if (elval > 100) { isvalid = false; }
+                    cindx++;
+                });
+                if (rindx != $('#myTable tr').length) {
+                    if (temp != 100) { isvalid = false; }
+                    $(".total", this).html(temp);
+                }
+            }
+            rindx++;
+        });
+        $("#myTable .total").each(function () {
+            var val = parseFloat(this.innerText)
+            if (val == 100) {
+                this.style.color = "green"
+            } else {
+                this.style.color = "red"
+
+            }
+        });
+        $("#generateBTN").prop("disabled", !isvalid);
+        return isvalid;
+    }
+
+    $("#myTable").on('click', '.btnDelete', function () {
+        $(this).closest('tr').remove();
+        var isValid = sumRowVals();
+        $("#generateBTN").prop("disabled", !isValid);
+    });
+
+    function sortTable() {
+        var table, rows, switching, i, x, y, shouldSwitch;
+        table = document.getElementById("myTable");
+        switching = true;
+        /* Make a loop that will continue until
+        no switching has been done: */
+        while (switching) {
+            // Start by saying: no switching is done:
+            switching = false;
+            rows = table.rows;
+            /* Loop through all table rows (except the
+            first, which contains table headers): */
+            for (i = 1; i < (rows.length - 2); i++) {
+                // Start by saying there should be no switching:
+                shouldSwitch = false;
+                /* Get the two elements you want to compare,
+                one from current row and one from the next: */
+                x = parseFloat(rows[i].getElementsByTagName("TD")[0].getElementsByTagName("input")[0].value);
+                y = parseFloat(rows[i + 1].getElementsByTagName("TD")[0].getElementsByTagName("input")[0].value);
+                // Check if the two rows should switch place:
+                if (x > y) {
+                    // If so, mark as a switch and break the loop:
+                    shouldSwitch = true;
+                    break;
+                }
+            }
+            if (shouldSwitch) {
+                /* If a switch has been marked, make the switch
+                and mark that a switch has been done: */
+                rows[i].parentNode.insertBefore(rows[i + 1], rows[i]);
+                switching = true;
+            }
+        }
+    }
+</script>
+
+{% endblock %}

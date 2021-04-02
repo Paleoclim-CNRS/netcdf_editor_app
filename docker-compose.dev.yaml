@@ -1,0 +1,36 @@
+version: '3'
+services:
+  nginx:
+    build: Multi_Page_WebApp/services/nginx
+    ports:
+      - ${NGINX_PORT}:80
+    depends_on: 
+      - flask_app
+      - panel_app
+      
+  flask_app:
+    build:
+      context: Multi_Page_WebApp
+      dockerfile: services/flask/Dockerfile.dev
+    env_file: ${FLASK_CONFIG}
+    image: netcdf_editor_flask_app:latest 
+    expose:
+      - 5000
+    entrypoint: flask run
+    volumes:
+      - ./Multi_Page_WebApp:/usr/src/app
+  
+  panel_app:
+    build:
+      context: Multi_Page_WebApp
+      dockerfile: services/panel/Dockerfile
+    env_file: ${PANEL_CONFIG}
+    image: netcdf_editor_panel_app:latest
+    expose: 
+      - 5006
+    volumes:
+       - ./Multi_Page_WebApp:/usr/src/app
+
+volumes:
+  instance_storage:
+

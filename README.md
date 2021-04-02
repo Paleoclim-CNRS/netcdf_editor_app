@@ -28,3 +28,30 @@ Currently 3 methods for modifying values has been implemented:
 ### Docker
 
 1. Run `docker-compose -f "docker-compose.yml" up  --build`
+
+## Developpement
+
+### Running locally
+
+* Create `.env` file with the following contents:
+```
+FLASK_APP=netcdf_editor_app
+FLASK_ENV=development
+```
+* Run `pip install -r requirements.txt`
+* Run `BOKEH_RESOURCES=cdn python -m panel serve --port=5006 --allow-websocket-origin='*' --websocket-max-message-size=100000000 netcdf_editor_app/holoviews/*.py` to start the panel apps (exporting BOKEJ+H_RESOURCES=cdn is important otherwise the apps won't render)
+* Run `python -m flask run`
+
+### testing
+
+The test suite uses pytest and coverage.
+
+To run the tests either run
+```shell
+python -m pytest tests/
+```
+or:
+```shell
+coverage run -m pytest && coverage report
+```
+

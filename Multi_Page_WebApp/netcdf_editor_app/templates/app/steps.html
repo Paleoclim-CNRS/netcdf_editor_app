@@ -1,0 +1,54 @@
+{% extends 'base.html' %}
+
+{% block header %}
+<h1>{% block title %}Steps{% endblock %}</h1>
+Datafile chosen: {{ data_file_name }}
+{% endblock %}
+
+{% block content %}
+<h2>Workflow</h2>
+<ul>
+    <li>
+        <a class="action" href="{{ url_for('app.map', _id=_id) }}">
+            Map
+        </a>
+    </li>
+    <li>
+        <a class="action" href="{{ url_for('app.regrid', _id=_id) }}">
+            Regrid
+        </a>
+    </li>
+    <li>
+        <a class="action" href="{{ url_for('app.internal_oceans', _id=_id) }}">
+            Internal Oceans
+        </a>
+    </li>
+    <li>
+        <a class="action" href="{{ url_for('app.routing', _id=_id) }}">
+            Routing
+        </a>
+    </li>
+    <li>
+        <a class="action" href="{{ url_for('app.passage_problems', _id=_id) }}">
+            Passage Problems
+        </a>
+    </li>
+    <li>
+        <a class="action" href="{{ url_for('app.pft', _id=_id) }}">
+            Plant Functional Type
+        </a>
+    </li>
+    <li>
+        <a class="action" href="{{ url_for('app.subbasins', _id=_id) }}">
+            Sub Basins
+        </a>
+    </li>
+    <li>
+        <a class="action" href="{{ url_for('app.heatflow', _id=_id) }}">
+            Heatflow / AHMCoef
+        </a>
+    </li>
+</ul>
+<h2>Assets</h2>
+{{ assets_table|safe }}
+{% endblock %}

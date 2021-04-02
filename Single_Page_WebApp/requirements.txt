@@ -1,0 +1,14 @@
+panel ~=0.10
+holoviews <1.14
+bokeh < 2.3
+datashader
+hvplot
+shapely
+xarray > 0.16.1
+h5netcdf
+netcdf4
+scipy
+requests
+spatialpandas
+scikit-image # reconstruction used for filling DEMS
+jupyter
