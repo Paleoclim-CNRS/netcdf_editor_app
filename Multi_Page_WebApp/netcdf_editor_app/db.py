@@ -91,7 +91,10 @@ def save_revision(_id, ds, file_type):
     # We use NETCDF3_64Bit files because on some of the calculators the later libraries have not been installed
     # to handle netcdf4(?) or 5(this is sure)
     # However Anta Sarr ran a simulation using netcdf5 files so the simulator appears to accept the files
-    ds.to_netcdf(os.path.join(current_app.config["UPLOAD_FOLDER"], temp_name), format="NETCDF3_64BIT")
+    ds.to_netcdf(
+        os.path.join(current_app.config["UPLOAD_FOLDER"], temp_name),
+        format="NETCDF3_64BIT",
+    )
     # ADD the file to the revisions table
     db = get_db()
     # Get latest revision
@@ -118,16 +121,19 @@ def get_latest_file_versions():
     data_files = db.execute(query).fetchall()
     return data_files
 
+
 def get_file_type_counts(_id):
     db = get_db()
     revisions = db.execute(
         "SELECT file_type, count(file_type) \
-        FROM revisions WHERE data_file_id = ? GROUP BY file_type;", (str(_id),)
+        FROM revisions WHERE data_file_id = ? GROUP BY file_type;",
+        (str(_id),),
     ).fetchall()
     file_type_counts = {}
     for r in revisions:
         file_type_counts[r[0]] = r[1]
     return file_type_counts
+
 
 def get_file_types(_id):
     db = get_db()

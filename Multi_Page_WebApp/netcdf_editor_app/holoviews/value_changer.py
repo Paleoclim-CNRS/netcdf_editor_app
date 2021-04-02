@@ -11,27 +11,27 @@ import numpy
 from scipy.ndimage import measurements
 from scipy.signal import convolve2d
 
-import hvplot.xarray
+import hvplot.xarray  # noqa: F401
 import holoviews as hv
 
 import palettable
 
 
 CUSTOM_COLORMAPS = {
-    'Oleron': palettable.scientific.sequential.Oleron_18.mpl_colormap,
-    'Oslo':  palettable.scientific.sequential.Oslo_18.mpl_colormap,
-    'Bilbao':  palettable.scientific.sequential.Bilbao_18.mpl_colormap,
-    'Vik': palettable.scientific.diverging.Vik_18.mpl_colormap,
-    'Cork': palettable.scientific.diverging.Cork_18.mpl_colormap,
-    'LaPaz': palettable.scientific.sequential.LaPaz_18.mpl_colormap,
-    'Batlow': palettable.scientific.sequential.Batlow_18.mpl_colormap
+    "Oleron": palettable.scientific.sequential.Oleron_18.mpl_colormap,
+    "Oslo": palettable.scientific.sequential.Oslo_18.mpl_colormap,
+    "Bilbao": palettable.scientific.sequential.Bilbao_18.mpl_colormap,
+    "Vik": palettable.scientific.diverging.Vik_18.mpl_colormap,
+    "Cork": palettable.scientific.diverging.Cork_18.mpl_colormap,
+    "LaPaz": palettable.scientific.sequential.LaPaz_18.mpl_colormap,
+    "Batlow": palettable.scientific.sequential.Batlow_18.mpl_colormap,
 }
 
 keys, values = list(CUSTOM_COLORMAPS.keys()), list(CUSTOM_COLORMAPS.values())
 for i in range(len(keys)):
     key = keys[i]
     value = values[i]
-    CUSTOM_COLORMAPS[key + '_r'] = value.reversed()
+    CUSTOM_COLORMAPS[key + "_r"] = value.reversed()
 
 colormaps = hv.plotting.list_cmaps()
 colormaps.extend(CUSTOM_COLORMAPS.keys())
@@ -98,7 +98,7 @@ class ValueChanger(param.Parameterized):
         self.colormap = pn.widgets.Select(
             name="Colormap",
             options=colormaps,
-            value='Oleron',
+            value="Oleron",
             max_width=200,
             align="start",
         )
@@ -146,7 +146,9 @@ class ValueChanger(param.Parameterized):
         self.colormap_range_slider.param.watch(self._colormap_callback, "value")
         self.app = create_app()
         try:
-            self.file_type = pn.state.curdoc.session_context.request.arguments["file_type"][0].decode()
+            self.file_type = pn.state.curdoc.session_context.request.arguments[
+                "file_type"
+            ][0].decode()
         except KeyError:
             pass
         self.data_file_id = int(
@@ -530,7 +532,7 @@ class ValueChanger(param.Parameterized):
         return hv.Image(
             self.ds[self.attribute.value],
             [*self._get_ordered_coordinate_dimension_names()],
-            group="Map"
+            group="Map",
         )
 
     def _get_graphs(self):

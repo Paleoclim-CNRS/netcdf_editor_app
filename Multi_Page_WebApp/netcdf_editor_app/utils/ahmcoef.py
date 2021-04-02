@@ -1,6 +1,7 @@
 import numpy
 import xarray as xr
 
+
 def create_ahmcoef(ds_bathy_paleo_orca, bathy_var="Bathymetry"):
     bathy = ds_bathy_paleo_orca[bathy_var].values
     # We stack  bathy horizontally so we don't worry about periodicity
@@ -32,12 +33,12 @@ def create_ahmcoef(ds_bathy_paleo_orca, bathy_var="Bathymetry"):
     out = out[:, 6:-6]
 
     dss = xr.Dataset(
-        coords = {
-            'nav_lat': ds_bathy_paleo_orca.nav_lat,
-            'nav_lon': ds_bathy_paleo_orca.nav_lon
+        coords={
+            "nav_lat": ds_bathy_paleo_orca.nav_lat,
+            "nav_lon": ds_bathy_paleo_orca.nav_lon,
         }
     )
-    dss['icof'] = ('y', 'x'), out
-    dss.icof.attrs = {'valid_min': 0.0, 'valid_max': 100.0}
+    dss["icof"] = ("y", "x"), out
+    dss.icof.attrs = {"valid_min": 0.0, "valid_max": 100.0}
 
     return dss
