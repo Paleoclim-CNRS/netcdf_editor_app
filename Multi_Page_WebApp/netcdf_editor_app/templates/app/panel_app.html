@@ -16,6 +16,6 @@
     {{ script | safe }}
     <!-- # Arguments are reached through Bokeh curdoc.session_context.request.arguments
     # And hence through panel.state.curdoc.session_context.request.arguments -->
-    <iframe id='panelApp' src="{{ url_for('index') }}panel/{{ panel_app_name }}?id={{ _id }}&redirect={{ url_for('app.steps', _id=_id) }}">
+    <iframe id='panelApp' src="{{ url_for('index') }}panel/{{ panel_app_name }}?{% for key, value in arguments.items() %}{{key}}={{value}}&{% endfor %}">
     </iframe>
 {% endblock %}

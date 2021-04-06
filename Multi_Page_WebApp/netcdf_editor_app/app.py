@@ -265,19 +265,15 @@ def revision_comparison(_id, file_type):
 @bp.route("/<int:_id>/<string:file_type>/variable_explorer")
 @login_required
 def variable_explorer(_id, file_type):
-    script = server_document(
-        url=f"{url_for('index')}panel/value_changer",
-        arguments={
+    arguments={
             "id": _id,
             "redirect": url_for("app.steps", _id=_id),
             "file_type": file_type,
-        },
-        # resources=CDN
-    )
+        }
     # Arguments are reached through Bokeh curdoc.session_context.request.arguments
     # And hence through panel.state.curdoc.session_context.request.arguments
     return render_template(
-        "app/panel_app.html", script=script, title="Variable Explorer"
+        "app/panel_app.html",  title="Variable Explorer", panel_app_name="value_changer", arguments=arguments
     )
 
 
@@ -356,8 +352,12 @@ def regrid(_id):
 @bp.route("/<int:_id>/internal_oceans")
 @login_required
 def internal_oceans(_id):
+    arguments = {
+        'id': _id,
+        'redirect': url_for('app.steps', _id=_id)
+    }
     return render_template(
-        "app/panel_app.html", _id=_id, panel_app_name="internal_oceans", title="Internal Oceans"
+        "app/panel_app.html", panel_app_name="internal_oceans", arguments=arguments, title="Internal Oceans"
     )
 
 
@@ -424,8 +424,12 @@ def passage_problems(_id):
             </div>"
     else:
         script = ""
+    arguments = {
+        'id': _id,
+        'redirect': url_for('app.steps', _id=_id)
+    }
     return render_template(
-        "app/panel_app.html", _id=_id, panel_app_name="passage_problems", script=script, title="Passage Problems"
+        "app/panel_app.html", panel_app_name="passage_problems", script=script, arguments=arguments, title="Passage Problems"
     )
 
 
@@ -470,13 +474,11 @@ def pft(_id):
 @bp.route("/<int:_id>/sub_basins")
 @login_required
 def subbasins(_id):
-    script = server_document(
-        url=f"{url_for('index')}panel/sub_basins",
-        arguments={"id": _id, "redirect": url_for("app.steps", _id=_id)},
-    )
-    # Arguments are reached through Bokeh curdoc.session_context.request.arguments
-    # And hence through panel.state.curdoc.session_context.request.arguments
-    return render_template("app/panel_app.html", script=script, title="Sub Basins")
+    arguments = {
+        'id': _id,
+        'redirect': url_for('app.steps', _id=_id)
+    }
+    return render_template("app/panel_app.html", arguments=arguments, title="Sub Basins", panel_app_name="sub_basins")
 
 
 @bp.route("/<int:_id>/heatflow", methods=("GET", "POST"))
