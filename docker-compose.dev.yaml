@@ -7,12 +7,30 @@ services:
     depends_on: 
       - flask_app
       - panel_app
+  
+  message_broker:
+    image: rabbitmq:3-management
+    ports:
+      - 5672:5672
+      - 15672:15672
+  
+  python_worker:
+    build:
+      context: Multi_Page_WebApp
+      dockerfile: services/python_worker/Dockerfile
+    restart: on-failure
+    environment: 
+      - BROKER_HOSTNAME=message_broker
+    depends_on: 
+      - message_broker
       
   flask_app:
     build:
       context: Multi_Page_WebApp
       dockerfile: services/flask/Dockerfile.dev
     env_file: ${FLASK_CONFIG}
+    environment: 
+      - BROKER_HOSTNAME=message_broker
     image: netcdf_editor_flask_app:latest 
     expose:
       - 5000

@@ -38,6 +38,7 @@ import numpy
 import pandas as pd
 import json
 import hvplot.xarray  # noqa: F401
+import pika
 
 import holoviews as hv
 from bokeh.embed import components, server_document
@@ -280,6 +281,21 @@ def variable_explorer(_id, file_type):
 @bp.route("/<int:_id>/regrid", methods=("GET", "POST"))
 @login_required
 def regrid(_id):
+    connection = pika.BlockingConnection(pika.ConnectionParameters(os.environ['BROKER_HOSTNAME']))
+    channel = connection.channel()
+
+    channel.queue_declare(queue='task_queue', durable=True)
+
+    message = {'body': "test", "data": [1, 0, 0]}
+    channel.basic_publish(exchange='',
+                        routing_key='task_queue',
+                        body=json.dumps(message),
+                        properties=pika.BasicProperties(
+                            delivery_mode=2,  # make message persistent
+                        ))
+    print(" [x] Sent 'Hello World!'")
+
+    connection.close()
     if request.method == "POST":
         limits = request.form["limits"]
         lon_step = float(request.form["Longitude Step"])
