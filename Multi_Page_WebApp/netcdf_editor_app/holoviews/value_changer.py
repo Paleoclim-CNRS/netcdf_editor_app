@@ -44,7 +44,7 @@ opts.defaults(
         logx=False,
         logy=False,
         responsive=True,
-        aspect=2,
+        height=400,
         shared_axes=True,
         show_grid=False,
         show_legend=True,
