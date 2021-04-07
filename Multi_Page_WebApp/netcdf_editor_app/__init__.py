@@ -46,6 +46,10 @@ def create_app(test_config=None):
 
     app.register_blueprint(auth.bp)
 
+    from . import message_broker
+
+    message_broker.init_app(app)
+
     from . import app as editor_app
 
     app.register_blueprint(editor_app.bp)
