@@ -41,7 +41,7 @@ import json
 import hvplot.xarray  # noqa: F401
 
 import holoviews as hv
-from bokeh.embed import components, server_document
+from bokeh.embed import components
 from bokeh.layouts import column
 from bokeh.models import ColumnDataSource, CustomJS, Select
 from bokeh.plotting import Figure
@@ -266,15 +266,18 @@ def revision_comparison(_id, file_type):
 @bp.route("/<int:_id>/<string:file_type>/variable_explorer")
 @login_required
 def variable_explorer(_id, file_type):
-    arguments={
-            "id": _id,
-            "redirect": url_for("app.steps", _id=_id),
-            "file_type": file_type,
-        }
+    arguments = {
+        "id": _id,
+        "redirect": url_for("app.steps", _id=_id),
+        "file_type": file_type,
+    }
     # Arguments are reached through Bokeh curdoc.session_context.request.arguments
     # And hence through panel.state.curdoc.session_context.request.arguments
     return render_template(
-        "app/panel_app.html",  title="Variable Explorer", panel_app_name="value_changer", arguments=arguments
+        "app/panel_app.html",
+        title="Variable Explorer",
+        panel_app_name="value_changer",
+        arguments=arguments,
     )
 
 
@@ -298,42 +301,7 @@ def regrid(_id):
             error += "Unknown limit type"
 
         if not len(error):
-            # Load file
-            ds = load_file(_id, "raw")
-            lon, lat = get_lon_lat_names(_id)
-            # Extremities
-            new_values = []
-            # Limits
-            default_limits = [180, 90]
-            for coord, step, default_limit in zip(
-                [lon, lat], [lon_step, lat_step], default_limits
-            ):
-                if limits == "default":
-                    lower = -default_limit
-                    upper = default_limit
-                elif limits == "data":
-                    # Get sorted values
-                    sorted_vals = numpy.sort(numpy.unique(ds[coord]))
-                    lower = ds[coord].min() - (sorted_vals[1] - sorted_vals[0]) / 2.0
-                    upper = ds[coord].max() + (sorted_vals[-1] - sorted_vals[-2]) / 2.0
-                else:
-                    raise AttributeError("Unknown data type passed from UI")
-
-                min_val = lower + step / 2.0
-                max_val = upper + step / 2.0
-
-                # TODO maybe we should use numpy.linspace here?
-                new_values.append(numpy.arange(min_val, max_val, step))
-            # Interpolate data file
-            interp_options = {
-                lon: new_values[0],
-                lat: new_values[1],
-            }
-            ds = ds.interp(
-                interp_options, method=interpolator, kwargs=dict(fill_value=None)
-            )
-            # Save file
-            save_revision(_id, ds, "raw")
+            send_preprocessing_message("regrid", {"id": _id, **request.form})
             flash(
                 "File regrided using {} interpolation with Longitude steps {} and Latitude steps {} and {} limits".format(
                     interpolator, lon_step, lat_step, limits
@@ -347,20 +315,18 @@ def regrid(_id):
 
         flash(error)
 
-    send_preprocessing_message("regrid", {"id": _id})    
-
     return render_template("app/regrid.html")
 
 
 @bp.route("/<int:_id>/internal_oceans")
 @login_required
 def internal_oceans(_id):
-    arguments = {
-        'id': _id,
-        'redirect': url_for('app.steps', _id=_id)
-    }
+    arguments = {"id": _id, "redirect": url_for("app.steps", _id=_id)}
     return render_template(
-        "app/panel_app.html", panel_app_name="internal_oceans", arguments=arguments, title="Internal Oceans"
+        "app/panel_app.html",
+        panel_app_name="internal_oceans",
+        arguments=arguments,
+        title="Internal Oceans",
     )
 
 
@@ -374,24 +340,17 @@ def routing(_id):
     if request.method == "POST":
         topo_variable = request.form["topo_var"]
         error = ""
-
         if not len(topo_variable):
             error += "Topography Variable not understood; "
         elif topo_variable not in variable_names:
             error += "Topography Variable not in data set"
 
         if not len(error):
-            # Load file
-            lon, lat = get_lon_lat_names(_id)
-            latitudes = ds[lat].values
-            topography = ds[topo_variable].values
-            ds_routing, ds_bathy, ds_soils, ds_topo_high_res = run_routines(
-                topography, latitudes
-            )
-            save_revision(_id, ds_routing, "routing")
-            save_revision(_id, ds_bathy, "bathy")
-            save_revision(_id, ds_soils, "soils")
-            save_revision(_id, ds_topo_high_res, "topo_high_res")
+            body = {
+                "id": _id,
+                **request.form
+            }
+            send_preprocessing_message("regrid", {"id": _id, **request.form})
 
             flash("Routing run succesfully")
 
@@ -427,12 +386,13 @@ def passage_problems(_id):
             </div>"
     else:
         script = ""
-    arguments = {
-        'id': _id,
-        'redirect': url_for('app.steps', _id=_id)
-    }
+    arguments = {"id": _id, "redirect": url_for("app.steps", _id=_id)}
     return render_template(
-        "app/panel_app.html", panel_app_name="passage_problems", script=script, arguments=arguments, title="Passage Problems"
+        "app/panel_app.html",
+        panel_app_name="passage_problems",
+        script=script,
+        arguments=arguments,
+        title="Passage Problems",
     )
 
 
@@ -477,11 +437,13 @@ def pft(_id):
 @bp.route("/<int:_id>/sub_basins")
 @login_required
 def subbasins(_id):
-    arguments = {
-        'id': _id,
-        'redirect': url_for('app.steps', _id=_id)
-    }
-    return render_template("app/panel_app.html", arguments=arguments, title="Sub Basins", panel_app_name="sub_basins")
+    arguments = {"id": _id, "redirect": url_for("app.steps", _id=_id)}
+    return render_template(
+        "app/panel_app.html",
+        arguments=arguments,
+        title="Sub Basins",
+        panel_app_name="sub_basins",
+    )
 
 
 @bp.route("/<int:_id>/heatflow", methods=("GET", "POST"))

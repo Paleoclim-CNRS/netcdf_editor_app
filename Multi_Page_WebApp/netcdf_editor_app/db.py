@@ -63,6 +63,7 @@ def set_data_file_coords(_id, longitude, latitude):
 
 def upload_file(file, file_type="raw"):
     filename = secure_filename(file.filename)
+    filename = "_".join(filename.split("."))
     temp_name = next(tempfile._get_candidate_names()) + ".nc"
     # Save the file to the file system
     file.save(os.path.join(current_app.config["UPLOAD_FOLDER"], temp_name))
@@ -106,7 +107,10 @@ def save_revision(_id, ds, file_type):
         (str(_id), temp_name, revision_nb, file_type),
     )
     db.commit()
-    flash(f"Saved new version of {file_type}")
+    try:
+        flash(f"Saved new version of {file_type}")
+    except RuntimeError:
+        pass
 
 
 def get_latest_file_versions():

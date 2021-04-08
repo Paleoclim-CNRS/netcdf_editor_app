@@ -14,6 +14,16 @@ services:
       - 5672:5672
       - 15672:15672
   
+  message_dispatcher:
+    build:
+      context: Multi_Page_WebApp/services/message_dispatcher
+      dockerfile: Dockerfile
+    restart: on-failure
+    environment: 
+      - BROKER_HOSTNAME=message_broker
+    depends_on: 
+      - message_broker
+
   python_worker:
     build:
       context: Multi_Page_WebApp
@@ -23,6 +33,9 @@ services:
       - BROKER_HOSTNAME=message_broker
     depends_on: 
       - message_broker
+      - message_dispatcher
+    volumes:
+      - ./Multi_Page_WebApp/instance:/usr/src/app/instance
       
   flask_app:
     build:

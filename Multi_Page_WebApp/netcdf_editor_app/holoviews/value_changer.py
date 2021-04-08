@@ -132,7 +132,7 @@ class ValueChanger(param.Parameterized):
                     0
                 ].decode()
             },
-            code="window.location.href = target",
+            code="window.top.location.href = target",
         )
         self._auto_update_cmap_min = True
         self._auto_update_cmap_max = True
