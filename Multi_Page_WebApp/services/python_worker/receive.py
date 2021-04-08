@@ -2,16 +2,27 @@
 import pika
 import os
 import sys
-import steps
+import steps  # noqa: F401
 import json
 
-def should_process(func, body):
-    if 'invalidated' not in body.keys():
-        return True
-    if 'invalidated' in body.keys() and body['invalidated'].lower() in ['yes', 'y']:
-        # Test to see if task has already been run
-        pass
-    return False
+from netcdf_editor_app.db import step_parameters
+from netcdf_editor_app import create_app
+
+
+def func_params(func, body):
+    # If invalidated isn't in keys then this is a "root" call meaning it should be run
+    if "invalidated" not in body.keys():
+        return body
+    # If 'invalidated': 'y(es)' in the body then this means the step has been invalidated
+    # It should be rerun IF it has already been run before OR has no params
+    # We will rerun it with the same parameters
+    if "invalidated" in body.keys() and body["invalidated"].lower() in ["yes", "y"]:
+        if "has_params" in body.keys() and body["has_params"].lower() in ["no", "n"]:
+            return body
+        app = create_app()
+        with app.app_context():
+            return step_parameters(body["id"], func)
+    return None
 
 
 def main():
@@ -31,24 +42,24 @@ def main():
     )
 
     def callback(ch, method, properties, body):
-        print(" [x] ch: ", ch, flush=True)
-        print(" [x] method: ", method, flush=True)
-        print(" [x] properties: ", properties, flush=True)
+        # print(" [x] ch: ", ch, flush=True)
+        # print(" [x] method: ", method, flush=True)
+        # print(" [x] properties: ", properties, flush=True)
         print(" [x] Received %r" % body.decode(), flush=True)
 
         routing_key = method.routing_key
         print(" [x] Received %r" % routing_key, flush=True)
         func = routing_key.split(".")[1]
         body = json.loads(body.decode())
-        print(body, type(body), flush=True)
-        if should_process(func, body):
-            eval(f"steps.{func}({body})")
+        params = func_params(func, body)
+        if params is not None:
+            eval(f"steps.{func}({params})")
 
             routing_key_done = ".".join([*routing_key.split(".")[:2], "done"])
             channel.basic_publish(
                 exchange="preprocessing",
                 routing_key=routing_key_done,
-                body=json.dumps({}),
+                body=json.dumps(body),
                 properties=pika.BasicProperties(
                     delivery_mode=2,  # make message persistent
                 ),

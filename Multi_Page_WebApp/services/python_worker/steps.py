@@ -1,12 +1,23 @@
 import numpy
+import json
 
 from netcdf_editor_app import create_app
-from netcdf_editor_app.db import get_lon_lat_names, load_file, save_revision
+from netcdf_editor_app.db import (
+    get_lon_lat_names,
+    load_file,
+    save_revision,
+    save_step,
+    step_seen,
+    invalidate_step,
+)
+from netcdf_editor_app.utils.routing import run_routines
+from netcdf_editor_app.utils.heatflow import create_heatflow
+from netcdf_editor_app.utils.ahmcoef import create_ahmcoef
+from netcdf_editor_app.utils.pft import generate_pft_netcdf
 
 
 def regrid(body):
     app = create_app()
-    print(" [x] Body in function %r" % body, flush=True)
 
     limits = body["limits"]
     lon_step = float(body["Longitude Step"])
@@ -51,6 +62,7 @@ def regrid(body):
     # Save file
     with app.app_context():
         save_revision(_id, ds, "raw")
+        save_step(_id, "regrid", body)
 
 
 def routing(body):
@@ -74,3 +86,76 @@ def routing(body):
         save_revision(_id, ds_bathy, "bathy")
         save_revision(_id, ds_soils, "soils")
         save_revision(_id, ds_topo_high_res, "topo_high_res")
+        save_step(_id, "routing", body)
+
+
+def pft(body):
+    app = create_app()
+    _id = body["id"]
+
+    data = json.loads(body["data"])
+    resp_array = numpy.array(data["dataArray"])
+
+    # Make sure the data array is in the expected format
+    # First col = cutoff latitudes
+    # Next 13 cols are pft types
+    assert len(resp_array[0] == 14)
+    pft_values = resp_array[:, 1:]
+    latitudes = resp_array[:, 0]
+    # Make sure 90 is the last value
+    assert latitudes[-1] == 90
+
+    # Load routing file with final topography
+    with app.app_context():
+        ds = load_file(_id, "routing")
+    assert set(ds.dims) == set(("x", "y"))
+    assert len(ds.coords) == 2
+    # The PFT values are on a 360 x 720 grid
+    # So we need to interpolate the values onto this grid
+    lat_vals = numpy.arange(0, 180, 0.5)
+    lon_vals = numpy.arange(0, 360, 0.5)
+    ds = ds.interp({"y": lat_vals, "x": lon_vals})
+    topo = ds.topo.values
+
+    ds = generate_pft_netcdf(topo, latitudes, pft_values)
+    with app.app_context():
+        save_revision(_id, ds, "pft")
+        save_step(_id, "pft", body)
+
+
+def heatflow(body):
+    app = create_app()
+    _id = body["id"]
+
+    with app.app_context():
+        ds = load_file(_id, "bathy")
+
+    ds_out = create_heatflow(ds)
+
+    with app.app_context():
+        save_revision(_id, ds_out, "heatflow")
+        save_step(_id, "heatflow", body)
+
+
+def ahmcoef(body):
+    app = create_app()
+    _id = body["id"]
+
+    with app.app_context():
+        ds = load_file(_id, "bathy")
+
+    ds_out = create_ahmcoef(ds)
+
+    with app.app_context():
+        save_revision(_id, ds_out, "ahmcoef")
+        save_step(_id, "ahmcoef", body)
+
+
+def invalidate(body):
+    app = create_app()
+    _id = body["id"]
+
+    with app.app_context():
+        for task in body["tasks"]:
+            if step_seen(_id, task):
+                invalidate_step(_id, task)

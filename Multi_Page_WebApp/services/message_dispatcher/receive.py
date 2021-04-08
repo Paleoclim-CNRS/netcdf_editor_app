@@ -5,7 +5,7 @@ import os
 import json
 
 tasks = {
-    "python": ["regrid", "routing", "heatflow", "ahmcoeaf"],
+    "python": ["regrid", "routing", "heatflow", "ahmcoef", "pft", "invalidate"],
     "fortran": ["mosaix"],
     "panel": ["internal_oceans", "passage_problems", "subbasins"],
 }
@@ -16,6 +16,8 @@ invalidates = {
     "routing": ["pft", "passage_problems", "subbasins", "heatflow", "ahmcoef"],
     "passage_problems": ["subbasins", "heatflow", "ahmcoef"],
 }
+
+no_params = ["heatflow", "ahmcoef"]
 
 
 def send_task(task, body, ch):
@@ -35,6 +37,15 @@ def send_task(task, body, ch):
                 flush=True,
             )
             return
+
+
+def invalidated(root, _list=[]):
+    if root not in invalidates.keys():
+        return
+    for child in invalidates[root]:
+        _list.append(child)
+        invalidated(child, _list)
+    return list(set(_list))
 
 
 def main():
@@ -59,9 +70,9 @@ def main():
     )
 
     def callback(ch, method, properties, body):
-        print(" [x] ch: ", ch, flush=True)
-        print(" [x] method: ", method, flush=True)
-        print(" [x] properties: ", properties, flush=True)
+        # print(" [x] ch: ", ch, flush=True)
+        # print(" [x] method: ", method, flush=True)
+        # print(" [x] properties: ", properties, flush=True)
         print(" [x] Received %r" % body.decode(), flush=True)
 
         routing_key = method.routing_key
@@ -76,8 +87,18 @@ def main():
 
         if len(routing_key.split(".")) == 3:
             if task in invalidates.keys():
+                _id = json.loads(body)["id"]
+                send_task(
+                    "invalidate",
+                    json.dumps({"id": _id, "tasks": invalidated(task)}),
+                    ch=ch,
+                )
+
                 for step_invalidated in invalidates[task]:
-                    send_task(step_invalidated, body=json.dumps({"invalidated": "yes"}), ch=ch)
+                    _body = {"id": _id, "invalidated": "yes"}
+                    if step_invalidated in no_params:
+                        _body["has_params"] = "no"
+                    send_task(step_invalidated, body=json.dumps(_body), ch=ch)
 
         print(" [x] Done", flush=True)
         ch.basic_ack(delivery_tag=method.delivery_tag)

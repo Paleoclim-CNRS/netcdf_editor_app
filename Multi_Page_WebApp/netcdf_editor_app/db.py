@@ -1,5 +1,6 @@
 import sqlite3
 import os
+import json
 import tempfile
 
 import click
@@ -109,6 +110,68 @@ def save_revision(_id, ds, file_type):
     db.commit()
     try:
         flash(f"Saved new version of {file_type}")
+    except RuntimeError:
+        pass
+
+
+def step_seen(_id, step):
+    db = get_db()
+
+    query = "SELECT id from steps WHERE data_file_id = ? AND step = ?"
+    results = db.execute(query, (str(_id), step)).fetchall()
+
+    return len(results) > 0
+
+
+def step_parameters(_id, step):
+    db = get_db()
+
+    query = "SELECT parameters from steps WHERE data_file_id = ? AND step = ?"
+    parameters = db.execute(query, (str(_id), step)).fetchone()
+    if len(parameters):
+        parameters = json.loads(parameters["parameters"])
+
+    return parameters
+
+
+def save_step(_id, step, parameters):
+    if type(parameters) is dict:
+        parameters = json.dumps(parameters)
+
+    db = get_db()
+    # Get already seen steps
+    query = "SELECT step FROM steps WHERE data_file_id = ?"
+    steps = [s["step"] for s in db.execute(query, (str(_id),)).fetchall()]
+    if step not in steps:
+        db.execute(
+            "INSERT INTO steps (data_file_id, step, parameters, up_to_date)"
+            " VALUES (?, ?, ?, ?)",
+            (str(_id), step, parameters, 1),
+        )
+    else:  # update parameters and set as up to date
+        db.execute(
+            "UPDATE steps SET parameters = ?, up_to_date = ? WHERE data_file_id = ? AND step = ?",
+            (parameters, 1, str(_id), step),
+        )
+    db.commit()
+    try:
+        flash(f"Updated Step {step} for {_id}")
+    except RuntimeError:
+        pass
+
+
+def invalidate_step(_id, step):
+    db = get_db()
+
+    db.execute(
+        "UPDATE steps SET up_to_date = ? WHERE data_file_id = ? AND step = ?",
+        (0, str(_id), step),
+    )
+
+    db.commit()
+
+    try:
+        flash(f"Invalidated Step {step} for {_id}")
     except RuntimeError:
         pass
 

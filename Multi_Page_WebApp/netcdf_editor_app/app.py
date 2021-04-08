@@ -29,15 +29,11 @@ from netcdf_editor_app.db import (
     get_file_type_counts,
 )
 
-from netcdf_editor_app.utils.routing import run_routines
-from netcdf_editor_app.utils.pft import generate_pft_netcdf
 from netcdf_editor_app.utils.heatflow import create_heatflow
 from netcdf_editor_app.utils.ahmcoef import create_ahmcoef
 from netcdf_editor_app.message_broker import send_preprocessing_message
 
-import numpy
 import pandas as pd
-import json
 import hvplot.xarray  # noqa: F401
 
 import holoviews as hv
@@ -346,11 +342,8 @@ def routing(_id):
             error += "Topography Variable not in data set"
 
         if not len(error):
-            body = {
-                "id": _id,
-                **request.form
-            }
-            send_preprocessing_message("regrid", {"id": _id, **request.form})
+            body = {"id": _id, **request.form}
+            send_preprocessing_message("routing", body)
 
             flash("Routing run succesfully")
 
@@ -400,30 +393,8 @@ def passage_problems(_id):
 @login_required
 def pft(_id):
     if request.method == "POST":
-        data = json.loads(request.form["data"])
-        resp_array = numpy.array(data["dataArray"])
-        # Make sure the data array is in the expected format
-        # First col = cutoff latitudes
-        # Next 13 cols are pft types
-        assert len(resp_array[0] == 14)
-        pft_values = resp_array[:, 1:]
-        latitudes = resp_array[:, 0]
-        # Make sure 90 is the last value
-        assert latitudes[-1] == 90
-
-        # Load routing file with final topography
-        ds = load_file(_id, "routing")
-        assert set(ds.dims) == set(("x", "y"))
-        assert len(ds.coords) == 2
-        # The PFT values are on a 360 x 720 grid
-        # So we need to interpolate the values onto this grid
-        lat_vals = numpy.arange(0, 180, 0.5)
-        lon_vals = numpy.arange(0, 360, 0.5)
-        ds = ds.interp({"y": lat_vals, "x": lon_vals})
-        topo = ds.topo.values
-
-        ds = generate_pft_netcdf(topo, latitudes, pft_values)
-        save_revision(_id, ds, "pft")
+        body = {"id": _id, **request.form}
+        send_preprocessing_message("pft", body)
         return redirect(url_for("app.steps", _id=_id))
 
     seen_file_types = get_file_types(_id)
