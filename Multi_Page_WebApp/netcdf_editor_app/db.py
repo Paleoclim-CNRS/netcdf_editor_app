@@ -122,6 +122,15 @@ def step_seen(_id, step):
 
     return results > 0
 
+def step_up_to_date(_id, step):
+    db = get_db()
+    
+    query = "SELECT up_to_date from steps WHERE data_file_id = ? AND step = ?"
+    results = db.execute(query, (str(_id), step)).fetchone()["up_to_date"]
+
+    # Up to date if equal to 1
+    return bool(results)
+
 def steps_seen(_id):
     db = get_db()
     
@@ -144,7 +153,7 @@ def step_parameters(_id, step):
     return parameters
 
 
-def save_step(_id, step, parameters):
+def save_step(_id, step, parameters, up_to_date=True):
     if type(parameters) is dict:
         parameters = json.dumps(parameters)
 
@@ -156,12 +165,12 @@ def save_step(_id, step, parameters):
         db.execute(
             "INSERT INTO steps (data_file_id, step, parameters, up_to_date)"
             " VALUES (?, ?, ?, ?)",
-            (str(_id), step, parameters, 1),
+            (str(_id), step, parameters, int(up_to_date)),
         )
     else:  # update parameters and set as up to date
         db.execute(
             "UPDATE steps SET parameters = ?, up_to_date = ? WHERE data_file_id = ? AND step = ?",
-            (parameters, 1, str(_id), step),
+            (parameters, int(up_to_date), str(_id), step),
         )
     db.commit()
     try:

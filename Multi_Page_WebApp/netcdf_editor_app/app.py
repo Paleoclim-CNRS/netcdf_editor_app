@@ -21,7 +21,7 @@ from netcdf_editor_app.db import (get_coord_names, get_file_path,
                                   get_lon_lat_names, load_file,
                                   remove_data_file, save_revision,
                                   set_data_file_coords, steps_seen,
-                                  upload_file)
+                                  upload_file, step_seen, step_up_to_date)
 from netcdf_editor_app.message_broker import send_preprocessing_message
 from netcdf_editor_app.utils.ahmcoef import create_ahmcoef
 from netcdf_editor_app.utils.heatflow import create_heatflow
@@ -207,7 +207,7 @@ def steps(_id):
     for step in steps_to_show:
         if step in invalidates.keys():
             dependant_steps.extend(invalidates[step])
-            
+
     steps_to_show.extend(dependant_steps)
     # Get unique steps
     steps_to_show = list(set(steps_to_show))
@@ -222,17 +222,27 @@ def steps(_id):
             step_text = '<b>' + step_text + '</b>'
         try:
             url = url_for(f'app.{step}', _id=_id)
-            data.append(
-                f'''<a class="action" href="{url}">{step_text}</a>'''
-            )
         except BuildError:
-            pass
+            continue
+        
+        status = '<i class="fas fa-times-circle" style="color:#FF4136"></i>'
+        if step_seen(_id, step):
+            if step_up_to_date(_id, step):
+                status = '<i class="fas fa-check-square" style="color:#2ECC40"></i>'
+            else:
+                status = '<i class="fas fa-cog fa-spin" style="color:#377ba8"></i>'
+        
+        data.append([
+            status,
+            f'''<a class="action" href="{url}">{step_text}</a>'''
+        ])
 
     df_steps = pd.DataFrame(
         data,
-        columns=["link"]
+        columns=["run", "link"]
     )
-    df_steps.index += 1
+    # Remove status for Map
+    df_steps.iloc[0, 0] = ''
     return render_template(
         "app/steps.html",
         data_file_name=data_file_name,
@@ -241,7 +251,7 @@ def steps(_id):
             index=False, justify="center", border=0, classes="table", escape=False
         ),
         steps_to_show=df_steps.to_html(
-            index=True, header=False, justify="center", border=0, escape=False, table_id="stepsTable"
+            index=False, header=False, justify="center", border=0, escape=False, table_id="stepsTable"
         ),
         # steps_to_show = steps_to_show
     )

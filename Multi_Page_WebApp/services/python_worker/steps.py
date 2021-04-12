@@ -86,7 +86,6 @@ def routing(body):
         save_revision(_id, ds_bathy, "bathy")
         save_revision(_id, ds_soils, "soils")
         save_revision(_id, ds_topo_high_res, "topo_high_res")
-        save_step(_id, "routing", body)
 
 
 def pft(body):

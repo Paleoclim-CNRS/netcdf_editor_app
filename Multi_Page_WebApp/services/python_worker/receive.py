@@ -5,7 +5,7 @@ import sys
 import steps  # noqa: F401
 import json
 
-from netcdf_editor_app.db import step_parameters
+from netcdf_editor_app.db import step_parameters, save_step, step_seen
 from netcdf_editor_app import create_app
 
 
@@ -21,7 +21,8 @@ def func_params(func, body):
             return body
         app = create_app()
         with app.app_context():
-            return step_parameters(body["id"], func)
+            if step_seen(body["id"], func):
+                return step_parameters(body["id"], func)
     return None
 
 
@@ -29,6 +30,8 @@ def main():
     connection = pika.BlockingConnection(
         pika.ConnectionParameters(host=os.environ["BROKER_HOSTNAME"])
     )
+
+    app = create_app()
 
     channel = connection.channel()
 
@@ -53,7 +56,12 @@ def main():
         body = json.loads(body.decode())
         params = func_params(func, body)
         if params is not None:
+            _id = body["id"]
+            with app.app_context():
+                save_step(_id, func, params, up_to_date=False)
             eval(f"steps.{func}({params})")
+            with app.app_context():
+                save_step(_id, func, params, up_to_date=True)
 
             routing_key_done = ".".join([*routing_key.split(".")[:2], "done"])
             channel.basic_publish(
