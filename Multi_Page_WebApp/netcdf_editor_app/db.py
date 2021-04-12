@@ -117,10 +117,20 @@ def save_revision(_id, ds, file_type):
 def step_seen(_id, step):
     db = get_db()
 
-    query = "SELECT id from steps WHERE data_file_id = ? AND step = ?"
-    results = db.execute(query, (str(_id), step)).fetchall()
+    query = "SELECT COUNT(id) from steps WHERE data_file_id = ? AND step = ?"
+    results = db.execute(query, (str(_id), step)).fetchone()["COUNT(id)"]
 
-    return len(results) > 0
+    return results > 0
+
+def steps_seen(_id):
+    db = get_db()
+    
+    query = "SELECT step from steps WHERE data_file_id = ?"
+    results = db.execute(query, (str(_id),)).fetchall()
+    steps = [res["step"] for res in results]
+
+    return steps
+
 
 
 def step_parameters(_id, step):

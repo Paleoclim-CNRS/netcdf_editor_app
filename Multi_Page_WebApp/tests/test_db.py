@@ -1,7 +1,7 @@
 import sqlite3
 
 import pytest
-from netcdf_editor_app.db import get_db, get_file_types, get_file_type_counts
+from netcdf_editor_app.db import get_db, get_file_types, get_file_type_counts, steps_seen
 
 
 def test_get_close_db(app):
@@ -46,3 +46,9 @@ def test_get_file_types(app):
     assert type(file_types) == list
     assert "raw" in file_types
     assert "routing" in file_types
+
+
+def test_steps_seen(app):
+    with app.app_context():
+        ss = steps_seen(9)
+    assert all([isinstance(step, str) for step in ss])

@@ -4,20 +4,7 @@ import sys
 import os
 import json
 
-tasks = {
-    "python": ["regrid", "routing", "heatflow", "ahmcoef", "pft", "invalidate"],
-    "fortran": ["mosaix"],
-    "panel": ["internal_oceans", "passage_problems", "subbasins"],
-}
-
-invalidates = {
-    "regrid": ["internal_oceans", "routing"],
-    "internal_oceans": ["routing"],
-    "routing": ["pft", "passage_problems", "subbasins", "heatflow", "ahmcoef"],
-    "passage_problems": ["subbasins", "heatflow", "ahmcoef"],
-}
-
-no_params = ["heatflow", "ahmcoef"]
+from constants import tasks, invalidates, invalidated, no_params
 
 
 def send_task(task, body, ch):
@@ -37,15 +24,6 @@ def send_task(task, body, ch):
                 flush=True,
             )
             return
-
-
-def invalidated(root, _list=[]):
-    if root not in invalidates.keys():
-        return
-    for child in invalidates[root]:
-        _list.append(child)
-        invalidated(child, _list)
-    return list(set(_list))
 
 
 def main():

@@ -16,8 +16,8 @@ services:
   
   message_dispatcher:
     build:
-      context: Multi_Page_WebApp/services/message_dispatcher
-      dockerfile: Dockerfile
+      context: Multi_Page_WebApp
+      dockerfile: services/message_dispatcher/Dockerfile
     restart: on-failure
     environment: 
       - BROKER_HOSTNAME=message_broker

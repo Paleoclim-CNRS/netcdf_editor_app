@@ -1,46 +1,30 @@
-from flask import (
-    Blueprint,
-    flash,
-    redirect,
-    render_template,
-    request,
-    url_for,
-    session,
-    current_app,
-    send_from_directory,
-)
-import werkzeug
-
 import os
 
-from netcdf_editor_app.auth import login_required
-from netcdf_editor_app.db import (
-    get_coord_names,
-    get_latest_file_versions,
-    get_lon_lat_names,
-    get_file_path,
-    get_file_types,
-    load_file,
-    remove_data_file,
-    save_revision,
-    set_data_file_coords,
-    upload_file,
-    get_filename,
-    get_file_type_counts,
-)
-
-from netcdf_editor_app.utils.heatflow import create_heatflow
-from netcdf_editor_app.utils.ahmcoef import create_ahmcoef
-from netcdf_editor_app.message_broker import send_preprocessing_message
-
-import pandas as pd
 import hvplot.xarray  # noqa: F401
-
-import holoviews as hv
+import numpy
+import pandas as pd
+import werkzeug
+from werkzeug.routing import BuildError
 from bokeh.embed import components
 from bokeh.layouts import column
 from bokeh.models import ColumnDataSource, CustomJS, Select
 from bokeh.plotting import Figure
+from flask import (Blueprint, current_app, flash, redirect, render_template,
+                   request, send_from_directory, session, url_for)
+
+import holoviews as hv
+from netcdf_editor_app.auth import login_required
+from netcdf_editor_app.constants import invalidates, order_steps
+from netcdf_editor_app.db import (get_coord_names, get_file_path,
+                                  get_file_type_counts, get_file_types,
+                                  get_filename, get_latest_file_versions,
+                                  get_lon_lat_names, load_file,
+                                  remove_data_file, save_revision,
+                                  set_data_file_coords, steps_seen,
+                                  upload_file)
+from netcdf_editor_app.message_broker import send_preprocessing_message
+from netcdf_editor_app.utils.ahmcoef import create_ahmcoef
+from netcdf_editor_app.utils.heatflow import create_heatflow
 
 bp = Blueprint("app", __name__)
 
@@ -202,7 +186,7 @@ def steps(_id):
             ]
         )
 
-    df = pd.DataFrame(
+    df_assets = pd.DataFrame(
         data,
         columns=[
             "File Type",
@@ -213,13 +197,53 @@ def steps(_id):
             "Download Link",
         ],
     )
+    # Get which steps have already been executed
+    steps_to_show = steps_seen(_id)
+    # Add in steps that can be shown from the start
+    steps_to_show.append("regrid")
+    # From the steps that have been executed see which other steps rely
+    # On these and allow them to be executed
+    dependant_steps = []
+    for step in steps_to_show:
+        if step in invalidates.keys():
+            dependant_steps.extend(invalidates[step])
+            
+    steps_to_show.extend(dependant_steps)
+    # Get unique steps
+    steps_to_show = list(set(steps_to_show))
+    # Reorder the steps based off from dependancys
+    steps_to_show = order_steps(steps_to_show)
+    # Create the links that are going to be shown
+    steps_to_show = ["map", *steps_to_show]
+    data = []
+    for step in steps_to_show:
+        step_text = " ".join(step.split("_")).capitalize()
+        if step in invalidates.keys():
+            step_text = '<b>' + step_text + '</b>'
+        try:
+            url = url_for(f'app.{step}', _id=_id)
+            data.append(
+                f'''<a class="action" href="{url}">{step_text}</a>'''
+            )
+        except BuildError:
+            pass
+
+    df_steps = pd.DataFrame(
+        data,
+        columns=["link"]
+    )
+    df_steps.index += 1
     return render_template(
         "app/steps.html",
         data_file_name=data_file_name,
         _id=_id,
-        assets_table=df.to_html(
+        assets_table=df_assets.to_html(
             index=False, justify="center", border=0, classes="table", escape=False
         ),
+        steps_to_show=df_steps.to_html(
+            index=True, header=False, justify="center", border=0, escape=False, table_id="stepsTable"
+        ),
+        # steps_to_show = steps_to_show
     )
 
 
@@ -417,19 +441,24 @@ def subbasins(_id):
     )
 
 
-@bp.route("/<int:_id>/heatflow", methods=("GET", "POST"))
-@login_required
-def heatflow(_id):
-    if request.method == "POST":
-        ds = load_file(_id, "bathy")
+# @bp.route("/<int:_id>/heatflow", methods=("GET", "POST"))
+# @login_required
+# def heatflow(_id):
+#     if request.method == "POST":
+#         ds = load_file(_id, "bathy")
 
-        ds_out = create_heatflow(ds)
-        save_revision(_id, ds_out, "heatflow")
+#         ds_out = create_heatflow(ds)
+#         save_revision(_id, ds_out, "heatflow")
 
-        ds_out = create_ahmcoef(ds)
-        save_revision(_id, ds_out, "ahmcoef")
+#         ds_out = create_ahmcoef(ds)
+#         save_revision(_id, ds_out, "ahmcoef")
 
-        return redirect(url_for("app.steps", _id=_id))
+#         return redirect(url_for("app.steps", _id=_id))
 
-    show_routing = "bathy" not in get_file_types(_id)
-    return render_template("app/heatflow.html", _id=_id, show_routing=show_routing)
+#     show_routing = "bathy" not in get_file_types(_id)
+#     return render_template("app/heatflow.html", _id=_id, show_routing=show_routing)
+
+# @bp.route("/<int:_id>/ahmcoef")
+# @login_required
+# def ahmcoef(_id):
+#     pass
