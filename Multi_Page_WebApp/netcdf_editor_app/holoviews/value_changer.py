@@ -1,5 +1,6 @@
 from netcdf_editor_app import create_app
-from netcdf_editor_app.db import load_file, save_revision
+from netcdf_editor_app.db import load_file, save_revision, save_step
+from netcdf_editor_app.message_broker import send_preprocessing_message
 from bokeh.models import FixedTicker
 import panel as pn
 from holoviews import opts
@@ -61,6 +62,7 @@ class ValueChanger(param.Parameterized):
     ds = param.Parameter()
     # Used to store when inital data is loaded
     loaded = param.Parameter()
+    step = None
 
     def __init__(self, **params):
         # How we are going to modify the values
@@ -322,6 +324,10 @@ class ValueChanger(param.Parameterized):
     def save(self, event):
         with self.app.app_context():
             save_revision(self.data_file_id, self.ds, self.file_type)
+            print(self.step, flush=True)
+            if self.step is not None:
+                save_step(self.data_file_id, step=self.step, parameters = {"id": self.data_file_id}, up_to_date=True)
+                send_preprocessing_message(self.step + ".done", message={"id": self.data_file_id})
 
     def _apply_action(self, action):
         if action["calculation_type"] in ["Absolute", "Percentage", "Relatif"]:

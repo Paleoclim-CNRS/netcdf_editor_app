@@ -62,7 +62,6 @@ def regrid(body):
     # Save file
     with app.app_context():
         save_revision(_id, ds, "raw")
-        save_step(_id, "regrid", body)
 
 
 def routing(body):
@@ -119,7 +118,6 @@ def pft(body):
     ds = generate_pft_netcdf(topo, latitudes, pft_values)
     with app.app_context():
         save_revision(_id, ds, "pft")
-        save_step(_id, "pft", body)
 
 
 def heatflow(body):
@@ -133,7 +131,6 @@ def heatflow(body):
 
     with app.app_context():
         save_revision(_id, ds_out, "heatflow")
-        save_step(_id, "heatflow", body)
 
 
 def ahmcoef(body):
@@ -147,7 +144,6 @@ def ahmcoef(body):
 
     with app.app_context():
         save_revision(_id, ds_out, "ahmcoef")
-        save_step(_id, "ahmcoef", body)
 
 
 def invalidate(body):

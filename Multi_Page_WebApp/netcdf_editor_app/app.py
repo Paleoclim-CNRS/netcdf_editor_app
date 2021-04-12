@@ -14,7 +14,7 @@ from flask import (Blueprint, current_app, flash, redirect, render_template,
 
 import holoviews as hv
 from netcdf_editor_app.auth import login_required
-from netcdf_editor_app.constants import invalidates, order_steps
+from netcdf_editor_app.constants import invalidates, order_steps, tasks
 from netcdf_editor_app.db import (get_coord_names, get_file_path,
                                   get_file_type_counts, get_file_types,
                                   get_filename, get_latest_file_versions,
@@ -157,6 +157,63 @@ def view_database_file(_id, file_type):
         title=file_type.capitalize(),
     )
 
+@bp.route("/api/<int:_id>/stepsTable")
+def stepsTable(_id):
+    from datetime import datetime
+
+    now = datetime.now()
+        # Get which steps have already been executed
+    steps_to_show = steps_seen(_id)
+    # Add in steps that can be shown from the start
+    steps_to_show.append("regrid")
+    # From the steps that have been executed see which other steps rely
+    # On these and allow them to be executed
+    dependant_steps = []
+    for step in steps_to_show:
+        if step in invalidates.keys():
+            dependant_steps.extend(invalidates[step])
+
+    steps_to_show.extend(dependant_steps)
+    # Get unique steps
+    steps_to_show = list(set(steps_to_show))
+    # Reorder the steps based off from dependancys
+    steps_to_show = order_steps(steps_to_show)
+    # Create the links that are going to be shown
+    steps_to_show = ["map", *steps_to_show]
+    data = []
+    for step in steps_to_show:
+        status = '<i class="fas fa-times-circle" style="color:#FF4136"></i>'
+        if step_seen(_id, step):
+            # If the Step is up to date then show a tick
+            if step_up_to_date(_id, step):
+                status = '<i class="fas fa-check-square" style="color:#2ECC40"></i>'
+            # if it is a python task then we show it being processed
+            elif step in tasks['python']:
+                status = '<i class="fas fa-cog fa-spin" style="color:#377ba8"></i>'
+        step_text = " ".join(step.split("_")).capitalize()
+        
+        if step in invalidates.keys():
+            step_text = '<b>' + step_text + '</b>'
+        try:
+            url = url_for(f'app.{step}', _id=_id)
+            link_text = f'''<a class="action" href="{url}">{step_text}</a>'''
+        except BuildError:
+            link_text = step_text
+        
+        data.append([
+            status,
+            link_text
+        ])
+
+    df_steps = pd.DataFrame(
+        data,
+        columns=["run", "link"]
+    )
+    # Remove status for Map
+    df_steps.iloc[0, 0] = ''
+    return df_steps.to_html(
+            index=False, header=False, justify="center", border=0, escape=False, table_id="stepsTable"
+        )
 
 @bp.route("/<int:_id>/steps")
 @login_required
@@ -197,52 +254,6 @@ def steps(_id):
             "Download Link",
         ],
     )
-    # Get which steps have already been executed
-    steps_to_show = steps_seen(_id)
-    # Add in steps that can be shown from the start
-    steps_to_show.append("regrid")
-    # From the steps that have been executed see which other steps rely
-    # On these and allow them to be executed
-    dependant_steps = []
-    for step in steps_to_show:
-        if step in invalidates.keys():
-            dependant_steps.extend(invalidates[step])
-
-    steps_to_show.extend(dependant_steps)
-    # Get unique steps
-    steps_to_show = list(set(steps_to_show))
-    # Reorder the steps based off from dependancys
-    steps_to_show = order_steps(steps_to_show)
-    # Create the links that are going to be shown
-    steps_to_show = ["map", *steps_to_show]
-    data = []
-    for step in steps_to_show:
-        step_text = " ".join(step.split("_")).capitalize()
-        if step in invalidates.keys():
-            step_text = '<b>' + step_text + '</b>'
-        try:
-            url = url_for(f'app.{step}', _id=_id)
-        except BuildError:
-            continue
-        
-        status = '<i class="fas fa-times-circle" style="color:#FF4136"></i>'
-        if step_seen(_id, step):
-            if step_up_to_date(_id, step):
-                status = '<i class="fas fa-check-square" style="color:#2ECC40"></i>'
-            else:
-                status = '<i class="fas fa-cog fa-spin" style="color:#377ba8"></i>'
-        
-        data.append([
-            status,
-            f'''<a class="action" href="{url}">{step_text}</a>'''
-        ])
-
-    df_steps = pd.DataFrame(
-        data,
-        columns=["run", "link"]
-    )
-    # Remove status for Map
-    df_steps.iloc[0, 0] = ''
     return render_template(
         "app/steps.html",
         data_file_name=data_file_name,
@@ -250,10 +261,6 @@ def steps(_id):
         assets_table=df_assets.to_html(
             index=False, justify="center", border=0, classes="table", escape=False
         ),
-        steps_to_show=df_steps.to_html(
-            index=False, header=False, justify="center", border=0, escape=False, table_id="stepsTable"
-        ),
-        # steps_to_show = steps_to_show
     )
 
 

@@ -57,11 +57,13 @@ def main():
         params = func_params(func, body)
         if params is not None:
             _id = body["id"]
-            with app.app_context():
-                save_step(_id, func, params, up_to_date=False)
+            if func is not "invalidate":
+                with app.app_context():
+                    save_step(_id, func, params, up_to_date=False)
             eval(f"steps.{func}({params})")
-            with app.app_context():
-                save_step(_id, func, params, up_to_date=True)
+            if func is not "invalidate":
+                with app.app_context():
+                    save_step(_id, func, params, up_to_date=True)
 
             routing_key_done = ".".join([*routing_key.split(".")[:2], "done"])
             channel.basic_publish(

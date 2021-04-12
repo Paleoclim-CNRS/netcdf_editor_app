@@ -12,6 +12,7 @@ colormaps = hv.plotting.list_cmaps()
 
 class InternalOceans(ValueChanger):
     file_type = "raw"
+    step = 'internal_oceans'
     elevation_positif = True
 
     def _calculate_internal_oceans(self):
