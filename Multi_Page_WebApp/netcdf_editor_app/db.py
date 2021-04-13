@@ -188,6 +188,7 @@ def invalidate_step(_id, step):
         "UPDATE steps SET up_to_date = ? WHERE data_file_id = ? AND step = ?",
         (0, str(_id), step),
     )
+    print(f" [*] Invalidating : {(0, str(_id), step)}")
 
     db.commit()
 

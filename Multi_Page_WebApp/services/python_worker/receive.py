@@ -75,7 +75,7 @@ def main():
                 ),
             )
             print(
-                " [x] Sent message to {}".format(routing_key_done),
+                " [x] Sent message to {} {}".format(routing_key_done, body),
                 flush=True,
             )
         print(" [x] Done", flush=True)

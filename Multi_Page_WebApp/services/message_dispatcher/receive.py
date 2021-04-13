@@ -20,7 +20,7 @@ def send_task(task, body, ch):
                 ),
             )
             print(
-                " [x] Sent message to {}".format(routing_key),
+                " [x] Sent message to {} {}".format(routing_key, body),
                 flush=True,
             )
             return
@@ -65,10 +65,11 @@ def main():
 
         if len(routing_key.split(".")) == 3:
             if task in invalidates.keys():
+                print(f"[X] task: {task} invalidates {invalidated(task, [])}", flush=True)
                 _id = json.loads(body)["id"]
                 send_task(
                     "invalidate",
-                    json.dumps({"id": _id, "tasks": invalidated(task)}),
+                    json.dumps({"id": _id, "tasks": invalidated(task, [])}),
                     ch=ch,
                 )
 
