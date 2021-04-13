@@ -47,6 +47,8 @@ services:
     image: netcdf_editor_flask_app:latest 
     expose:
       - 5000
+    depends_on: 
+      - message_broker
     entrypoint: flask run
     volumes:
       - ./Multi_Page_WebApp:/usr/src/app

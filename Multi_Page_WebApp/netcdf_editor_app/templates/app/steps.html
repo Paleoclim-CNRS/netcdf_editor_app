@@ -34,17 +34,16 @@ Datafile chosen: {{ data_file_name }}
                 .then((response) => {
                     return response.text();
                 })
-                .then((towers) => {
+                .then((table) => {
                     // do something with the data
-                    console.log(towers);
                     let towersContainer = document.getElementById("steps");
-                    towersContainer.innerHTML = towers;
+                    towersContainer.innerHTML = table;
                 });
         }
-        // call the method getTowers once to get initial data.
+        // call the method getStepsTable once to get initial data.
         getStepsTable();
 
-        // call the method getTowers every second. So that the data will be updated.
+        // call the method getStepsTable every 10 second. So that the data will be updated.
         setInterval(getStepsTable, 10000);
     })
 </script>
