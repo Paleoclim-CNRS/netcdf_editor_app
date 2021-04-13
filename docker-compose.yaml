@@ -34,7 +34,7 @@ services:
       - message_broker
       - message_dispatcher
     volumes:
-      - ./Multi_Page_WebApp/instance:/usr/src/app/instance
+      - instance_storage:/usr/src/app/instance
     
   flask_app:
     build:
