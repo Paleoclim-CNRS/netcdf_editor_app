@@ -1,7 +1,6 @@
 import os
 
 import hvplot.xarray  # noqa: F401
-import numpy
 import pandas as pd
 import werkzeug
 from werkzeug.routing import BuildError
@@ -9,22 +8,38 @@ from bokeh.embed import components
 from bokeh.layouts import column
 from bokeh.models import ColumnDataSource, CustomJS, Select
 from bokeh.plotting import Figure
-from flask import (Blueprint, current_app, flash, redirect, render_template,
-                   request, send_from_directory, session, url_for)
+from flask import (
+    Blueprint,
+    current_app,
+    flash,
+    redirect,
+    render_template,
+    request,
+    send_from_directory,
+    session,
+    url_for,
+)
 
 import holoviews as hv
 from netcdf_editor_app.auth import login_required
 from netcdf_editor_app.constants import invalidates, order_steps, tasks
-from netcdf_editor_app.db import (get_coord_names, get_file_path,
-                                  get_file_type_counts, get_file_types,
-                                  get_filename, get_latest_file_versions,
-                                  get_lon_lat_names, load_file,
-                                  remove_data_file, save_revision,
-                                  set_data_file_coords, steps_seen,
-                                  upload_file, step_seen, step_up_to_date)
+from netcdf_editor_app.db import (
+    get_coord_names,
+    get_file_path,
+    get_file_type_counts,
+    get_file_types,
+    get_filename,
+    get_latest_file_versions,
+    get_lon_lat_names,
+    load_file,
+    remove_data_file,
+    set_data_file_coords,
+    steps_seen,
+    upload_file,
+    step_seen,
+    step_up_to_date,
+)
 from netcdf_editor_app.message_broker import send_preprocessing_message
-from netcdf_editor_app.utils.ahmcoef import create_ahmcoef
-from netcdf_editor_app.utils.heatflow import create_heatflow
 
 bp = Blueprint("app", __name__)
 
@@ -157,12 +172,10 @@ def view_database_file(_id, file_type):
         title=file_type.capitalize(),
     )
 
+
 @bp.route("/api/<int:_id>/stepsTable")
 def stepsTable(_id):
-    from datetime import datetime
-
-    now = datetime.now()
-        # Get which steps have already been executed
+    # Get which steps have already been executed
     steps_to_show = steps_seen(_id)
     # Add in steps that can be shown from the start
     steps_to_show.append("regrid")
@@ -188,32 +201,32 @@ def stepsTable(_id):
             if step_up_to_date(_id, step):
                 status = '<i class="fas fa-check-square" style="color:#2ECC40"></i>'
             # if it is a python task then we show it being processed
-            elif step in tasks['python']:
+            elif step in tasks["python"]:
                 status = '<i class="fas fa-cog fa-spin" style="color:#377ba8"></i>'
         step_text = " ".join(step.split("_")).capitalize()
-        
+
         if step in invalidates.keys():
-            step_text = '<b>' + step_text + '</b>'
+            step_text = "<b>" + step_text + "</b>"
         try:
-            url = url_for(f'app.{step}', _id=_id)
-            link_text = f'''<a class="action" href="{url}">{step_text}</a>'''
+            url = url_for(f"app.{step}", _id=_id)
+            link_text = f"""<a class="action" href="{url}">{step_text}</a>"""
         except BuildError:
             link_text = step_text
-        
-        data.append([
-            status,
-            link_text
-        ])
 
-    df_steps = pd.DataFrame(
-        data,
-        columns=["run", "link"]
-    )
+        data.append([status, link_text])
+
+    df_steps = pd.DataFrame(data, columns=["run", "link"])
     # Remove status for Map
-    df_steps.iloc[0, 0] = ''
+    df_steps.iloc[0, 0] = ""
     return df_steps.to_html(
-            index=False, header=False, justify="center", border=0, escape=False, table_id="stepsTable"
-        )
+        index=False,
+        header=False,
+        justify="center",
+        border=0,
+        escape=False,
+        table_id="stepsTable",
+    )
+
 
 @bp.route("/<int:_id>/steps")
 @login_required

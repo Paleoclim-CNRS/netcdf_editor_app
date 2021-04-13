@@ -12,7 +12,7 @@ colormaps = hv.plotting.list_cmaps()
 
 class SubBasins(ValueChanger):
     file_type = "bathy"
-    step = 'subbasins'
+    step = "subbasins"
 
     def _default_ocean_values(self, bathy):
         # Atlantic = 1

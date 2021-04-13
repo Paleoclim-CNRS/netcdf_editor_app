@@ -7,14 +7,17 @@ tasks = {
     "panel": ["internal_oceans", "passage_problems", "subbasins"],
 }
 
-invalidates = OrderedDict({
-    "regrid": ["internal_oceans", "routing"],
-    "internal_oceans": ["routing"],
-    "routing": ["pft", "passage_problems", "subbasins", "heatflow", "ahmcoef"],
-    "passage_problems": ["subbasins", "heatflow", "ahmcoef"],
-})
+invalidates = OrderedDict(
+    {
+        "regrid": ["internal_oceans", "routing"],
+        "internal_oceans": ["routing"],
+        "routing": ["pft", "passage_problems", "subbasins", "heatflow", "ahmcoef"],
+        "passage_problems": ["subbasins", "heatflow", "ahmcoef"],
+    }
+)
 
 no_params = ["heatflow", "ahmcoef"]
+
 
 def order_steps(steps):
     # Order the steps correctly
@@ -23,19 +26,34 @@ def order_steps(steps):
     for i in range(len(steps)):
         # Test to see if it is a blocking step -> it has steps that depend on it
         # Because invalidates is an OrderedDict we lookup the location in which it is seen
-        #TODO We should probably use some sort of tree to run through this automatically and not depend on the order
+        # TODO We should probably use some sort of tree to run through this automatically and not depend on the order
         if steps[i] in invalidates.keys():
             blocking_steps.append([i, list(invalidates).index(steps[i])])
         else:
-            dependant_steps.append([i, len(invalidates.keys()) - numpy.argmax([steps[i] in val for val in invalidates.values()][::-1])])
+            dependant_steps.append(
+                [
+                    i,
+                    len(invalidates.keys())
+                    - numpy.argmax(
+                        [steps[i] in val for val in invalidates.values()][::-1]
+                    ),
+                ]
+            )
     dependant_steps = numpy.array(dependant_steps)
     blocking_steps = numpy.array(blocking_steps)
     out = []
     if len(blocking_steps):
-        out = numpy.array(steps)[blocking_steps[numpy.argsort(blocking_steps[:, 1])][:, 0]]
+        out = numpy.array(steps)[
+            blocking_steps[numpy.argsort(blocking_steps[:, 1])][:, 0]
+        ]
     if len(dependant_steps):
-        out = list(numpy.insert(out, dependant_steps[:, 1], numpy.array(steps)[dependant_steps[:, 0]]))
+        out = list(
+            numpy.insert(
+                out, dependant_steps[:, 1], numpy.array(steps)[dependant_steps[:, 0]]
+            )
+        )
     return out
+
 
 def invalidated(root, _list=[]):
     if root not in invalidates.keys():

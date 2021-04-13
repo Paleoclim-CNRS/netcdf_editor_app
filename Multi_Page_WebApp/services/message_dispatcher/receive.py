@@ -65,7 +65,9 @@ def main():
 
         if len(routing_key.split(".")) == 3:
             if task in invalidates.keys():
-                print(f"[X] task: {task} invalidates {invalidated(task, [])}", flush=True)
+                print(
+                    f"[X] task: {task} invalidates {invalidated(task, [])}", flush=True
+                )
                 _id = json.loads(body)["id"]
                 send_task(
                     "invalidate",

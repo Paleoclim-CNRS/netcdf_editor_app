@@ -12,7 +12,7 @@ colormaps = hv.plotting.list_cmaps()
 
 class PassageProblems(InternalOceans):
     file_type = "bathy"
-    step = 'passage_problems'
+    step = "passage_problems"
     elevation_positif = False
 
     def __init__(self, **params):

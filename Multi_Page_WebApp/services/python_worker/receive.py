@@ -57,11 +57,11 @@ def main():
         params = func_params(func, body)
         if params is not None:
             _id = body["id"]
-            if func is not "invalidate":
+            if func != "invalidate":
                 with app.app_context():
                     save_step(_id, func, params, up_to_date=False)
             eval(f"steps.{func}({params})")
-            if func is not "invalidate":
+            if func != "invalidate":
                 with app.app_context():
                     save_step(_id, func, params, up_to_date=True)
 

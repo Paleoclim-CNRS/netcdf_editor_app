@@ -1,7 +1,12 @@
 import sqlite3
 
 import pytest
-from netcdf_editor_app.db import get_db, get_file_types, get_file_type_counts, steps_seen
+from netcdf_editor_app.db import (
+    get_db,
+    get_file_types,
+    get_file_type_counts,
+    steps_seen,
+)
 
 
 def test_get_close_db(app):

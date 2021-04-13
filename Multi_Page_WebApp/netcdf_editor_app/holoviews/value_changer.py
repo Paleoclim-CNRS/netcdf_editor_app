@@ -326,8 +326,15 @@ class ValueChanger(param.Parameterized):
             save_revision(self.data_file_id, self.ds, self.file_type)
             print(self.step, flush=True)
             if self.step is not None:
-                save_step(self.data_file_id, step=self.step, parameters = {"id": self.data_file_id}, up_to_date=True)
-                send_preprocessing_message(self.step + ".done", message={"id": self.data_file_id})
+                save_step(
+                    self.data_file_id,
+                    step=self.step,
+                    parameters={"id": self.data_file_id},
+                    up_to_date=True,
+                )
+                send_preprocessing_message(
+                    self.step + ".done", message={"id": self.data_file_id}
+                )
 
     def _apply_action(self, action):
         if action["calculation_type"] in ["Absolute", "Percentage", "Relatif"]:

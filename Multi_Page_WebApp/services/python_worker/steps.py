@@ -6,7 +6,6 @@ from netcdf_editor_app.db import (
     get_lon_lat_names,
     load_file,
     save_revision,
-    save_step,
     step_seen,
     invalidate_step,
 )

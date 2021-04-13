@@ -122,24 +122,25 @@ def step_seen(_id, step):
 
     return results > 0
 
+
 def step_up_to_date(_id, step):
     db = get_db()
-    
+
     query = "SELECT up_to_date from steps WHERE data_file_id = ? AND step = ?"
     results = db.execute(query, (str(_id), step)).fetchone()["up_to_date"]
 
     # Up to date if equal to 1
     return bool(results)
 
+
 def steps_seen(_id):
     db = get_db()
-    
+
     query = "SELECT step from steps WHERE data_file_id = ?"
     results = db.execute(query, (str(_id),)).fetchall()
     steps = [res["step"] for res in results]
 
     return steps
-
 
 
 def step_parameters(_id, step):
