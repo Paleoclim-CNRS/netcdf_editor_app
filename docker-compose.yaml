@@ -7,15 +7,47 @@ services:
     depends_on: 
       - flask_app
       - panel_app
+
+  message_broker:
+    image: rabbitmq:3
+    expose:
+      - 5672
+  
+  message_dispatcher:
+    build:
+      context: Multi_Page_WebApp
+      dockerfile: services/message_dispatcher/Dockerfile
+    restart: on-failure
+    environment: 
+      - BROKER_HOSTNAME=message_broker
+    depends_on: 
+      - message_broker
+
+  python_worker:
+    build:
+      context: Multi_Page_WebApp
+      dockerfile: services/python_worker/Dockerfile
+    restart: on-failure
+    environment: 
+      - BROKER_HOSTNAME=message_broker
+    depends_on: 
+      - message_broker
+      - message_dispatcher
+    volumes:
+      - ./Multi_Page_WebApp/instance:/usr/src/app/instance
     
   flask_app:
     build:
       context: Multi_Page_WebApp
       dockerfile: services/flask/Dockerfile
     env_file: ${FLASK_CONFIG}
+    environment: 
+      - BROKER_HOSTNAME=message_broker
     image: netcdf_editor_flask_app:latest 
     expose:
       - 5000
+    depends_on: 
+      - message_broker
     entrypoint: gunicorn --bind 0.0.0.0:5000 "netcdf_editor_app:create_app()"
     # entrypoint: python -m flask run
     volumes:
@@ -26,9 +58,13 @@ services:
       context: Multi_Page_WebApp
       dockerfile: services/panel/Dockerfile
     env_file: ${PANEL_CONFIG}
+    environment: 
+      - BROKER_HOSTNAME=message_broker
     image: netcdf_editor_panel_app:latest
     expose: 
       - 5006
+    depends_on: 
+      - message_broker
     volumes:
       - instance_storage:/usr/src/app/instance
 
