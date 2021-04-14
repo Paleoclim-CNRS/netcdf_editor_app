@@ -25,3 +25,12 @@ CREATE TABLE revisions (
   file_type TEXT NOT NULL,
   FOREIGN KEY (data_file_id) REFERENCES data_files (id)
 );
+
+CREATE TABLE steps (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  data_file_id INTEGER NOT NULL,
+  step TEXT NOT NULL,
+  parameters TEXT,
+  up_to_date INTEGER NOT NULL DEFAULT 1,
+  FOREIGN KEY (data_file_id) REFERENCES data_files (id)
+);

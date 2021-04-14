@@ -198,7 +198,9 @@ def _add_gradient_to_flats(topo):
 
     # Exit points from flat basins are defined as the points that have the same
     # altitude as a neighbor cell (is_flat) and at least one downward cell (is_pas)
-    exit_points = numpy.array(numpy.where((is_pas == True) & (is_flat == True)))  # noqa: E712
+    exit_points = numpy.array(
+        numpy.where((is_pas == True) & (is_flat == True))  # noqa: E712
+    )
 
     # Store an array of when the cell was seen for the first time
     # This is passed to our recursively function and filled over time

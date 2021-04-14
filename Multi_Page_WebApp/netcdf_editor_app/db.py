@@ -1,5 +1,6 @@
 import sqlite3
 import os
+import json
 import tempfile
 
 import click
@@ -63,6 +64,7 @@ def set_data_file_coords(_id, longitude, latitude):
 
 def upload_file(file, file_type="raw"):
     filename = secure_filename(file.filename)
+    filename = "_".join(filename.split("."))
     temp_name = next(tempfile._get_candidate_names()) + ".nc"
     # Save the file to the file system
     file.save(os.path.join(current_app.config["UPLOAD_FOLDER"], temp_name))
@@ -106,7 +108,95 @@ def save_revision(_id, ds, file_type):
         (str(_id), temp_name, revision_nb, file_type),
     )
     db.commit()
-    flash(f"Saved new version of {file_type}")
+    try:
+        flash(f"Saved new version of {file_type}")
+    except RuntimeError:
+        pass
+
+
+def step_seen(_id, step):
+    db = get_db()
+
+    query = "SELECT COUNT(id) from steps WHERE data_file_id = ? AND step = ?"
+    results = db.execute(query, (str(_id), step)).fetchone()["COUNT(id)"]
+
+    return results > 0
+
+
+def step_up_to_date(_id, step):
+    db = get_db()
+
+    query = "SELECT up_to_date from steps WHERE data_file_id = ? AND step = ?"
+    results = db.execute(query, (str(_id), step)).fetchone()["up_to_date"]
+
+    # Up to date if equal to 1
+    return bool(results)
+
+
+def steps_seen(_id):
+    db = get_db()
+
+    query = "SELECT step from steps WHERE data_file_id = ?"
+    results = db.execute(query, (str(_id),)).fetchall()
+    steps = [res["step"] for res in results]
+
+    return steps
+
+
+def step_parameters(_id, step):
+    db = get_db()
+
+    query = "SELECT parameters from steps WHERE data_file_id = ? AND step = ?"
+    parameters = db.execute(query, (str(_id), step)).fetchone()
+    if len(parameters):
+        parameters = json.loads(parameters["parameters"])
+
+    return parameters
+
+
+def save_step(_id, step, parameters, up_to_date=True):
+    if type(parameters) is dict:
+        parameters = json.dumps(parameters)
+
+    db = get_db()
+    # Get already seen steps
+    query = "SELECT step FROM steps WHERE data_file_id = ?"
+    steps = [s["step"] for s in db.execute(query, (str(_id),)).fetchall()]
+    if step not in steps:
+        db.execute(
+            "INSERT INTO steps (data_file_id, step, parameters, up_to_date)"
+            " VALUES (?, ?, ?, ?)",
+            (str(_id), step, parameters, int(up_to_date)),
+        )
+        print(f" [*] Saving : {(str(_id), step, parameters, int(up_to_date))}")
+    else:  # update parameters and set as up to date
+        db.execute(
+            "UPDATE steps SET parameters = ?, up_to_date = ? WHERE data_file_id = ? AND step = ?",
+            (parameters, int(up_to_date), str(_id), step),
+        )
+        print(f" [*] Saving : {(parameters, int(up_to_date), str(_id), step)}")
+    db.commit()
+    try:
+        flash(f"Updated Step {step} for {_id}")
+    except RuntimeError:
+        pass
+
+
+def invalidate_step(_id, step):
+    db = get_db()
+
+    db.execute(
+        "UPDATE steps SET up_to_date = ? WHERE data_file_id = ? AND step = ?",
+        (0, str(_id), step),
+    )
+    print(f" [*] Invalidating : {(0, str(_id), step)}")
+
+    db.commit()
+
+    try:
+        flash(f"Invalidated Step {step} for {_id}")
+    except RuntimeError:
+        pass
 
 
 def get_latest_file_versions():
