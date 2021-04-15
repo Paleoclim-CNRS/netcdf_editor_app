@@ -1,9 +1,21 @@
 {% extends 'base.html' %}
 
 {% block header %}
+<style>
+    #panelApp {
+        width: 100%;
+        height: 75vh;
+        margin-top: 1em;
+        border: none;
+    }
+</style>
 <h1>{% block title %}{{ title }}{% endblock %}</h1>
 {% endblock %}
 
 {% block content %}
-    {{ script|safe }}
+    {{ script | safe }}
+    <!-- # Arguments are reached through Bokeh curdoc.session_context.request.arguments
+    # And hence through panel.state.curdoc.session_context.request.arguments -->
+    <iframe id='panelApp' src="{{ url_for('index') }}panel/{{ panel_app_name }}?{% for key, value in arguments.items() %}{{key}}={{value}}&{% endfor %}">
+    </iframe>
 {% endblock %}
