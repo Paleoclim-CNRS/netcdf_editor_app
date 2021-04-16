@@ -64,7 +64,9 @@ def set_data_file_coords(_id, longitude, latitude):
 
 def upload_file(file, file_type="raw"):
     filename = secure_filename(file.filename)
-    filename = "_".join(filename.split("."))
+    name, extension = os.path.splittext(filename)
+    name = "_".join(name.split("."))
+    filename = name + extension
     temp_name = next(tempfile._get_candidate_names()) + ".nc"
     # Save the file to the file system
     file.save(os.path.join(current_app.config["UPLOAD_FOLDER"], temp_name))
