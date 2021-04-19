@@ -22,6 +22,9 @@ Datafile chosen: {{ data_file_name }}
 {% endblock %}
 
 {% block content %}
+<div style="display: flex; justify-content: center;">
+{{ file_info|safe }}
+</div>
 <h2>Workflow</h2>
 <div id="steps"></div>
 <h2>Assets</h2>
@@ -53,14 +56,25 @@ Datafile chosen: {{ data_file_name }}
                 });
         }
 
+        function loadTooltips() {
+            $('[data-toggle="tooltip"]').tooltip()
+        }
+
 
         // call the method getStepsTable once to get initial data.
         getStepsTable();
         getAssetsTable();
+        loadTooltips();
 
         // call the method getStepsTable every 10 second. So that the data will be updated.
         setInterval(getStepsTable, 10000);
         setInterval(getAssetsTable, 10000);
+        setInterval(loadTooltips, 10000);
     })
 </script>
+<script
+src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.0/dist/js/bootstrap.bundle.min.js"
+integrity="sha384-Piv4xVNRyMGpqkS2by6br4gNJ7DXjqk09RmUpJ8jgGtD7zP9yug3goQfGII0yAns"
+crossorigin="anonymous"
+></script>
 {% endblock %}
