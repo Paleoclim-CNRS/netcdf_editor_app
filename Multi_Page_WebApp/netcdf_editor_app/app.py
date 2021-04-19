@@ -207,15 +207,16 @@ def view_database_file(_id, file_type):
         title=file_type.capitalize(),
     )
 
+
 @bp.route("/<int:_id>/<string:file_type>/fileInfo")
 @login_required
 def file_info(_id, file_type):
     ds = load_file(_id, file_type)
-    dataset_info = ds._repr_html_().replace("<div class='xr-wrap' hidden>", "<div class='xr-wrap'>")
-    return render_template(
-        "app/file_info.html",
-        file_info=dataset_info
+    dataset_info = ds._repr_html_().replace(
+        "<div class='xr-wrap' hidden>", "<div class='xr-wrap'>"
     )
+    return render_template("app/file_info.html", file_info=dataset_info)
+
 
 @bp.route("/api/<int:_id>/steps/stepsTable")
 def stepsTable(_id):
@@ -328,10 +329,11 @@ def assetsTable(_id):
 @login_required
 def steps(_id):
     data_file_name = get_filename(_id)
-    ds = load_file(_id, file_type='raw', revision=0)
+    ds = load_file(_id, file_type="raw", revision=0)
     file_info = ds._repr_html_()
-    file_info = file_info.replace("<div class='xr-wrap' hidden>", "<div class='xr-wrap'>").replace("type='checkbox'  checked", "type='checkbox'")
-    
+    file_info = file_info.replace(
+        "<div class='xr-wrap' hidden>", "<div class='xr-wrap'>"
+    ).replace("type='checkbox'  checked", "type='checkbox'")
 
     return render_template(
         "app/steps.html",
