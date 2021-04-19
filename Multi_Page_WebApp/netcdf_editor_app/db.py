@@ -64,7 +64,7 @@ def set_data_file_coords(_id, longitude, latitude):
 
 def upload_file(file, file_type="raw"):
     filename = secure_filename(file.filename)
-    name, extension = os.path.splittext(filename)
+    name, extension = os.path.splitext(filename)
     name = "_".join(name.split("."))
     filename = name + extension
     temp_name = next(tempfile._get_candidate_names()) + ".nc"
