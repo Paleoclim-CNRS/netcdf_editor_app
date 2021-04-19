@@ -483,6 +483,11 @@ class ValueChanger(param.Parameterized):
     def _update_clims(self):
         min_value = float(self.ds[self.attribute.value].min())
         max_value = float(self.ds[self.attribute.value].max())
+        # If we straddle 0 then use symmetric limits
+        if min_value * max_value < 0:
+            abs_max = float(numpy.abs((min_value, max_value)).max())
+            min_value = -abs_max
+            max_value = abs_max
         # Update the limits of the range slider witht the new values
         self.colormap_range_slider.start = min_value
         self.colormap_range_slider.end = max_value
@@ -501,6 +506,14 @@ class ValueChanger(param.Parameterized):
     def _color_levels(self):
         if self.colormap_delta.value <= 0:
             return None
+        # If we straddle 0 then work out from 0
+        if self.colormap_max.value * self.colormap_min.value < 0:
+            min_val = self.colormap_min.value
+            max_val = self.colormap_max.value
+            delta = self.colormap_delta.value
+            results = [self.colormap_min.value] + [*numpy.arange(0, -min_val, delta)[::-1] * -1, * numpy.arange(0, max_val, delta)[1:]] + [self.colormap_max.value]
+            print(results, flush=True)
+            return results
         return (
             list(
                 numpy.arange(

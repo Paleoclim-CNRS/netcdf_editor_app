@@ -1,0 +1,23 @@
+From 3aca1815fc854d8334d8a010d335b359112e06ec Mon Sep 17 00:00:00 2001
+From: Wesley Banfield <wesleybanfield@gmail.com>
+Date: Mon, 19 Apr 2021 12:41:00 +0200
+Subject: [PATCH] Change how upper limit is taken for color_levels
+
+---
+ holoviews/plotting/util.py | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/holoviews/plotting/util.py b/holoviews/plotting/util.py
+index 6a9c5078b..db8fe725e 100644
+@@ -960,7 +960,7 @@ def color_intervals(colors, levels, clip=None, N=255):
+         clmin, clmax = clip
+         lidx = int(round(N*((clmin-cmin)/interval)))
+         uidx = int(round(N*((cmax-clmax)/interval)))
+-        uidx = N-uidx
++        uidx = len(cmap)-uidx
+         if lidx == uidx:
+             uidx = lidx+1
+         cmap = cmap[lidx:uidx]
+-- 
+2.29.2
+
