@@ -173,7 +173,7 @@ def view_database_file(_id, file_type):
     )
 
 
-@bp.route("/api/<int:_id>/stepsTable")
+@bp.route("/api/<int:_id>/steps/stepsTable")
 def stepsTable(_id):
     # Get which steps have already been executed
     steps_to_show = steps_seen(_id)
@@ -227,11 +227,9 @@ def stepsTable(_id):
         table_id="stepsTable",
     )
 
-
-@bp.route("/<int:_id>/steps")
+@bp.route("/api/<int:_id>/steps/assetsTable")
 @login_required
-def steps(_id):
-    data_file_name = get_filename(_id)
+def assetsTable(_id):
 
     seen_file_types = get_file_types(_id)
     file_type_counts = get_file_type_counts(_id)
@@ -267,13 +265,19 @@ def steps(_id):
             "Download Link",
         ],
     )
+    return df_assets.to_html(
+            index=False, justify="center", border=0, classes="table", escape=False
+        )
+
+@bp.route("/<int:_id>/steps")
+@login_required
+def steps(_id):
+    data_file_name = get_filename(_id)
+ 
     return render_template(
         "app/steps.html",
         data_file_name=data_file_name,
         _id=_id,
-        assets_table=df_assets.to_html(
-            index=False, justify="center", border=0, classes="table", escape=False
-        ),
     )
 
 

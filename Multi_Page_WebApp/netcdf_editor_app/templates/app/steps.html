@@ -25,26 +25,42 @@ Datafile chosen: {{ data_file_name }}
 <h2>Workflow</h2>
 <div id="steps"></div>
 <h2>Assets</h2>
-{{ assets_table|safe }}
+<div id="assets"></div>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
 <script>
     $(document).ready(function () {
         function getStepsTable() {
-            fetch('/api/{{_id }}/stepsTable')
+            fetch('/api/{{_id }}/steps/stepsTable')
                 .then((response) => {
                     return response.text();
                 })
                 .then((table) => {
                     // do something with the data
-                    let towersContainer = document.getElementById("steps");
-                    towersContainer.innerHTML = table;
+                    let container = document.getElementById("steps");
+                    container.innerHTML = table;
                 });
         }
+
+        function getAssetsTable() {
+            fetch('/api/{{_id }}/steps/assetsTable')
+                .then((response) => {
+                    return response.text();
+                })
+                .then((table) => {
+                    // do something with the data
+                    let container = document.getElementById("assets");
+                    container.innerHTML = table;
+                });
+        }
+
+
         // call the method getStepsTable once to get initial data.
         getStepsTable();
+        getAssetsTable();
 
         // call the method getStepsTable every 10 second. So that the data will be updated.
         setInterval(getStepsTable, 10000);
+        setInterval(getAssetsTable, 10000);
     })
 </script>
 {% endblock %}
