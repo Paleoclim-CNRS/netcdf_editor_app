@@ -1,4 +1,6 @@
 import os
+import zipfile
+import io
 
 import hvplot.xarray  # noqa: F401
 import pandas as pd
@@ -15,6 +17,7 @@ from flask import (
     redirect,
     render_template,
     request,
+    send_file,
     send_from_directory,
     session,
     url_for,
@@ -95,6 +98,38 @@ def download(_id, file_type):
         filename=filename,
         as_attachment=True,
         attachment_filename=data_file_name,
+    )
+
+
+@bp.route("/<int:_id>/download", methods=["GET"])
+@login_required
+def download_all(_id):
+    data_file_name = get_filename(_id)
+    ori_name, extension = data_file_name.split(".")
+
+    seen_file_types = get_file_types(_id)
+    fileobj = io.BytesIO()
+    with zipfile.ZipFile(fileobj, "w") as zip_file:
+        for file_type in seen_file_types:
+            name = ori_name + "_" + file_type + "_netcdf_flask_app"
+            data_file_name = name + "." + extension
+
+            filename = get_file_path(_id, file_type, full=False)
+            uploads = os.path.join(
+                current_app.root_path, current_app.config["UPLOAD_FOLDER"]
+            )
+            print(os.path.join(uploads, filename), flush=True)
+            zip_file.write(
+                os.path.join(uploads, filename),
+                arcname=name,
+                compress_type=zipfile.ZIP_STORED,
+            )
+    fileobj.seek(0)
+    return send_file(
+        fileobj,
+        mimetype="application/zip",
+        as_attachment=True,
+        attachment_filename=f"{'netcdf_flask_app_' + ori_name}.zip",
     )
 
 
@@ -227,6 +262,7 @@ def stepsTable(_id):
         table_id="stepsTable",
     )
 
+
 @bp.route("/api/<int:_id>/steps/assetsTable")
 @login_required
 def assetsTable(_id):
@@ -265,15 +301,20 @@ def assetsTable(_id):
             "Download Link",
         ],
     )
-    return df_assets.to_html(
-            index=False, justify="center", border=0, classes="table", escape=False
-        )
+    table_html = df_assets.to_html(
+        index=False, justify="center", border=0, classes="table", escape=False
+    )
+    download_all_btn = f"<form action=\"{ url_for('app.download_all', _id=_id) }\" method=\"GET\"> \
+                    <button type=\"submit\" class=\"btn btn-primary\"><i class=\"fas fa-download\"></i> Download All</button> \
+                </form>"
+    return download_all_btn + table_html
+
 
 @bp.route("/<int:_id>/steps")
 @login_required
 def steps(_id):
     data_file_name = get_filename(_id)
- 
+
     return render_template(
         "app/steps.html",
         data_file_name=data_file_name,

@@ -511,7 +511,14 @@ class ValueChanger(param.Parameterized):
             min_val = self.colormap_min.value
             max_val = self.colormap_max.value
             delta = self.colormap_delta.value
-            results = [self.colormap_min.value] + [*numpy.arange(0, -min_val, delta)[::-1] * -1, * numpy.arange(0, max_val, delta)[1:]] + [self.colormap_max.value]
+            results = (
+                [self.colormap_min.value]
+                + [
+                    *numpy.arange(0, -min_val, delta)[::-1] * -1,
+                    *numpy.arange(0, max_val, delta)[1:],
+                ]
+                + [self.colormap_max.value]
+            )
             print(results, flush=True)
             return results
         return (
