@@ -72,7 +72,7 @@ class InternalOceans(ValueChanger):
 
         # Replace continents with numpy.NaN
         # Originally they are ints or floats and numpy.NaN can't be set
-        labeled_array = labeled_array.astype(object)
+        labeled_array = labeled_array.astype(numpy.float)
         # continents have a value of 0
         labeled_array[labeled_array == 0] = numpy.NaN
         return labeled_array
@@ -80,7 +80,9 @@ class InternalOceans(ValueChanger):
     @pn.depends("ds", "attribute.value")
     def load_internal_oceans(self):
         internal_oceans = self._calculate_internal_oceans()
-        number_oceans = numpy.nanmax(internal_oceans)
+        number_oceans = len(
+            numpy.unique(internal_oceans[~numpy.isnan(internal_oceans)])
+        )
 
         # Lets counts the number of times each ocean appears this can then be used to
         # Filter out and find the bigger oceans

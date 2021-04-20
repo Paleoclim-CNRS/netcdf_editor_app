@@ -1,4 +1,6 @@
 import os
+import zipfile
+import io
 
 import hvplot.xarray  # noqa: F401
 import pandas as pd
@@ -15,6 +17,7 @@ from flask import (
     redirect,
     render_template,
     request,
+    send_file,
     send_from_directory,
     session,
     url_for,
@@ -98,6 +101,38 @@ def download(_id, file_type):
     )
 
 
+@bp.route("/<int:_id>/download", methods=["GET"])
+@login_required
+def download_all(_id):
+    data_file_name = get_filename(_id)
+    ori_name, extension = data_file_name.split(".")
+
+    seen_file_types = get_file_types(_id)
+    fileobj = io.BytesIO()
+    with zipfile.ZipFile(fileobj, "w") as zip_file:
+        for file_type in seen_file_types:
+            name = ori_name + "_" + file_type + "_netcdf_flask_app"
+            data_file_name = name + "." + extension
+
+            filename = get_file_path(_id, file_type, full=False)
+            uploads = os.path.join(
+                current_app.root_path, current_app.config["UPLOAD_FOLDER"]
+            )
+            print(os.path.join(uploads, filename), flush=True)
+            zip_file.write(
+                os.path.join(uploads, filename),
+                arcname=name,
+                compress_type=zipfile.ZIP_STORED,
+            )
+    fileobj.seek(0)
+    return send_file(
+        fileobj,
+        mimetype="application/zip",
+        as_attachment=True,
+        attachment_filename=f"{'netcdf_flask_app_' + ori_name}.zip",
+    )
+
+
 @bp.route("/<int:_id>/delete", methods=("GET", "POST"))
 @login_required
 def delete(_id):
@@ -173,7 +208,17 @@ def view_database_file(_id, file_type):
     )
 
 
-@bp.route("/api/<int:_id>/stepsTable")
+@bp.route("/<int:_id>/<string:file_type>/fileInfo")
+@login_required
+def file_info(_id, file_type):
+    ds = load_file(_id, file_type)
+    dataset_info = ds._repr_html_().replace(
+        "<div class='xr-wrap' hidden>", "<div class='xr-wrap'>"
+    )
+    return render_template("app/file_info.html", file_info=dataset_info)
+
+
+@bp.route("/api/<int:_id>/steps/stepsTable")
 def stepsTable(_id):
     # Get which steps have already been executed
     steps_to_show = steps_seen(_id)
@@ -228,19 +273,22 @@ def stepsTable(_id):
     )
 
 
-@bp.route("/<int:_id>/steps")
+@bp.route("/api/<int:_id>/steps/assetsTable")
 @login_required
-def steps(_id):
-    data_file_name = get_filename(_id)
+def assetsTable(_id):
 
     seen_file_types = get_file_types(_id)
     file_type_counts = get_file_type_counts(_id)
     data = []
     for name in seen_file_types:
+
         data.append(
             [
                 name.capitalize(),
                 f"<div style='text-align:center'>{file_type_counts[name]}</div>",
+                f"<form action=\"{ url_for('app.file_info', _id=_id, file_type=name.lower()) }\" method=\"GET\"> \
+                    <button type=\"submit\" class=\"btn btn-info\"><i class=\"fas fa-database\"></i> View</button> \
+                </form>",
                 f"<form action=\"{ url_for('app.view_database_file', _id=_id, file_type=name.lower()) }\" method=\"GET\"> \
                     <button type=\"submit\" class=\"btn btn-info\"><i class=\"fas fa-map\"></i> View</button> \
                 </form>",
@@ -261,19 +309,37 @@ def steps(_id):
         columns=[
             "File Type",
             "Number Revisions",
+            "File Info",
             "View",
             "Complex Viewer",
             "Revision Comparison",
             "Download Link",
         ],
     )
+    table_html = df_assets.to_html(
+        index=False, justify="center", border=0, classes="table", escape=False
+    )
+    download_all_btn = f"<form action=\"{ url_for('app.download_all', _id=_id) }\" method=\"GET\"> \
+                    <button type=\"submit\" class=\"btn btn-primary\"><i class=\"fas fa-download\"></i> Download All</button> \
+                </form>"
+    return download_all_btn + table_html
+
+
+@bp.route("/<int:_id>/steps")
+@login_required
+def steps(_id):
+    data_file_name = get_filename(_id)
+    ds = load_file(_id, file_type="raw", revision=0)
+    file_info = ds._repr_html_()
+    file_info = file_info.replace(
+        "<div class='xr-wrap' hidden>", "<div class='xr-wrap'>"
+    ).replace("type='checkbox'  checked", "type='checkbox'")
+
     return render_template(
         "app/steps.html",
+        file_info=file_info,
         data_file_name=data_file_name,
         _id=_id,
-        assets_table=df_assets.to_html(
-            index=False, justify="center", border=0, classes="table", escape=False
-        ),
     )
 
 

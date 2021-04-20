@@ -9,4 +9,7 @@ WORKDIR /usr/src/app
 
 ENV BOKEH_RESOURCES=cdn
 
+COPY services/panel/holoviews.patch /usr/src/holoviews.patch
+RUN patch /usr/local/lib/python3.8/site-packages/holoviews/plotting/util.py /usr/src/holoviews.patch
+
 ENTRYPOINT [  "python", "-m", "panel",  "serve",  "--port=5006", "--address=0.0.0.0", "--websocket-max-message-size=100000000", "netcdf_editor_app/holoviews/internal_oceans.py", "netcdf_editor_app/holoviews/value_changer.py", "netcdf_editor_app/holoviews/passage_problems.py", "netcdf_editor_app/holoviews/sub_basins.py" ]

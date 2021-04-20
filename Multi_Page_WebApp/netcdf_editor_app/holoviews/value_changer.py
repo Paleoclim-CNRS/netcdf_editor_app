@@ -63,6 +63,7 @@ class ValueChanger(param.Parameterized):
     # Used to store when inital data is loaded
     loaded = param.Parameter()
     step = None
+    elevation_positif = True
 
     def __init__(self, **params):
         # How we are going to modify the values
@@ -76,6 +77,10 @@ class ValueChanger(param.Parameterized):
         self.spinner = pn.widgets.IntInput(
             name="Replacement Value", value=0, align="start"
         )
+
+        # Whether to select Land or Ocean
+        self.land = pn.widgets.Checkbox(name="Select Land", max_width=100, value=True)
+        self.ocean = pn.widgets.Checkbox(name="Select Ocean", max_width=100, value=True)
 
         # Buttons
         self.apply = pn.widgets.Button(
@@ -246,24 +251,54 @@ class ValueChanger(param.Parameterized):
             if new_vals[1] != old_vals[1]:
                 self.colormap_max.value = int(new_vals[1])
 
-    def _set_values(self, value, calculation_type, selection_expr):
+    def _set_values(
+        self, value, calculation_type, selection_expr, land=True, ocean=True
+    ):
         hvds = hv.Dataset(
             self.ds.to_dataframe(
                 dim_order=[*list(self.ds[self.attribute.value].dims)]
             ).reset_index()
         )
+        indexs_to_update = set(hvds.select(selection_expr).data.index)
+        # Remove land indexs
+        if not land:
+            if self.elevation_positif:
+                land_indexs = set(
+                    hvds.data[self.attribute.value][
+                        hvds.data[self.attribute.value] >= 0
+                    ].index
+                )
+            else:
+                land_indexs = set(
+                    hvds.data[self.attribute.value][
+                        hvds.data[self.attribute.value] <= 0
+                    ].index
+                )
+            indexs_to_update.difference_update(land_indexs)
+        # Remove Ocean indexs
+        if not ocean:
+            if self.elevation_positif:
+                ocean_indexs = set(
+                    hvds.data[self.attribute.value][
+                        hvds.data[self.attribute.value] < 0
+                    ].index
+                )
+            else:
+                ocean_indexs = set(
+                    hvds.data[self.attribute.value][
+                        hvds.data[self.attribute.value] > 0
+                    ].index
+                )
+            indexs_to_update.difference_update(ocean_indexs)
+
         if calculation_type == "Absolute":
-            hvds.data[self.attribute.value].loc[
-                hvds.select(selection_expr).data.index
-            ] = value
+            hvds.data[self.attribute.value].loc[indexs_to_update] = value
         elif calculation_type == "Relatif":
-            hvds.data[self.attribute.value].loc[
-                hvds.select(selection_expr).data.index
-            ] += value
+            hvds.data[self.attribute.value].loc[indexs_to_update] += value
         elif calculation_type == "Percentage":
-            hvds.data[self.attribute.value].loc[
-                hvds.select(selection_expr).data.index
-            ] *= (100 + value) / 100.0
+            hvds.data[self.attribute.value].loc[indexs_to_update] *= (
+                100 + value
+            ) / 100.0
         self.ds[self.attribute.value] = tuple(
             (
                 list(self.ds[self.attribute.value].dims),
@@ -324,7 +359,6 @@ class ValueChanger(param.Parameterized):
     def save(self, event):
         with self.app.app_context():
             save_revision(self.data_file_id, self.ds, self.file_type)
-            print(self.step, flush=True)
             if self.step is not None:
                 save_step(
                     self.data_file_id,
@@ -342,6 +376,8 @@ class ValueChanger(param.Parameterized):
                 value=action["value"],
                 calculation_type=action["calculation_type"],
                 selection_expr=action["selection_expr"],
+                land=action["land"],
+                ocean=action["ocean"],
             )
         else:
             raise ValueError(
@@ -357,6 +393,8 @@ class ValueChanger(param.Parameterized):
             "selection_expr": self.selection.selection_expr,
             "calculation_type": self.calculation_type.value,
             "value": self.spinner.value,
+            "land": self.land.value,
+            "ocean": self.ocean.value,
         }
         # Apply the action
         self._apply_action(action)
@@ -451,6 +489,8 @@ class ValueChanger(param.Parameterized):
                 pn.Row(self.mask, self.mask_value),
                 pn.pane.Markdown("""### Change Values"""),
                 pn.Column(
+                    self.land,
+                    self.ocean,
                     self.calculation_type,
                     self.spinner,
                     self.apply,
@@ -483,6 +523,11 @@ class ValueChanger(param.Parameterized):
     def _update_clims(self):
         min_value = float(self.ds[self.attribute.value].min())
         max_value = float(self.ds[self.attribute.value].max())
+        # If we straddle 0 then use symmetric limits
+        if min_value * max_value < 0:
+            abs_max = float(numpy.abs((min_value, max_value)).max())
+            min_value = -abs_max
+            max_value = abs_max
         # Update the limits of the range slider witht the new values
         self.colormap_range_slider.start = min_value
         self.colormap_range_slider.end = max_value
@@ -501,6 +546,20 @@ class ValueChanger(param.Parameterized):
     def _color_levels(self):
         if self.colormap_delta.value <= 0:
             return None
+        # If we straddle 0 then work out from 0
+        if self.colormap_max.value * self.colormap_min.value < 0:
+            min_val = self.colormap_min.value
+            max_val = self.colormap_max.value
+            delta = self.colormap_delta.value
+            results = (
+                [self.colormap_min.value]
+                + [
+                    *numpy.arange(0, -min_val, delta)[::-1] * -1,
+                    *numpy.arange(0, max_val, delta)[1:],
+                ]
+                + [self.colormap_max.value]
+            )
+            return results
         return (
             list(
                 numpy.arange(
