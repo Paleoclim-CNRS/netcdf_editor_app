@@ -47,6 +47,20 @@ from netcdf_editor_app.message_broker import send_preprocessing_message
 bp = Blueprint("app", __name__)
 
 
+def _validate_file(request):
+    # check if the post request has the file part
+    if "file" not in request.files:
+        flash("No file part")
+        return redirect(request.url)
+    file = request.files["file"]
+    # if user does not select file, browser also
+    # submit an empty part without filename
+    if file.filename == "":
+        flash("No selected file")
+        return redirect(request.url)
+    return file
+
+
 @bp.route("/")
 @login_required
 def index():
@@ -66,16 +80,7 @@ def allowed_file(filename):
 @login_required
 def upload():
     if request.method == "POST":
-        # check if the post request has the file part
-        if "file" not in request.files:
-            flash("No file part")
-            return redirect(request.url)
-        file = request.files["file"]
-        # if user does not select file, browser also
-        # submit an empty part without filename
-        if file.filename == "":
-            flash("No selected file")
-            return redirect(request.url)
+        file = _validate_file(request)
         if file and allowed_file(file.filename):
             data_file_id = upload_file(file)
             return redirect(url_for("app.set_coords", _id=data_file_id))
@@ -460,6 +465,10 @@ def routing(_id):
             error += "Topography Variable not understood; "
         elif topo_variable not in variable_names:
             error += "Topography Variable not in data set"
+
+        if request.form["orcafile"] == "custom":
+            file = _validate_file(request)
+            upload_file(file, data_file_id=_id, file_type="paleorca")
 
         if not len(error):
             body = {"id": _id, **request.form}

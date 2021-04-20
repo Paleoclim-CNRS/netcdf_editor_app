@@ -72,12 +72,13 @@ def routing(body):
     # Load file
     with app.app_context():
         ds = load_file(_id, "raw")
+        ds_orca = load_file(_id, "paleorca")
         lon, lat = get_lon_lat_names(_id)
 
     latitudes = ds[lat].values
     topography = ds[topo_variable].values
     ds_routing, ds_bathy, ds_soils, ds_topo_high_res = run_routines(
-        topography, latitudes
+        topography, latitudes, ds_orca
     )
     with app.app_context():
         save_revision(_id, ds_routing, "routing")
