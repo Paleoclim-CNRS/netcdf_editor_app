@@ -795,8 +795,14 @@ def create_bathy_paleo_orca(topo, custom_orca=None):
     else:
         ds_orca = custom_orca
     # Remove the missing value encoding fields as this causes problems because _FillValues is set to nan
-    del ds_orca.lat.encoding["missing_value"]
-    del ds_orca.lon.encoding["missing_value"]
+    try:
+        del ds_orca.lat.encoding["missing_value"]
+    except KeyError:
+        pass
+    try:
+        del ds_orca.lon.encoding["missing_value"]
+    except KeyError:
+        pass
     # create output dataset
     ds = xr.Dataset(
         coords={"lat": numpy.arange(-89.5, 90), "lon": numpy.arange(-179.5, 180)},
