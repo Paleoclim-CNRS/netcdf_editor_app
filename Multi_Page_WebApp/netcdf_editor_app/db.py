@@ -38,6 +38,7 @@ def init_db():
 
 
 def load_file(_id, file_type=None, revision=-1):
+    print(_id, file_type, revision, flush=True)
     # Get filename
     filepath = get_file_path(_id, file_type=file_type, revision=revision)
     if filepath is None:
@@ -83,11 +84,18 @@ def upload_file(file, data_file_id=None, file_type="raw"):
         )
         db.commit()
         data_file_id = data_file.lastrowid
+        revision = 0
+    else: 
+        # Get revision
+        revision = db.execute(
+                "SELECT MAX(revision) FROM revisions WHERE data_file_id = ? ORDER BY revision ASC",
+                (data_file_id,),
+        ).fetchone()["MAX(revision)"] + 1
     # ADD the file to the revisions table
     db.execute(
         "INSERT INTO revisions (data_file_id, filepath, revision, file_type)"
         " VALUES (?, ?, ?, ?)",
-        (data_file_id, temp_name, 0, file_type),
+        (data_file_id, temp_name, revision, file_type),
     )
     db.commit()
 
@@ -249,6 +257,7 @@ def get_filename(_id):
 
 
 def get_file_path(_id, file_type=None, full=True, revision=-1):
+    print(_id, file_type, revision, flush=True)
     db = get_db()
     if file_type is None:
         revisions = db.execute(
