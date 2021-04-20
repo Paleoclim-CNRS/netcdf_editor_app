@@ -282,13 +282,13 @@ class ValueChanger(param.Parameterized):
                     hvds.data[self.attribute.value][
                         hvds.data[self.attribute.value] < 0
                     ].index
-                )   
+                )
             else:
                 ocean_indexs = set(
                     hvds.data[self.attribute.value][
                         hvds.data[self.attribute.value] > 0
                     ].index
-                ) 
+                )
             indexs_to_update.difference_update(ocean_indexs)
 
         if calculation_type == "Absolute":
