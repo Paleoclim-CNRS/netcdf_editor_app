@@ -38,7 +38,6 @@ def init_db():
 
 
 def load_file(_id, file_type=None, revision=-1):
-    print(_id, file_type, revision, flush=True)
     # Get filename
     filepath = get_file_path(_id, file_type=file_type, revision=revision)
     if filepath is None:
@@ -257,7 +256,6 @@ def get_filename(_id):
 
 
 def get_file_path(_id, file_type=None, full=True, revision=-1):
-    print(_id, file_type, revision, flush=True)
     db = get_db()
     if file_type is None:
         revisions = db.execute(
