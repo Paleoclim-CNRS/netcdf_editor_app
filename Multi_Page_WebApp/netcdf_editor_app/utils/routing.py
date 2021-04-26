@@ -781,19 +781,28 @@ def create_routing_netcdf(
     return ds_routing
 
 
-def create_bathy_paleo_orca(topo):
+def create_bathy_paleo_orca(topo, custom_orca=None):
     # Transform topo to bathy and mask land
     bathy = topo * -1
     bathy[bathy < 0] = 0
     # Remap to nemo grid
     # Load grid
-    orca_file = os.path.join(
-        os.path.dirname(os.path.abspath(__file__)), "paleorca2_40Ma_grid.nc"
-    )
-    ds_orca = xr.open_dataset(orca_file)
+    if custom_orca is None:
+        orca_file = os.path.join(
+            os.path.dirname(os.path.abspath(__file__)), "paleorca2_40Ma_grid.nc"
+        )
+        ds_orca = xr.open_dataset(orca_file)
+    else:
+        ds_orca = custom_orca
     # Remove the missing value encoding fields as this causes problems because _FillValues is set to nan
-    del ds_orca.lat.encoding["missing_value"]
-    del ds_orca.lon.encoding["missing_value"]
+    try:
+        del ds_orca.lat.encoding["missing_value"]
+    except KeyError:
+        pass
+    try:
+        del ds_orca.lon.encoding["missing_value"]
+    except KeyError:
+        pass
     # create output dataset
     ds = xr.Dataset(
         coords={"lat": numpy.arange(-89.5, 90), "lon": numpy.arange(-179.5, 180)},
@@ -905,7 +914,7 @@ def create_soils(rlat, rlon, omsk):
     return ds
 
 
-def run_routines(topo, latitudes):
+def run_routines(topo, latitudes, custom_orca=None):
     topo = fix_topo(topo, latitudes)
     orog = calculate_orog(topo)
     omsk = calculate_omsk(topo)
@@ -924,7 +933,7 @@ def run_routines(topo, latitudes):
     ds_routing = create_routing_netcdf(
         topo, trip, basins, topo_index, dzz, distbox, orog, river_length, rlat, rlon
     )
-    ds_bathy = create_bathy_paleo_orca(topo)
+    ds_bathy = create_bathy_paleo_orca(topo, custom_orca)
     ds_soils = create_soils(rlat, rlon, omsk)
     ds_topo_high_res = create_topo_high_res(topo)
 

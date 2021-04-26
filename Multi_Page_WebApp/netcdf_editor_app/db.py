@@ -40,6 +40,8 @@ def init_db():
 def load_file(_id, file_type=None, revision=-1):
     # Get filename
     filepath = get_file_path(_id, file_type=file_type, revision=revision)
+    if filepath is None:
+        return None
     # Load file
     try:
         ds = xr.open_dataset(filepath)
@@ -62,7 +64,9 @@ def set_data_file_coords(_id, longitude, latitude):
     db.commit()
 
 
-def upload_file(file, file_type="raw"):
+def upload_file(file, data_file_id=None, file_type="raw"):
+    if file_type == "raw" and data_file_id is not None:
+        raise AttributeError("Cannot upload a raw file to a different datafile")
     filename = secure_filename(file.filename)
     name, extension = os.path.splitext(filename)
     name = "_".join(name.split("."))
@@ -72,17 +76,25 @@ def upload_file(file, file_type="raw"):
     file.save(os.path.join(current_app.config["UPLOAD_FOLDER"], temp_name))
     # Add file to known data_files
     db = get_db()
-    data_file = db.execute(
-        "INSERT INTO data_files (owner_id, filename)" " VALUES (?, ?)",
-        (g.user["id"], filename),
-    )
-    db.commit()
-    data_file_id = data_file.lastrowid
+    if data_file_id is None:
+        data_file = db.execute(
+            "INSERT INTO data_files (owner_id, filename)" " VALUES (?, ?)",
+            (g.user["id"], filename),
+        )
+        db.commit()
+        data_file_id = data_file.lastrowid
+        revision = 0
+    else: 
+        # Get revision
+        revision = db.execute(
+                "SELECT MAX(revision) FROM revisions WHERE data_file_id = ? ORDER BY revision ASC",
+                (data_file_id,),
+        ).fetchone()["MAX(revision)"] + 1
     # ADD the file to the revisions table
     db.execute(
         "INSERT INTO revisions (data_file_id, filepath, revision, file_type)"
         " VALUES (?, ?, ?, ?)",
-        (data_file_id, temp_name, 0, file_type),
+        (data_file_id, temp_name, revision, file_type),
     )
     db.commit()
 
@@ -255,6 +267,8 @@ def get_file_path(_id, file_type=None, full=True, revision=-1):
             "SELECT revision FROM revisions WHERE data_file_id = ? AND file_type = ? ORDER BY revision ASC",
             (str(_id), file_type),
         ).fetchall()
+    if not len(revisions):
+        return None
     revisions = [rev["revision"] for rev in revisions]
     revision_nb = revisions[revision]
     filepath = db.execute(
