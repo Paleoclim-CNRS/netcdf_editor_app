@@ -1,0 +1,11 @@
+{% extends 'base.html' %}
+
+{% block header %}
+<h1>{% block title %}File Info{% endblock %}</h1>
+{% endblock %}
+
+{% block content %}
+<div style="display: flex; justify-content: center;">
+    {{ file_info|safe }}
+</div>
+{% endblock %}

@@ -1,5 +1,6 @@
 from netcdf_editor_app import create_app
-from netcdf_editor_app.db import load_file, save_revision
+from netcdf_editor_app.db import load_file, save_revision, save_step
+from netcdf_editor_app.message_broker import send_preprocessing_message
 from bokeh.models import FixedTicker
 import panel as pn
 from holoviews import opts
@@ -11,27 +12,27 @@ import numpy
 from scipy.ndimage import measurements
 from scipy.signal import convolve2d
 
-import hvplot.xarray
+import hvplot.xarray  # noqa: F401
 import holoviews as hv
 
 import palettable
 
 
 CUSTOM_COLORMAPS = {
-    'Oleron': palettable.scientific.sequential.Oleron_18.mpl_colormap,
-    'Oslo':  palettable.scientific.sequential.Oslo_18.mpl_colormap,
-    'Bilbao':  palettable.scientific.sequential.Bilbao_18.mpl_colormap,
-    'Vik': palettable.scientific.diverging.Vik_18.mpl_colormap,
-    'Cork': palettable.scientific.diverging.Cork_18.mpl_colormap,
-    'LaPaz': palettable.scientific.sequential.LaPaz_18.mpl_colormap,
-    'Batlow': palettable.scientific.sequential.Batlow_18.mpl_colormap
+    "Oleron": palettable.scientific.sequential.Oleron_18.mpl_colormap,
+    "Oslo": palettable.scientific.sequential.Oslo_18.mpl_colormap,
+    "Bilbao": palettable.scientific.sequential.Bilbao_18.mpl_colormap,
+    "Vik": palettable.scientific.diverging.Vik_18.mpl_colormap,
+    "Cork": palettable.scientific.diverging.Cork_18.mpl_colormap,
+    "LaPaz": palettable.scientific.sequential.LaPaz_18.mpl_colormap,
+    "Batlow": palettable.scientific.sequential.Batlow_18.mpl_colormap,
 }
 
 keys, values = list(CUSTOM_COLORMAPS.keys()), list(CUSTOM_COLORMAPS.values())
 for i in range(len(keys)):
     key = keys[i]
     value = values[i]
-    CUSTOM_COLORMAPS[key + '_r'] = value.reversed()
+    CUSTOM_COLORMAPS[key + "_r"] = value.reversed()
 
 colormaps = hv.plotting.list_cmaps()
 colormaps.extend(CUSTOM_COLORMAPS.keys())
@@ -44,7 +45,7 @@ opts.defaults(
         logx=False,
         logy=False,
         responsive=True,
-        aspect=2,
+        height=400,
         shared_axes=True,
         show_grid=False,
         show_legend=True,
@@ -61,6 +62,8 @@ class ValueChanger(param.Parameterized):
     ds = param.Parameter()
     # Used to store when inital data is loaded
     loaded = param.Parameter()
+    step = None
+    elevation_positif = True
 
     def __init__(self, **params):
         # How we are going to modify the values
@@ -74,6 +77,10 @@ class ValueChanger(param.Parameterized):
         self.spinner = pn.widgets.IntInput(
             name="Replacement Value", value=0, align="start"
         )
+
+        # Whether to select Land or Ocean
+        self.land = pn.widgets.Checkbox(name="Select Land", max_width=100, value=True)
+        self.ocean = pn.widgets.Checkbox(name="Select Ocean", max_width=100, value=True)
 
         # Buttons
         self.apply = pn.widgets.Button(
@@ -98,7 +105,7 @@ class ValueChanger(param.Parameterized):
         self.colormap = pn.widgets.Select(
             name="Colormap",
             options=colormaps,
-            value='Oleron',
+            value="Oleron",
             max_width=200,
             align="start",
         )
@@ -132,7 +139,7 @@ class ValueChanger(param.Parameterized):
                     0
                 ].decode()
             },
-            code="window.location.href = target",
+            code="window.top.location.href = target",
         )
         self._auto_update_cmap_min = True
         self._auto_update_cmap_max = True
@@ -146,7 +153,9 @@ class ValueChanger(param.Parameterized):
         self.colormap_range_slider.param.watch(self._colormap_callback, "value")
         self.app = create_app()
         try:
-            self.file_type = pn.state.curdoc.session_context.request.arguments["file_type"][0].decode()
+            self.file_type = pn.state.curdoc.session_context.request.arguments[
+                "file_type"
+            ][0].decode()
         except KeyError:
             pass
         self.data_file_id = int(
@@ -242,24 +251,54 @@ class ValueChanger(param.Parameterized):
             if new_vals[1] != old_vals[1]:
                 self.colormap_max.value = int(new_vals[1])
 
-    def _set_values(self, value, calculation_type, selection_expr):
+    def _set_values(
+        self, value, calculation_type, selection_expr, land=True, ocean=True
+    ):
         hvds = hv.Dataset(
             self.ds.to_dataframe(
                 dim_order=[*list(self.ds[self.attribute.value].dims)]
             ).reset_index()
         )
+        indexs_to_update = set(hvds.select(selection_expr).data.index)
+        # Remove land indexs
+        if not land:
+            if self.elevation_positif:
+                land_indexs = set(
+                    hvds.data[self.attribute.value][
+                        hvds.data[self.attribute.value] >= 0
+                    ].index
+                )
+            else:
+                land_indexs = set(
+                    hvds.data[self.attribute.value][
+                        hvds.data[self.attribute.value] <= 0
+                    ].index
+                )
+            indexs_to_update.difference_update(land_indexs)
+        # Remove Ocean indexs
+        if not ocean:
+            if self.elevation_positif:
+                ocean_indexs = set(
+                    hvds.data[self.attribute.value][
+                        hvds.data[self.attribute.value] < 0
+                    ].index
+                )
+            else:
+                ocean_indexs = set(
+                    hvds.data[self.attribute.value][
+                        hvds.data[self.attribute.value] > 0
+                    ].index
+                )
+            indexs_to_update.difference_update(ocean_indexs)
+
         if calculation_type == "Absolute":
-            hvds.data[self.attribute.value].loc[
-                hvds.select(selection_expr).data.index
-            ] = value
+            hvds.data[self.attribute.value].loc[indexs_to_update] = value
         elif calculation_type == "Relatif":
-            hvds.data[self.attribute.value].loc[
-                hvds.select(selection_expr).data.index
-            ] += value
+            hvds.data[self.attribute.value].loc[indexs_to_update] += value
         elif calculation_type == "Percentage":
-            hvds.data[self.attribute.value].loc[
-                hvds.select(selection_expr).data.index
-            ] *= (100 + value) / 100.0
+            hvds.data[self.attribute.value].loc[indexs_to_update] *= (
+                100 + value
+            ) / 100.0
         self.ds[self.attribute.value] = tuple(
             (
                 list(self.ds[self.attribute.value].dims),
@@ -320,6 +359,16 @@ class ValueChanger(param.Parameterized):
     def save(self, event):
         with self.app.app_context():
             save_revision(self.data_file_id, self.ds, self.file_type)
+            if self.step is not None:
+                save_step(
+                    self.data_file_id,
+                    step=self.step,
+                    parameters={"id": self.data_file_id},
+                    up_to_date=True,
+                )
+                send_preprocessing_message(
+                    self.step + ".done", message={"id": self.data_file_id}
+                )
 
     def _apply_action(self, action):
         if action["calculation_type"] in ["Absolute", "Percentage", "Relatif"]:
@@ -327,6 +376,8 @@ class ValueChanger(param.Parameterized):
                 value=action["value"],
                 calculation_type=action["calculation_type"],
                 selection_expr=action["selection_expr"],
+                land=action["land"],
+                ocean=action["ocean"],
             )
         else:
             raise ValueError(
@@ -342,6 +393,8 @@ class ValueChanger(param.Parameterized):
             "selection_expr": self.selection.selection_expr,
             "calculation_type": self.calculation_type.value,
             "value": self.spinner.value,
+            "land": self.land.value,
+            "ocean": self.ocean.value,
         }
         # Apply the action
         self._apply_action(action)
@@ -436,6 +489,8 @@ class ValueChanger(param.Parameterized):
                 pn.Row(self.mask, self.mask_value),
                 pn.pane.Markdown("""### Change Values"""),
                 pn.Column(
+                    self.land,
+                    self.ocean,
                     self.calculation_type,
                     self.spinner,
                     self.apply,
@@ -468,6 +523,11 @@ class ValueChanger(param.Parameterized):
     def _update_clims(self):
         min_value = float(self.ds[self.attribute.value].min())
         max_value = float(self.ds[self.attribute.value].max())
+        # If we straddle 0 then use symmetric limits
+        if min_value * max_value < 0:
+            abs_max = float(numpy.abs((min_value, max_value)).max())
+            min_value = -abs_max
+            max_value = abs_max
         # Update the limits of the range slider witht the new values
         self.colormap_range_slider.start = min_value
         self.colormap_range_slider.end = max_value
@@ -486,6 +546,20 @@ class ValueChanger(param.Parameterized):
     def _color_levels(self):
         if self.colormap_delta.value <= 0:
             return None
+        # If we straddle 0 then work out from 0
+        if self.colormap_max.value * self.colormap_min.value < 0:
+            min_val = self.colormap_min.value
+            max_val = self.colormap_max.value
+            delta = self.colormap_delta.value
+            results = (
+                [self.colormap_min.value]
+                + [
+                    *numpy.arange(0, -min_val, delta)[::-1] * -1,
+                    *numpy.arange(0, max_val, delta)[1:],
+                ]
+                + [self.colormap_max.value]
+            )
+            return results
         return (
             list(
                 numpy.arange(
@@ -530,7 +604,7 @@ class ValueChanger(param.Parameterized):
         return hv.Image(
             self.ds[self.attribute.value],
             [*self._get_ordered_coordinate_dimension_names()],
-            group="Map"
+            group="Map",
         )
 
     def _get_graphs(self):

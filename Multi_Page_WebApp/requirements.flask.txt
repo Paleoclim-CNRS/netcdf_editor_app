@@ -3,3 +3,4 @@ flask
 simplejson
 blinker
 python-dotenv
+pika

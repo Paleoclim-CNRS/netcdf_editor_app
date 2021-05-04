@@ -1,0 +1,35 @@
+{% extends 'base.html' %}
+
+{% block header %}
+<h1>{% block title %}Heatflow / AHMCoef{% endblock %}</h1>
+{% endblock %}
+
+{% block content %}
+{% if show_routing %}
+<div class="alert alert-danger" role="alert">
+    Routing has not been run so there is no Bathymetry availible. Please run <a href="{{ url_for('app.heatflow', _id=_id) }}"> Routing</a>
+
+</div>
+{% endif %}
+<div style="display: flex; align-items: center; justify-content: center;">
+    <div id="loading" style="display: none; padding: 10vh;">
+        <div class="loader"></div>
+        <p style="padding-top: 2em;">This can take a few minutes if it is the first time the Age has been seen as the file is being downloaded ...</p>
+    </div>
+</div>
+<div id="proc" class="center">
+    <form method=post>
+        {% if show_routing %}
+        <button type="submit" class="btn btn-success btn-lg" onclick="$('#loading').show();$('#proc').hide();" disabled>
+            <i class="fas fa-calculator"></i>
+            Start Processing
+        </button>
+        {% else %}
+        <button type="submit" class="btn btn-success btn-lg" onclick="$('#loading').show();$('#proc').hide();">
+            <i class="fas fa-calculator"></i>
+            Start Processing
+        </button>
+        {% endif %}
+    </form>
+</div>
+{% endblock %}

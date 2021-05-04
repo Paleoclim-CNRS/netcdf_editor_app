@@ -12,12 +12,13 @@ colormaps = hv.plotting.list_cmaps()
 
 class PassageProblems(InternalOceans):
     file_type = "bathy"
+    step = "passage_problems"
     elevation_positif = False
 
     def __init__(self, **params):
         super().__init__(*params)
-        self.attribute.value = 'topo'
-        self.colormap.value = 'Batlow'
+        self.attribute.value = "topo"
+        self.colormap.value = "Batlow"
 
     def _calculate_passage_problems(self):
         # Define template we are looking for passages
@@ -113,7 +114,7 @@ class PassageProblems(InternalOceans):
             )
         )
         return default_grpahs + passage_problems
-    
+
 
 if "bokeh_app" in __name__:
     pp = PassageProblems()

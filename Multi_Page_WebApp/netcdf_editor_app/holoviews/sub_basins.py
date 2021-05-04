@@ -5,13 +5,15 @@ import numpy
 
 import holoviews as hv
 
-from netcdf_editor_app.db import load_file, save_revision
+from netcdf_editor_app.db import load_file, save_revision, save_step
+from netcdf_editor_app.message_broker import send_preprocessing_message
 
 colormaps = hv.plotting.list_cmaps()
 
 
 class SubBasins(ValueChanger):
     file_type = "bathy"
+    step = "subbasins"
 
     def _default_ocean_values(self, bathy):
         # Atlantic = 1
@@ -139,6 +141,16 @@ class SubBasins(ValueChanger):
 
         with self.app.app_context():
             save_revision(self.data_file_id, ds, "sub_basins")
+            if self.step is not None:
+                save_step(
+                    self.data_file_id,
+                    step=self.step,
+                    parameters={"id": self.data_file_id},
+                    up_to_date=True,
+                )
+                send_preprocessing_message(
+                    self.step + ".done", message={"id": self.data_file_id}
+                )
 
 
 if "bokeh_app" in __name__:

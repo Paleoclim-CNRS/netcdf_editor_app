@@ -6,7 +6,7 @@ git_source(:github) {|repo_name| "https://github.com/#{repo_name}" }
 
 gem "jekyll-theme-slate", "~>0.1.1"
 
-gem "github-pages", "~> 211", group: :jekyll_plugins
+gem "github-pages", "~> 214", group: :jekyll_plugins
 
 # If you have any plugins, put them here!
 group :jekyll_plugins do
@@ -14,3 +14,5 @@ group :jekyll_plugins do
 end
 
 # gem "rails"
+
+gem "webrick", "~> 1.7"

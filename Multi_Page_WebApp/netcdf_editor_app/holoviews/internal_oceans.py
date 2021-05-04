@@ -12,7 +12,8 @@ colormaps = hv.plotting.list_cmaps()
 
 class InternalOceans(ValueChanger):
     file_type = "raw"
-    elevation_positif=True
+    step = "internal_oceans"
+    elevation_positif = True
 
     def _calculate_internal_oceans(self):
         # Calculate a binary array of above and below see level
@@ -49,7 +50,7 @@ class InternalOceans(ValueChanger):
                 # See if one of the values has already been seen
                 if left in connections[i] or right in connections[i]:
                     # If it has been seen add both values
-                    #TODO probably better way than adding then removing but the arrays shouldnt be too big
+                    # TODO probably better way than adding then removing but the arrays shouldnt be too big
                     connections[i].extend([left, right])
                     # Remove the excess values
                     connections[i] = list(set(connections[i]))
@@ -59,19 +60,19 @@ class InternalOceans(ValueChanger):
             # If neither of the values have been encountered before then add them
             if not added:
                 connections.append([left, right])
-        
+
         # Replace the values in the array with the minimum seen connected value
         for conn in connections:
             # Get the smallest seen value
             replacement_val = min(conn)
             # For each value replace all the values in the array with the minimum
-            #TODO this is will also set the smallest value -> unnecessary
+            # TODO this is will also set the smallest value -> unnecessary
             for val in conn:
-                labeled_array[labeled_array==val] = replacement_val
+                labeled_array[labeled_array == val] = replacement_val
 
         # Replace continents with numpy.NaN
         # Originally they are ints or floats and numpy.NaN can't be set
-        labeled_array = labeled_array.astype(object)
+        labeled_array = labeled_array.astype(numpy.float)
         # continents have a value of 0
         labeled_array[labeled_array == 0] = numpy.NaN
         return labeled_array
@@ -79,7 +80,9 @@ class InternalOceans(ValueChanger):
     @pn.depends("ds", "attribute.value")
     def load_internal_oceans(self):
         internal_oceans = self._calculate_internal_oceans()
-        number_oceans = numpy.nanmax(internal_oceans)
+        number_oceans = len(
+            numpy.unique(internal_oceans[~numpy.isnan(internal_oceans)])
+        )
 
         # Lets counts the number of times each ocean appears this can then be used to
         # Filter out and find the bigger oceans

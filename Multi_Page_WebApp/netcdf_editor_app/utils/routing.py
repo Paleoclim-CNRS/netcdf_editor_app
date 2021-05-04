@@ -198,7 +198,9 @@ def _add_gradient_to_flats(topo):
 
     # Exit points from flat basins are defined as the points that have the same
     # altitude as a neighbor cell (is_flat) and at least one downward cell (is_pas)
-    exit_points = numpy.array(numpy.where((is_pas == True) & (is_flat == True)))
+    exit_points = numpy.array(
+        numpy.where((is_pas == True) & (is_flat == True))  # noqa: E712
+    )
 
     # Store an array of when the cell was seen for the first time
     # This is passed to our recursively function and filled over time
@@ -320,7 +322,7 @@ def calculate_trip(topo, omsk):
     # Convert indexs to trip values
     rtm = trip_values[ind].astype(float)
     # only take rtm values on land
-    rtm[omsk == True] = numpy.nan
+    rtm[omsk == True] = numpy.nan  # noqa: E712
 
     # TODO we probably need to ensure topo always has the south Up
     # The first row (Antartic) is considered to be the pole so say everything goes north from there
@@ -762,42 +764,51 @@ def create_routing_netcdf(
     ds_routing = xr.Dataset(
         coords={
             "nav_lon": (["y", "x"], rlon),
-            "nav_lat": (["y", "x"], rlat),
+            "nav_lat": (["y", "x"], rlat[::-1]),
         },
         data_vars={
-            "trip": (["y", "x"], trip[::-1]),
-            "basins": (["y", "x"], basins[::-1]),
-            "topoind": (["y", "x"], topo_index[::-1]),
-            "hdiff": (["y", "x"], dzz[::-1]),
-            "riverl": (["y", "x"], distbox[::-1]),
-            "orog": (["y", "x"], orog[::-1]),
-            "disto": (["y", "x"], flength[::-1]),
-            "topo": (["y", "x"], topo[::-1]),
+            "trip": (["y", "x"], trip),
+            "basins": (["y", "x"], basins),
+            "topoind": (["y", "x"], topo_index),
+            "hdiff": (["y", "x"], dzz),
+            "riverl": (["y", "x"], distbox),
+            "orog": (["y", "x"], orog),
+            "disto": (["y", "x"], flength),
+            "topo": (["y", "x"], topo),
         },
     )
     ds_routing = _set_attributes_ds_routing(ds_routing)
     return ds_routing
 
 
-def create_bathy_paleo_orca(topo):
+def create_bathy_paleo_orca(topo, custom_orca=None):
     # Transform topo to bathy and mask land
     bathy = topo * -1
     bathy[bathy < 0] = 0
     # Remap to nemo grid
     # Load grid
-    orca_file = os.path.join(
-        os.path.dirname(os.path.abspath(__file__)), "paleorca2_40Ma_grid.nc"
-    )
-    ds_orca = xr.open_dataset(orca_file)
+    if custom_orca is None:
+        orca_file = os.path.join(
+            os.path.dirname(os.path.abspath(__file__)), "paleorca2_40Ma_grid.nc"
+        )
+        ds_orca = xr.open_dataset(orca_file)
+    else:
+        ds_orca = custom_orca
     # Remove the missing value encoding fields as this causes problems because _FillValues is set to nan
-    del ds_orca.lat.encoding['missing_value']
-    del ds_orca.lon.encoding['missing_value']
+    try:
+        del ds_orca.lat.encoding["missing_value"]
+    except KeyError:
+        pass
+    try:
+        del ds_orca.lon.encoding["missing_value"]
+    except KeyError:
+        pass
     # create output dataset
     ds = xr.Dataset(
         coords={"lat": numpy.arange(-89.5, 90), "lon": numpy.arange(-179.5, 180)},
         data_vars={"Bathymetry": (["lat", "lon"], bathy)},
     )
-    ds = ds.interp(ds_orca.coords, method="nearest", kwargs={'fill_value': None})
+    ds = ds.interp(ds_orca.coords, method="nearest", kwargs={"fill_value": None})
     ds = ds.rename({"lat": "nav_lat", "lon": "nav_lon"})
     ds.nav_lat.attrs = {
         "standard_name": "latitude",
@@ -903,7 +914,7 @@ def create_soils(rlat, rlon, omsk):
     return ds
 
 
-def run_routines(topo, latitudes):
+def run_routines(topo, latitudes, custom_orca=None):
     topo = fix_topo(topo, latitudes)
     orog = calculate_orog(topo)
     omsk = calculate_omsk(topo)
@@ -922,7 +933,7 @@ def run_routines(topo, latitudes):
     ds_routing = create_routing_netcdf(
         topo, trip, basins, topo_index, dzz, distbox, orog, river_length, rlat, rlon
     )
-    ds_bathy = create_bathy_paleo_orca(topo)
+    ds_bathy = create_bathy_paleo_orca(topo, custom_orca)
     ds_soils = create_soils(rlat, rlon, omsk)
     ds_topo_high_res = create_topo_high_res(topo)
 
