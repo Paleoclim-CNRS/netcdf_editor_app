@@ -11,8 +11,8 @@ invalidates = OrderedDict(
     {
         "regrid": ["internal_oceans", "routing"],
         "internal_oceans": ["routing"],
-        "routing": ["pft", "passage_problems", "subbasins", "heatflow", "ahmcoef"],
-        "passage_problems": ["subbasins", "heatflow", "ahmcoef"],
+        "routing": ["pft", "passage_problems", "subbasins", "heatflow", "ahmcoef", "calculate_weights"],
+        "passage_problems": ["subbasins", "heatflow", "ahmcoef", "calculate_weights"],
     }
 )
 

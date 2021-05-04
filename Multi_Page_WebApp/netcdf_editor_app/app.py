@@ -253,7 +253,7 @@ def stepsTable(_id):
             # if it is a python task then we show it being processed
             elif step in tasks["python"]:
                 status = '<i class="fas fa-cog fa-spin" style="color:#377ba8"></i>'
-        step_text = " ".join(step.split("_")).capitalize()
+        step_text = " ".join(step.split("_")).title()
 
         if step in invalidates.keys():
             step_text = "<b>" + step_text + "</b>"
@@ -474,7 +474,7 @@ def routing(_id):
             body = {"id": _id, **request.form}
             send_preprocessing_message("routing", body)
 
-            flash("Routing run succesfully")
+            flash("Routing succesfully sent to engine")
 
             return redirect(url_for("app.steps", _id=_id))
 
@@ -545,6 +545,28 @@ def subbasins(_id):
         panel_app_name="sub_basins",
     )
 
+@bp.route("/<int:_id>/calculate_weights", methods=("GET", "POST"))
+@login_required
+def calculate_weights(_id):
+    if request.method == "POST":
+        error = ""
+
+        if request.form["coordsfile"] == "custom":
+            file = _validate_file(request)
+            #TODO validate that the correct variables are in the file
+            upload_file(file, data_file_id=_id, file_type="weight_coords")
+
+        if not len(error):
+            body = {"id": _id, **request.form}
+            send_preprocessing_message("calculate_weights", body)
+
+            return redirect(url_for("app.steps", _id=_id))
+
+        flash(error)
+    return render_template(
+        "app/calculate_weights.html",
+        title="Calculate Weights"
+    )
 
 # @bp.route("/<int:_id>/heatflow", methods=("GET", "POST"))
 # @login_required
