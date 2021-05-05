@@ -3,7 +3,7 @@ import numpy
 
 tasks = {
     "python": ["regrid", "routing", "heatflow", "ahmcoef", "pft", "invalidate"],
-    "fortran": ["mosaix"],
+    "mosaic": ["calculate_weights"],
     "panel": ["internal_oceans", "passage_problems", "subbasins"],
 }
 

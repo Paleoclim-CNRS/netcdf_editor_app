@@ -23,7 +23,7 @@ SHELL ["/bin/bash", "-c"]
 # Copy the build config that should work with gfortran
 # COPY bld.cfg /usr/src/MOZAIC
 # COPY MOZAIC_FROM_IRENE /usr/src/MOZAIC
-COPY MOZAIC_DOCKER.tar.gz /usr/src
+COPY services/mosaic/MOZAIC_DOCKER.tar.gz /usr/src
 RUN tar -xvzf MOZAIC_DOCKER.tar.gz MOZAIC && rm MOZAIC_DOCKER.tar.gz
 WORKDIR /usr/src/MOZAIC
 RUN source /usr/src/setup_env.sh && fcm build -f
@@ -33,7 +33,7 @@ WORKDIR /usr/src
 # SRC files modified for variable character lenghts
 # SRC files modified for implicit logical * Real calculations
 # COPY DOMSK.tar.gz .
-COPY DOMSK_DOCKER.tar.gz /usr/src
+COPY services/mosaic/DOMSK_DOCKER.tar.gz /usr/src
 # COPY DOMSK ./DOMSK
 RUN tar -xvzf DOMSK_DOCKER.tar.gz DOMSK && rm DOMSK_DOCKER.tar.gz
 # The Logname is used in different places and written as an attribute to file 
@@ -44,12 +44,22 @@ WORKDIR /usr/src/DOMSK
 RUN source /usr/src/setup_env.sh && fcm build -f
 
 WORKDIR /usr/src
-COPY util_docker.tar.gz /usr/src
+COPY services/mosaic/util_docker.tar.gz /usr/src
 RUN tar -xvzf util_docker.tar.gz util && rm util_docker.tar.gz
 
-RUN apt install -y 
+# RUN apt install -y 
 
-WORKDIR /tmp
+# WORKDIR /tmp
 # COPY orca2.3.nc /tmp/data/orca2.3.nc
-COPY PALEORCA2.30MaTotV1/*.nc  /tmp/data/
-COPY mosaic.py /tmp
+# COPY PALEORCA2.30MaTotV1/*.nc  /tmp/data/
+# Setup the enviroment
+RUN apt update && apt install -y python3-pip
+COPY requirements.*txt /tmp/
+RUN pip3 install --no-cache-dir -r /tmp/requirements.txt
+
+COPY services/mosaic/receive.py services/mosaic/steps.py services/mosaic/mosaic.py /usr/src/app/
+COPY netcdf_editor_app /usr/src/app/netcdf_editor_app
+
+ENV FLASK_APP=/usr/src/app/netcdf_editor_app
+ENTRYPOINT [ "python3", "/usr/src/app/receive.py"]
+# ENTRYPOINT ["tail", "-f", "/dev/null"]

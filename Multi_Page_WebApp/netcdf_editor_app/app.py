@@ -91,12 +91,16 @@ def upload():
 @bp.route("/<int:_id>/<string:file_type>/download", methods=["GET"])
 @login_required
 def download(_id, file_type):
-    data_file_name = get_filename(_id)
-    name, extension = data_file_name.split(".")
-    name += "_" + file_type + "_netcdf_flask_app"
-    data_file_name = name + "." + extension
+    input_file_name = get_filename(_id)
 
     filename = get_file_path(_id, file_type, full=False)
+    filename_parts = filename.split(".")
+    print(filename_parts, flush=True)
+    filename_parts[0] = input_file_name.split(".")[0] + "_" + file_type + "_netcdf_flask_app"
+    print(filename_parts, flush=True)
+    data_file_name = ".".join(filename_parts)
+    print(data_file_name, flush=True)
+
     uploads = os.path.join(current_app.root_path, current_app.config["UPLOAD_FOLDER"])
     return send_from_directory(
         directory=uploads,
@@ -117,16 +121,18 @@ def download_all(_id):
     with zipfile.ZipFile(fileobj, "w") as zip_file:
         for file_type in seen_file_types:
             name = ori_name + "_" + file_type + "_netcdf_flask_app"
-            data_file_name = name + "." + extension
 
             filename = get_file_path(_id, file_type, full=False)
+            filename_parts = filename.split(".")
+            filename_parts[0] = name
+            filename_out = ".".join(filename_parts)
+            
             uploads = os.path.join(
                 current_app.root_path, current_app.config["UPLOAD_FOLDER"]
             )
-            print(os.path.join(uploads, filename), flush=True)
             zip_file.write(
                 os.path.join(uploads, filename),
-                arcname=name,
+                arcname=filename_out,
                 compress_type=zipfile.ZIP_STORED,
             )
     fileobj.seek(0)
@@ -551,10 +557,9 @@ def calculate_weights(_id):
     if request.method == "POST":
         error = ""
 
-        if request.form["coordsfile"] == "custom":
-            file = _validate_file(request)
-            #TODO validate that the correct variables are in the file
-            upload_file(file, data_file_id=_id, file_type="weight_coords")
+        file = _validate_file(request)
+        #TODO validate that the correct variables are in the file
+        upload_file(file, data_file_id=_id, file_type="weight_coords")
 
         if not len(error):
             body = {"id": _id, **request.form}

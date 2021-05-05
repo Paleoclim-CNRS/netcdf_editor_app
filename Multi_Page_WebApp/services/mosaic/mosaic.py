@@ -6,10 +6,11 @@ import subprocess
 
 class MosaicRunner(object):
 
-    def __init__(self, simulation_name, root=".", cpl_dir='/usr/src'):
+    def __init__(self, simulation_name, root=".", cpl_dir='/usr/src', user_name="root"):
         self.simulation_name = simulation_name
         self.root = root
         self.cpl_dir = cpl_dir
+        self.user_name = user_name # used to send data at end to /home/user_name
 
         #TODO These should probably be but in child classes
         self.AtmMdl = 'LMD96x95'
@@ -31,6 +32,10 @@ class MosaicRunner(object):
         # Create DOMSK directory
         Path(self.domsk_dir).mkdir(parents=True, exist_ok=True)
         Path(self.mosaic_dir).mkdir(parents=True, exist_ok=True)
+
+    def cleanup(self):
+        shutil.rmtree(self.domsk_dir)
+        shutil.rmtree(self.mosaic_dir)
 
     def setup_domsk(self, bathy_file, coordinates_file):
         # Create run def
@@ -131,7 +136,7 @@ class MosaicRunner(object):
         subprocess.Popen(['./allwei.sh'], cwd=self.mosaic_dir, stdout=subprocess.PIPE).wait() 
 
         # Copy out needed files
-        subprocess.Popen(['./envoie.sh', '-i', '-5A2', '-L', '39', '-D', '-u', 'root'], cwd=self.mosaic_dir, stdout=subprocess.PIPE).wait() 
+        subprocess.Popen(['./envoie.sh', '-i', '-5A2', '-L', '39', '-D', '-u', self.user_name], cwd=self.mosaic_dir, stdout=subprocess.PIPE).wait() 
     
     def run(self, bathy_file, coords_file):
         self.create_directory_structure()
