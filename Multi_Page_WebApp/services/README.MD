@@ -1,0 +1,1 @@
+Collection of services (read docker containers) that are used to create the complete web app
