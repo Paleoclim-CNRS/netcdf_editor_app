@@ -82,7 +82,7 @@ jobs:
     - name: Build the Docker image
       working-directory: ./Multi_Page_WebApp
       run: |
-        docker build . --file services/message_dispatcher/Dockerfile \
+        docker build . --file services/flask/Dockerfile \
           --tag registry.osupytheas.fr:443/netcdf_editor_flask_app:$(date +%s) \
           --tag registry.osupytheas.fr:443/netcdf_editor_flask_app:latest \
           --tag ceregecl/netcdf_editor_flask_app:latest
@@ -109,7 +109,7 @@ jobs:
     - name: Build the Docker image
       working-directory: ./Multi_Page_WebApp
       run: |
-        docker build . --file services/message_dispatcher/Dockerfile \
+        docker build . --file services/python_worker/Dockerfile \
           --tag registry.osupytheas.fr:443/netcdf_editor_python_worker:$(date +%s) \
           --tag registry.osupytheas.fr:443/netcdf_editor_python_worker:latest \
           --tag ceregecl/netcdf_editor_python_worker:latest
@@ -137,7 +137,7 @@ jobs:
     - name: Build the Docker image
       working-directory: ./Multi_Page_WebApp
       run: |
-        docker build . --file services/message_dispatcher/Dockerfile \
+        docker build . --file services/panel/Dockerfile \
           --tag registry.osupytheas.fr:443/netcdf_editor_panel_app:$(date +%s) \
           --tag registry.osupytheas.fr:443/netcdf_editor_panel_app:latest \
           --tag ceregecl/netcdf_editor_panel_app:latest
