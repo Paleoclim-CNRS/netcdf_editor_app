@@ -8,7 +8,7 @@ on:
 
 jobs:
 
-  build:
+  message_dispatcher:
 
     runs-on: ubuntu-latest
 
@@ -25,3 +25,75 @@ jobs:
       run: docker build . --file services/message_dispatcher/Dockerfile --tag ceregecl/netcdf_editor_message_dispatcher:$(date +%s) --tag ceregecl/netcdf_editor_message_dispatcher:latest
     - name: Docker Push
       run: docker push ceregecl/netcdf_editor_message_dispatcher
+
+  nginx:
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v2
+    - name: docker login
+      env:
+        DOCKER_USER: ${{secrets.DOCKER_USER}}
+        DOCKER_PASSWORD: ${{secrets.DOCKER_PASSWORD}}
+        
+      run: docker login -u $DOCKER_USER -p $DOCKER_PASSWORD
+    - name: Build the Docker image
+      working-directory: ./Multi_Page_WebApp
+      run: docker build . --file services/nginx/Dockerfile --tag ceregecl/netcdf_editor_nginx:$(date +%s) --tag ceregecl/netcdf_editor_nginx:latest
+    - name: Docker Push
+      run: docker push ceregecl/netcdf_editor_nginx
+
+  flask_app:
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v2
+    - name: docker login
+      env:
+        DOCKER_USER: ${{secrets.DOCKER_USER}}
+        DOCKER_PASSWORD: ${{secrets.DOCKER_PASSWORD}}
+        
+      run: docker login -u $DOCKER_USER -p $DOCKER_PASSWORD
+    - name: Build the Docker image
+      working-directory: ./Multi_Page_WebApp
+      run: docker build . --file services/flask_app/Dockerfile --tag ceregecl/netcdf_editor_flask_app:$(date +%s) --tag ceregecl/netcdf_editor_flask_app:latest
+    - name: Docker Push
+      run: docker push ceregecl/netcdf_editor_flask_app
+
+  python_worker:
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v2
+    - name: docker login
+      env:
+        DOCKER_USER: ${{secrets.DOCKER_USER}}
+        DOCKER_PASSWORD: ${{secrets.DOCKER_PASSWORD}}
+        
+      run: docker login -u $DOCKER_USER -p $DOCKER_PASSWORD
+    - name: Build the Docker image
+      working-directory: ./Multi_Page_WebApp
+      run: docker build . --file services/python_worker/Dockerfile --tag ceregecl/netcdf_editor_python_worker:$(date +%s) --tag ceregecl/netcdf_editor_python_worker:latest
+    - name: Docker Push
+      run: docker push ceregecl/netcdf_editor_python_worker
+
+  panel_app:
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v2
+    - name: docker login
+      env:
+        DOCKER_USER: ${{secrets.DOCKER_USER}}
+        DOCKER_PASSWORD: ${{secrets.DOCKER_PASSWORD}}
+        
+      run: docker login -u $DOCKER_USER -p $DOCKER_PASSWORD
+    - name: Build the Docker image
+      working-directory: ./Multi_Page_WebApp
+      run: docker build . --file services/panel/Dockerfile --tag ceregecl/netcdf_editor_panel_app:$(date +%s) --tag ceregecl/netcdf_editor_panel_app:latest
+    - name: Docker Push
+      run: docker push ceregecl/netcdf_editor_panel_app
