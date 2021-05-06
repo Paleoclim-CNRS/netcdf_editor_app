@@ -25,10 +25,10 @@ jobs:
         docker login registry.osupytheas.fr -u $DOCKER_USER_OSU -p $DOCKER_PASSWORD_OSU
     - name: Build the Docker image
       working-directory: ./Multi_Page_WebApp
-      run: >
-        docker build . --file services/message_dispatcher/Dockerfile 
-          --tag registry.osupytheas.fr:443/netcdf_editor_message_dispatcher:$(date +%s) 
-          --tag registry.osupytheas.fr:443/netcdf_editor_message_dispatcher:latest
+      run: |
+        docker build . --file services/message_dispatcher/Dockerfile \
+          --tag registry.osupytheas.fr:443/netcdf_editor_message_dispatcher:$(date +%s) \
+          --tag registry.osupytheas.fr:443/netcdf_editor_message_dispatcher:latest \
           --tag ceregecl/netcdf_editor_message_dispatcher:latest
     - name: Docker Push
       run: |
@@ -53,10 +53,10 @@ jobs:
         docker login registry.osupytheas.fr -u $DOCKER_USER_OSU -p $DOCKER_PASSWORD_OSU
     - name: Build the Docker image
       working-directory: ./Multi_Page_WebApp/services/nginx
-      run: >
-        docker build . --file services/message_dispatcher/Dockerfile 
-          --tag registry.osupytheas.fr:443/netcdf_editor_nginx:$(date +%s) 
-          --tag registry.osupytheas.fr:443/netcdf_editor_nginx:latest
+      run: |
+        docker build . --file Dockerfile \
+          --tag registry.osupytheas.fr:443/netcdf_editor_nginx:$(date +%s) \
+          --tag registry.osupytheas.fr:443/netcdf_editor_nginx:latest \
           --tag ceregecl/netcdf_editor_nginx:latest
     - name: Docker Push
       run: |
@@ -81,10 +81,10 @@ jobs:
         docker login registry.osupytheas.fr -u $DOCKER_USER_OSU -p $DOCKER_PASSWORD_OSU
     - name: Build the Docker image
       working-directory: ./Multi_Page_WebApp
-      run: >
-        docker build . --file services/message_dispatcher/Dockerfile 
-          --tag registry.osupytheas.fr:443/netcdf_editor_flask_app:$(date +%s) 
-          --tag registry.osupytheas.fr:443/netcdf_editor_flask_app:latest
+      run: |
+        docker build . --file services/message_dispatcher/Dockerfile \
+          --tag registry.osupytheas.fr:443/netcdf_editor_flask_app:$(date +%s) \
+          --tag registry.osupytheas.fr:443/netcdf_editor_flask_app:latest \
           --tag ceregecl/netcdf_editor_flask_app:latest
     - name: Docker Push
       run: |
@@ -108,10 +108,10 @@ jobs:
         docker login registry.osupytheas.fr -u $DOCKER_USER_OSU -p $DOCKER_PASSWORD_OSU
     - name: Build the Docker image
       working-directory: ./Multi_Page_WebApp
-      run: >
-        docker build . --file services/message_dispatcher/Dockerfile 
-          --tag registry.osupytheas.fr:443/netcdf_editor_python_worker:$(date +%s) 
-          --tag registry.osupytheas.fr:443/netcdf_editor_python_worker:latest
+      run: |
+        docker build . --file services/message_dispatcher/Dockerfile \
+          --tag registry.osupytheas.fr:443/netcdf_editor_python_worker:$(date +%s) \
+          --tag registry.osupytheas.fr:443/netcdf_editor_python_worker:latest \
           --tag ceregecl/netcdf_editor_python_worker:latest
     - name: Docker Push
       run: |
@@ -136,10 +136,10 @@ jobs:
         docker login registry.osupytheas.fr -u $DOCKER_USER_OSU -p $DOCKER_PASSWORD_OSU
     - name: Build the Docker image
       working-directory: ./Multi_Page_WebApp
-      run: >
-        docker build . --file services/message_dispatcher/Dockerfile 
-          --tag registry.osupytheas.fr:443/netcdf_editor_panel_app:$(date +%s) 
-          --tag registry.osupytheas.fr:443/netcdf_editor_panel_app:latest
+      run: |
+        docker build . --file services/message_dispatcher/Dockerfile \
+          --tag registry.osupytheas.fr:443/netcdf_editor_panel_app:$(date +%s) \
+          --tag registry.osupytheas.fr:443/netcdf_editor_panel_app:latest \
           --tag ceregecl/netcdf_editor_panel_app:latest
     - name: Docker Push
       run: |
@@ -164,10 +164,10 @@ jobs:
         docker login registry.osupytheas.fr -u $DOCKER_USER_OSU -p $DOCKER_PASSWORD_OSU
     - name: Build the Docker image
       working-directory: ./Single_Page_WebApp
-      run: > 
-        docker build . --file single_page_webapp.Dockerfile 
-          --tag registry.osupytheas.fr:443/netcdf_editor:$(date +%s) 
-          --tag registry.osupytheas.fr:443/netcdf_editor:latest
+      run: |
+        docker build . --file single_page_webapp.Dockerfile \
+          --tag registry.osupytheas.fr:443/netcdf_editor:$(date +%s) \
+          --tag registry.osupytheas.fr:443/netcdf_editor:latest \
           --tag ceregecl/netcdf_editor:latest
     - name: Docker Push
       run: |
