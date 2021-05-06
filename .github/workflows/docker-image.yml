@@ -7,8 +7,7 @@ on:
       - CICD
     paths:
       - '*_Page_WebApp/**'
-    paths-ignore:
-      - '**/*.md'
+      - '!**/*.md'
 
 jobs:
 
