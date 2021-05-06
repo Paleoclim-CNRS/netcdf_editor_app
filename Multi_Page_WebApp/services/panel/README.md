@@ -1,0 +1,1 @@
+Collection of panel apps that are called from the web interface.

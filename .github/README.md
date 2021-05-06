@@ -1,0 +1,1 @@
+Automated tasks carried out by github notably github actions and the issues / features templates
