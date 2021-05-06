@@ -39,8 +39,8 @@ jobs:
         
       run: docker login -u $DOCKER_USER -p $DOCKER_PASSWORD
     - name: Build the Docker image
-      working-directory: ./Multi_Page_WebApp
-      run: docker build . --file services/nginx/Dockerfile --tag ceregecl/netcdf_editor_nginx:$(date +%s) --tag ceregecl/netcdf_editor_nginx:latest
+      working-directory: ./Multi_Page_WebApp/services/nginx
+      run: docker build . --file Dockerfile --tag ceregecl/netcdf_editor_nginx:$(date +%s) --tag ceregecl/netcdf_editor_nginx:latest
     - name: Docker Push
       run: docker push ceregecl/netcdf_editor_nginx
 
@@ -58,7 +58,7 @@ jobs:
       run: docker login -u $DOCKER_USER -p $DOCKER_PASSWORD
     - name: Build the Docker image
       working-directory: ./Multi_Page_WebApp
-      run: docker build . --file services/flask_app/Dockerfile --tag ceregecl/netcdf_editor_flask_app:$(date +%s) --tag ceregecl/netcdf_editor_flask_app:latest
+      run: docker build . --file services/flask/Dockerfile --tag ceregecl/netcdf_editor_flask_app:$(date +%s) --tag ceregecl/netcdf_editor_flask_app:latest
     - name: Docker Push
       run: docker push ceregecl/netcdf_editor_flask_app
 
