@@ -5,6 +5,10 @@ on:
     branches:
       - main
       - CICD
+    paths:
+      - '*_Page_WebApp/**'
+    paths-ignore:
+      - '**/*.md'
 
 jobs:
 
