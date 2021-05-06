@@ -138,7 +138,7 @@ jobs:
       run: docker push ceregecl/netcdf_editor_panel_app
       run: docker push registry.osupytheas.fr:443/netcdf_editor_panel_app
 
- single_page_app:
+  single_page_app:
 
     runs-on: ubuntu-latest
 
