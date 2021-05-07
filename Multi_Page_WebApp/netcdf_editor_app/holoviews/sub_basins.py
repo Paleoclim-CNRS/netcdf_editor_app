@@ -83,7 +83,7 @@ class SubBasins(ValueChanger):
             ]
         )
 
-    def _set_values(self, value, calculation_type, selection_expr):
+    def _set_values(self, value, calculation_type, selection_expr, *args, **kwargs):
         hvds = hv.Dataset(
             self.ds.to_dataframe(
                 dim_order=[*list(self.ds[self.attribute.value].dims)]
