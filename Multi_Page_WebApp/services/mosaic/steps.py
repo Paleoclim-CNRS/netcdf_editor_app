@@ -22,11 +22,11 @@ def calculate_weights(body):
     with app.app_context():
         bathy_file = get_file_path(_id, "bathy", full=True)
         coords_file = get_file_path(_id, "weight_coords", full=True)
-        filename = get_filename(_id)
+        subbasins_file = get_file_path(_id, "sub_basins", full=True)
 
     print("Running Mosaic Runner", flush=True)
-    runner = mosaic.MosaicRunner(filename, root="/tmp", cpl_dir="/usr/src", user_name=str(uuid.uuid4()))
-    runner.run(bathy_file=bathy_file, coords_file=coords_file)
+    runner = mosaic.MosaicRunner(root="/tmp", cpl_dir="/usr/src", user_name=str(uuid.uuid4()))
+    runner.run(bathy_file=bathy_file, coords_file=coords_file, subbasins_file=subbasins_file)
 
     # Tar files directly into directory
     temp_name = next(tempfile._get_candidate_names()) + ".tar.gz"

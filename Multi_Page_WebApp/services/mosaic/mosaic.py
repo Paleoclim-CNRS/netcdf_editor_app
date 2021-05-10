@@ -2,11 +2,17 @@ from pathlib import Path
 import os
 import shutil
 import subprocess
+import tempfile
 
 
 class MosaicRunner(object):
 
-    def __init__(self, simulation_name, root=".", cpl_dir='/usr/src', user_name="root"):
+    def __init__(self, simulation_name=None, root=".", cpl_dir='/usr/src', user_name="root"):
+        if simulation_name is None:
+            simulation_name = next(tempfile._get_candidate_names()).replace("x", "_")
+        else:
+            if len(simulation_name) > 15:
+                raise AttributeError(f"simulation name: {simulation_name} is too long (>15)")
         self.simulation_name = simulation_name
         self.root = root
         self.cpl_dir = cpl_dir
@@ -17,8 +23,8 @@ class MosaicRunner(object):
         self.OceMdl = 'PALEORCA2'
 
         self.run_def = DefaultRunConfig()
-        self.run_def.c_basins = ".".join([self.OceMdl, self.simulation_name, "nc"])
-        self.run_def.cname = ".".join([self.OceMdl, self.simulation_name])
+        self.run_def.c_basins = ".".join([self.OceMdl, simulation_name, "nc"])
+        self.run_def.cname = ".".join([self.OceMdl, simulation_name])
 
     @property
     def domsk_dir(self):
@@ -37,7 +43,7 @@ class MosaicRunner(object):
         shutil.rmtree(self.domsk_dir)
         shutil.rmtree(self.mosaic_dir)
 
-    def setup_domsk(self, bathy_file, coordinates_file):
+    def setup_domsk(self, bathy_file, coordinates_file, subbasins_file):
         # Create run def
         run_def_filepath = self.domsk_dir + '/run.def'
         self.run_def.to_file(run_def_filepath)
@@ -45,6 +51,7 @@ class MosaicRunner(object):
         # Copy files to directory with correctname.
         shutil.copy2(bathy_file, self.domsk_dir + '/bathy_meter.nc')
         shutil.copy2(coordinates_file, self.domsk_dir + '/coordinates.nc')
+        shutil.copy2(subbasins_file, self.domsk_dir + f'/subbasins_{self.run_def.cname}.nc')
 
     def run_domsk(self):
         cmd = os.path.join(self.cpl_dir, 'DOMSK', 'bin', 'domsk.exe')
@@ -138,9 +145,9 @@ class MosaicRunner(object):
         # Copy out needed files
         subprocess.Popen(['./envoie.sh', '-i', '-5A2', '-L', '39', '-D', '-u', self.user_name], cwd=self.mosaic_dir, stdout=subprocess.PIPE).wait() 
     
-    def run(self, bathy_file, coords_file):
+    def run(self, bathy_file, coords_file, subbasins_file):
         self.create_directory_structure()
-        self.setup_domsk(bathy_file, coords_file)
+        self.setup_domsk(bathy_file, coords_file, subbasins_file)
         self.run_domsk()
         self.run_file_generation()
 
