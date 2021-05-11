@@ -24,9 +24,9 @@ from flask import (
 )
 
 import holoviews as hv
-from netcdf_editor_app.auth import login_required
-from netcdf_editor_app.constants import invalidates, order_steps, tasks
-from netcdf_editor_app.db import (
+from climate_simulation_platform.auth import login_required
+from climate_simulation_platform.constants import invalidates, order_steps, tasks
+from climate_simulation_platform.db import (
     get_coord_names,
     get_file_path,
     get_file_type_counts,
@@ -42,7 +42,7 @@ from netcdf_editor_app.db import (
     step_seen,
     step_up_to_date,
 )
-from netcdf_editor_app.message_broker import send_preprocessing_message
+from climate_simulation_platform.message_broker import send_preprocessing_message
 
 bp = Blueprint("app", __name__)
 

@@ -1,4 +1,4 @@
-from netcdf_editor_app.utils import routing
+from climate_simulation_platform.ipsl_utils import routing
 
 import numpy
 import xarray as xr

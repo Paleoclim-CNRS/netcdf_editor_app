@@ -1,4 +1,4 @@
-from netcdf_editor_app.utils import pft
+from climate_simulation_platform.ipsl_utils import pft
 
 import xarray as xr
 import numpy

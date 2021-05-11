@@ -1,4 +1,4 @@
-from netcdf_editor_app import create_app
+from climate_simulation_platform import create_app
 
 
 def test_config():
@@ -8,4 +8,4 @@ def test_config():
 
 def test_hello(client):
     response = client.get("/hello")
-    assert response.data == b"Hello, World! from NetCDF Editor App"
+    assert response.data == b"Hello, World! from The Climate Simulation Platform"

@@ -1,6 +1,6 @@
 import pytest
 from flask import g, session
-from netcdf_editor_app.db import get_db
+from climate_simulation_platform.db import get_db
 
 
 def test_register(client, app):

@@ -1,12 +1,12 @@
-from value_changer import ValueChanger
+from .value_changer import ValueChanger
 import panel as pn
 import xarray as xr
 import numpy
 
 import holoviews as hv
 
-from netcdf_editor_app.db import load_file, save_revision, save_step
-from netcdf_editor_app.message_broker import send_preprocessing_message
+from climate_simulation_platform.db import load_file, save_revision, save_step
+from climate_simulation_platform.message_broker import send_preprocessing_message
 
 colormaps = hv.plotting.list_cmaps()
 

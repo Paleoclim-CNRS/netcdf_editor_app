@@ -1,4 +1,4 @@
-FLASK_APP=/usr/src/app/netcdf_editor_app
+FLASK_APP=/usr/src/app/climate_simulation_platform
 FLASK_ENV=production
 FLASK_RUN_HOST=0.0.0.0
 FLASK_RUN_PORT=5000
