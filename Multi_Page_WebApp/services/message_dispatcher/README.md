@@ -1,0 +1,1 @@
+Receives messages on the default queue and redirects them to the different workers. It also handles the preprocessing.*.done messages and sets off the dependant tasks.
