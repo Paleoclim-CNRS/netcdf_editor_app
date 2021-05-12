@@ -568,7 +568,9 @@ def calculate_weights(_id):
             return redirect(url_for("app.steps", _id=_id))
 
         flash(error)
-    return render_template("app/calculate_weights.html", title="Calculate Weights")
+    has_bathy = get_file_path(_id, "bathy") is not  None
+    has_subbasins = get_file_path(_id, "sub_basins") is not None
+    return render_template("app/calculate_weights.html", title="Calculate Weights", has_bathy=has_bathy, has_subbasins=has_subbasins, _id=_id)
 
 
 # @bp.route("/<int:_id>/heatflow", methods=("GET", "POST"))

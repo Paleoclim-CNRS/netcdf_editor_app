@@ -18,6 +18,26 @@
     </div>
 </div>
 
+{% if not has_subbasins %}
+<div class="alert alert-danger" role="alert">
+    <p>Subbasins has not been run</p>
+    <button type="submit" class="btn btn-success btn-lg" onclick="window.location.href='{{ url_for( 'app.subbasins' , _id=_id ) }}';">
+        <i class="fas fa-calculator"></i>
+        Subbasins
+    </button>
+</div>
+{% endif %}
+
+{% if not has_bathy %}
+<div class="alert alert-danger" role="alert">
+    <p>Routing has not been run</p>
+    <button type="submit" class="btn btn-success btn-lg" onclick="window.location.href='{{ url_for( 'app.routing' , _id=_id ) }}';">
+        <i class="fas fa-calculator"></i>
+        Routing
+    </button>
+</div>
+{% endif %}
+
 <form name="form" method=post enctype=multipart/form-data>
     <label for="coordsfile">Coordiantes File:</label>
     <div id='uploadcoords' class="alert alert-warning" role="alert">
@@ -39,7 +59,13 @@
 <script>
     $(document).ready(function () {
         function isValid() {
-            if(document.getElementById("coordsFileUpload").files.length  < 1){
+            {% if not has_subbasins %}
+                return false
+            {% endif %}
+            {% if not has_bathy %}
+                return false
+            {% endif %}
+            if (document.getElementById("coordsFileUpload").files.length < 1) {
                 return false
             }
             return true
@@ -47,7 +73,7 @@
 
         function updateProcessing() {
             var valid = isValid();
-            if(valid) {
+            if (valid) {
                 $('#submit').attr('disabled', false)
             } else {
                 $('#submit').attr('disabled', true)
