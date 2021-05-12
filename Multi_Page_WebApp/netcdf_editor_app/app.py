@@ -95,11 +95,8 @@ def download(_id, file_type):
 
     filename = get_file_path(_id, file_type, full=False)
     filename_parts = filename.split(".")
-    print(filename_parts, flush=True)
     filename_parts[0] = input_file_name.split(".")[0] + "_" + file_type + "_netcdf_flask_app"
-    print(filename_parts, flush=True)
     data_file_name = ".".join(filename_parts)
-    print(data_file_name, flush=True)
 
     uploads = os.path.join(current_app.root_path, current_app.config["UPLOAD_FOLDER"])
     return send_from_directory(
