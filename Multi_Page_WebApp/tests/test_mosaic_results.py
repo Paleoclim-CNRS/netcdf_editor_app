@@ -24,7 +24,7 @@ def compare_xarrays(ds1, ds2, name):
     print("\n")
 
 
-def test_files(base_data_dir, docker_data_dir):
+def compare_folders(base_data_dir, docker_data_dir):
 
     base_data_name = os.listdir(os.path.join(base_data_dir, "ATM", "START"))[-1]
     docker_data_name = os.listdir(os.path.join(docker_data_dir, "ATM", "START"))[-1]
@@ -84,7 +84,7 @@ def main(argv):
     print('base_data_dir is "', base_data_dir)
     print('docker_data_dir file is "', docker_data_dir)
     if len(base_data_dir) and len(docker_data_dir):
-        test_files(base_data_dir, docker_data_dir)
+        compare_folders(base_data_dir, docker_data_dir)
     else:
         print("No folders specified")
 
