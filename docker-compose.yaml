@@ -35,6 +35,19 @@ services:
       - message_dispatcher
     volumes:
       - instance_storage:/usr/src/app/instance
+
+  mosaic_worker:
+    build:
+      context: Multi_Page_WebApp
+      dockerfile: services/mosaic/Dockerfile
+    restart: on-failure
+    environment: 
+      - BROKER_HOSTNAME=message_broker
+    depends_on: 
+      - message_broker
+      - message_dispatcher
+    volumes:
+      - instance_storage:/usr/src/app/instance
     
   flask_app:
     build:

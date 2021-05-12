@@ -1,4 +1,4 @@
-panel ~=0.10
+panel ~=0.10.0
 bokeh < 2.3
 holoviews <1.14
 datashader

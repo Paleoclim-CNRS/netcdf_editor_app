@@ -84,12 +84,15 @@ def upload_file(file, data_file_id=None, file_type="raw"):
         db.commit()
         data_file_id = data_file.lastrowid
         revision = 0
-    else: 
+    else:
         # Get revision
-        revision = db.execute(
+        revision = (
+            db.execute(
                 "SELECT MAX(revision) FROM revisions WHERE data_file_id = ? ORDER BY revision ASC",
                 (data_file_id,),
-        ).fetchone()["MAX(revision)"] + 1
+            ).fetchone()["MAX(revision)"]
+            + 1
+        )
     # ADD the file to the revisions table
     db.execute(
         "INSERT INTO revisions (data_file_id, filepath, revision, file_type)"
@@ -111,6 +114,11 @@ def save_revision(_id, ds, file_type):
         os.path.join(current_app.config["UPLOAD_FOLDER"], temp_name),
         format="NETCDF3_64BIT",
     )
+
+    save_file_to_db(_id, temp_name, file_type)
+
+
+def save_file_to_db(_id, filename, file_type):
     # ADD the file to the revisions table
     db = get_db()
     # Get latest revision
@@ -119,7 +127,7 @@ def save_revision(_id, ds, file_type):
     db.execute(
         "INSERT INTO revisions (data_file_id, filepath, revision, file_type)"
         " VALUES (?, ?, ?, ?)",
-        (str(_id), temp_name, revision_nb, file_type),
+        (str(_id), filename, revision_nb, file_type),
     )
     db.commit()
     try:

@@ -91,12 +91,15 @@ def upload():
 @bp.route("/<int:_id>/<string:file_type>/download", methods=["GET"])
 @login_required
 def download(_id, file_type):
-    data_file_name = get_filename(_id)
-    name, extension = data_file_name.split(".")
-    name += "_" + file_type + "_netcdf_flask_app"
-    data_file_name = name + "." + extension
+    input_file_name = get_filename(_id)
 
     filename = get_file_path(_id, file_type, full=False)
+    filename_parts = filename.split(".")
+    filename_parts[0] = (
+        input_file_name.split(".")[0] + "_" + file_type + "_netcdf_flask_app"
+    )
+    data_file_name = ".".join(filename_parts)
+
     uploads = os.path.join(current_app.root_path, current_app.config["UPLOAD_FOLDER"])
     return send_from_directory(
         directory=uploads,
@@ -117,16 +120,18 @@ def download_all(_id):
     with zipfile.ZipFile(fileobj, "w") as zip_file:
         for file_type in seen_file_types:
             name = ori_name + "_" + file_type + "_netcdf_flask_app"
-            data_file_name = name + "." + extension
 
             filename = get_file_path(_id, file_type, full=False)
+            filename_parts = filename.split(".")
+            filename_parts[0] = name
+            filename_out = ".".join(filename_parts)
+
             uploads = os.path.join(
                 current_app.root_path, current_app.config["UPLOAD_FOLDER"]
             )
-            print(os.path.join(uploads, filename), flush=True)
             zip_file.write(
                 os.path.join(uploads, filename),
-                arcname=name,
+                arcname=filename_out,
                 compress_type=zipfile.ZIP_STORED,
             )
     fileobj.seek(0)
@@ -253,7 +258,7 @@ def stepsTable(_id):
             # if it is a python task then we show it being processed
             elif step in tasks["python"]:
                 status = '<i class="fas fa-cog fa-spin" style="color:#377ba8"></i>'
-        step_text = " ".join(step.split("_")).capitalize()
+        step_text = " ".join(step.split("_")).title()
 
         if step in invalidates.keys():
             step_text = "<b>" + step_text + "</b>"
@@ -474,7 +479,7 @@ def routing(_id):
             body = {"id": _id, **request.form}
             send_preprocessing_message("routing", body)
 
-            flash("Routing run succesfully")
+            flash("Routing succesfully sent to engine")
 
             return redirect(url_for("app.steps", _id=_id))
 
@@ -544,6 +549,26 @@ def subbasins(_id):
         title="Sub Basins",
         panel_app_name="sub_basins",
     )
+
+
+@bp.route("/<int:_id>/calculate_weights", methods=("GET", "POST"))
+@login_required
+def calculate_weights(_id):
+    if request.method == "POST":
+        error = ""
+
+        file = _validate_file(request)
+        # TODO validate that the correct variables are in the file
+        upload_file(file, data_file_id=_id, file_type="weight_coords")
+
+        if not len(error):
+            body = {"id": _id, **request.form}
+            send_preprocessing_message("calculate_weights", body)
+
+            return redirect(url_for("app.steps", _id=_id))
+
+        flash(error)
+    return render_template("app/calculate_weights.html", title="Calculate Weights")
 
 
 # @bp.route("/<int:_id>/heatflow", methods=("GET", "POST"))
