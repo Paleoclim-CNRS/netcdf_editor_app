@@ -84,12 +84,15 @@ def upload_file(file, data_file_id=None, file_type="raw"):
         db.commit()
         data_file_id = data_file.lastrowid
         revision = 0
-    else: 
+    else:
         # Get revision
-        revision = db.execute(
+        revision = (
+            db.execute(
                 "SELECT MAX(revision) FROM revisions WHERE data_file_id = ? ORDER BY revision ASC",
                 (data_file_id,),
-        ).fetchone()["MAX(revision)"] + 1
+            ).fetchone()["MAX(revision)"]
+            + 1
+        )
     # ADD the file to the revisions table
     db.execute(
         "INSERT INTO revisions (data_file_id, filepath, revision, file_type)"
@@ -113,6 +116,7 @@ def save_revision(_id, ds, file_type):
     )
 
     save_file_to_db(_id, temp_name, file_type)
+
 
 def save_file_to_db(_id, filename, file_type):
     # ADD the file to the revisions table

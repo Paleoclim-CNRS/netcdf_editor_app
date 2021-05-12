@@ -19,8 +19,10 @@ import time
 import pika
 from pika.exchange_type import ExchangeType
 
-LOG_FORMAT = ('%(levelname) -10s %(asctime)s %(name) -30s %(funcName) '
-              '-35s %(lineno) -5d: %(message)s')
+LOG_FORMAT = (
+    "%(levelname) -10s %(asctime)s %(name) -30s %(funcName) "
+    "-35s %(lineno) -5d: %(message)s"
+)
 LOGGER = logging.getLogger(__name__)
 
 logging.basicConfig(level=logging.INFO, format=LOG_FORMAT)
@@ -42,6 +44,7 @@ def func_params(func, body):
                 return step_parameters(body["id"], func)
     return None
 
+
 def run_function(method, body):
     app = create_app()
     routing_key = method.routing_key
@@ -58,6 +61,7 @@ def run_function(method, body):
         if func != "invalidate":
             with app.app_context():
                 save_step(_id, func, params, up_to_date=True)
+
 
 def send_response_done(method, body, channel=None):
     if channel is None:
@@ -78,6 +82,7 @@ def send_response_done(method, body, channel=None):
         flush=True,
     )
 
+
 def setup_channel():
     connection = pika.BlockingConnection(
         pika.ConnectionParameters(host=os.environ["BROKER_HOSTNAME"])
@@ -93,6 +98,7 @@ def setup_channel():
         routing_key="preprocessing.*.mosaic",
     )
     return channel
+
 
 # def main():
 #     # connection = pika.BlockingConnection(
@@ -120,9 +126,7 @@ def setup_channel():
 #         # print(" [x] properties: ", properties, flush=True)
 #         print(" [x] Received %r" % body.decode(), flush=True)
 
-        
 
-            
 #         print(" [x] Done", flush=True)
 
 #     channel.basic_qos(prefetch_count=1)
@@ -145,7 +149,6 @@ def setup_channel():
 #             os._exit(0)
 
 
-
 def ack_message(ch, delivery_tag, method, body):
     """Note that `ch` must be the same pika channel instance via which
     the message being ACKed was retrieved (AMQP protocol constraint).
@@ -158,10 +161,12 @@ def ack_message(ch, delivery_tag, method, body):
         # log and/or do something that makes sense for your app in this case.
         send_response_done(method, body)
 
+
 def do_work(conn, ch, method, delivery_tag, body):
     thread_id = threading.get_ident()
-    LOGGER.info('Thread id: %s Delivery tag: %s Message body: %s', thread_id,
-                delivery_tag, body)
+    LOGGER.info(
+        "Thread id: %s Delivery tag: %s Message body: %s", thread_id, delivery_tag, body
+    )
     run_function(method, body)
     cb = functools.partial(ack_message, ch, delivery_tag, method, body)
     conn.add_callback_threadsafe(cb)
@@ -171,7 +176,9 @@ def on_message(ch, method_frame, _header_frame, body, args):
     (conn, thrds) = args
     print(" [x] Received %r" % body.decode(), flush=True)
     delivery_tag = method_frame.delivery_tag
-    t = threading.Thread(target=do_work, args=(conn, ch, method_frame, delivery_tag, body))
+    t = threading.Thread(
+        target=do_work, args=(conn, ch, method_frame, delivery_tag, body)
+    )
     t.start()
     thrds.append(t)
 
@@ -187,10 +194,10 @@ channel.exchange_declare(exchange="preprocessing", exchange_type="topic")
 channel.queue_declare(queue="preprocessing_mosaic_task_queue", durable=True)
 
 channel.queue_bind(
-        exchange="preprocessing",
-        queue="preprocessing_mosaic_task_queue",
-        routing_key="preprocessing.*.mosaic",
-    )
+    exchange="preprocessing",
+    queue="preprocessing_mosaic_task_queue",
+    routing_key="preprocessing.*.mosaic",
+)
 # Note: prefetch is set to 1 here as an example only and to keep the number of threads created
 # to a reasonable amount. In production you will want to test with different prefetch values
 # to find which one provides the best performance and usability for your solution
@@ -198,7 +205,7 @@ channel.basic_qos(prefetch_count=1)
 
 threads = []
 on_message_callback = functools.partial(on_message, args=(connection, threads))
-channel.basic_consume('preprocessing_mosaic_task_queue', on_message_callback)
+channel.basic_consume("preprocessing_mosaic_task_queue", on_message_callback)
 
 try:
     channel.start_consuming()

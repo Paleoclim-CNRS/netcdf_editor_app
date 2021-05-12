@@ -95,7 +95,9 @@ def download(_id, file_type):
 
     filename = get_file_path(_id, file_type, full=False)
     filename_parts = filename.split(".")
-    filename_parts[0] = input_file_name.split(".")[0] + "_" + file_type + "_netcdf_flask_app"
+    filename_parts[0] = (
+        input_file_name.split(".")[0] + "_" + file_type + "_netcdf_flask_app"
+    )
     data_file_name = ".".join(filename_parts)
 
     uploads = os.path.join(current_app.root_path, current_app.config["UPLOAD_FOLDER"])
@@ -123,7 +125,7 @@ def download_all(_id):
             filename_parts = filename.split(".")
             filename_parts[0] = name
             filename_out = ".".join(filename_parts)
-            
+
             uploads = os.path.join(
                 current_app.root_path, current_app.config["UPLOAD_FOLDER"]
             )
@@ -548,6 +550,7 @@ def subbasins(_id):
         panel_app_name="sub_basins",
     )
 
+
 @bp.route("/<int:_id>/calculate_weights", methods=("GET", "POST"))
 @login_required
 def calculate_weights(_id):
@@ -555,7 +558,7 @@ def calculate_weights(_id):
         error = ""
 
         file = _validate_file(request)
-        #TODO validate that the correct variables are in the file
+        # TODO validate that the correct variables are in the file
         upload_file(file, data_file_id=_id, file_type="weight_coords")
 
         if not len(error):
@@ -565,10 +568,8 @@ def calculate_weights(_id):
             return redirect(url_for("app.steps", _id=_id))
 
         flash(error)
-    return render_template(
-        "app/calculate_weights.html",
-        title="Calculate Weights"
-    )
+    return render_template("app/calculate_weights.html", title="Calculate Weights")
+
 
 # @bp.route("/<int:_id>/heatflow", methods=("GET", "POST"))
 # @login_required
