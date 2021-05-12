@@ -3,7 +3,7 @@ import numpy
 
 tasks = {
     "python": ["regrid", "routing", "heatflow", "ahmcoef", "pft", "invalidate"],
-    "fortran": ["mosaix"],
+    "mosaic": ["calculate_weights"],
     "panel": ["internal_oceans", "passage_problems", "subbasins"],
 }
 
@@ -11,8 +11,15 @@ invalidates = OrderedDict(
     {
         "regrid": ["internal_oceans", "routing"],
         "internal_oceans": ["routing"],
-        "routing": ["pft", "passage_problems", "subbasins", "heatflow", "ahmcoef"],
-        "passage_problems": ["subbasins", "heatflow", "ahmcoef"],
+        "routing": [
+            "pft",
+            "passage_problems",
+            "subbasins",
+            "heatflow",
+            "ahmcoef",
+            "calculate_weights",
+        ],
+        "passage_problems": ["subbasins", "heatflow", "ahmcoef", "calculate_weights"],
     }
 )
 

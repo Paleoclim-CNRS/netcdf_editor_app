@@ -1,48 +1,38 @@
 # Netcdf Editor App
+[![Generic badge](https://img.shields.io/badge/Docs-up-green.svg)](https://cerege-cl.github.io/netcdf_editor_app/)
+[![Gitter chat](https://badges.gitter.im/gitterHQ/gitter.png)](https://gitter.im/netcdf_editor_app/community)
 
-[![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/CEREGE-CL/netcdf_editor_app/main?filepath=app.ipynb) [![Heroku App Status](https://heroku-shields.herokuapp.com/netcdf-editor-app)](https://netcdf-editor-app.herokuapp.com) [![Generic badge](https://img.shields.io/badge/Docs-up-brightgreen.svg)](https://cerege-cl.github.io/netcdf_editor_app/)
 
-Example can be found here: https://netcdf-editor-app.herokuapp.com/
+
+- Single Page netcdf editor app can be found here: https://netcdf.osupytheas.com/
+- Multi Page Climate simulation tool can be found here: https://climate_sim.osupytheas.com/
 
 ## Introduction
 
-This is a small web based app that allows users to interactively modify NetCDF files. 
+Checkout the [Documentation](https://cerege-cl.github.io/netcdf_editor_app/) for more info.
 
-Currently 3 methods for modifying values has been implemented:
-- __Absolute__: All selected values are set to the replacement value
-- __Relatif__: Add replacement value to all selected values
-- __Percentage__: Add percentage of each selected value
+## Deploying to local server
 
-## App Workflow
+Images are automatically built using the github actions pipeline see https://github.com/CEREGE-CL/netcdf_editor_app/blob/main/.github/workflows/docker-image.yml these are automatically pushed to dockerhub and are therefore accesible for everyone: https://hub.docker.com/orgs/ceregecl/repositories
 
-1. Load NetCDF File
-1. Choose Variable
-1. Choose Zones
-    - Choose zone on map
-    - Choose part of distribution
-1. Click Apply
-1. Save / Download
+To deploy these locally you need to:
+1. Copy contents of docker-compose.yaml
+1. Replace `${NGINX_PORT}` by the desired port on the server / local machine
+1. In `flask_app` and `panel_app` remove the env_file line and add the contents of `config/*.prod` into each corresponding `enviroment`
+1. run `docker-compose up --build -d` (you can scale workers with `--scale python_worker=3` where python_worker is the name of the service in docker-compose)
 
-## Installation
+Multipage stack images:
+- `ceregecl/netcdf_editor_python_worker`
+- `ceregecl/netcdf_editor_flask_app`
+- `ceregecl/netcdf_editor_panel_app`
+- `ceregecl/netcdf_editor_message_dispatcher`
+- `ceregecl/netcdf_editor_nginx`
 
-### Docker
+Single page app:
+- `ceregecl/netcdf_editor`
 
-1. Run `docker-compose -f "docker-compose.yml" up  --build`
 
-## Developpement
-
-### Running locally
-
-* Create `.env` file with the following contents:
-```
-FLASK_APP=netcdf_editor_app
-FLASK_ENV=development
-```
-* Run `pip install -r requirements.txt`
-* Run `BOKEH_RESOURCES=cdn python -m panel serve --port=5006 --allow-websocket-origin='*' --websocket-max-message-size=100000000 netcdf_editor_app/holoviews/*.py` to start the panel apps (exporting BOKEJ+H_RESOURCES=cdn is important otherwise the apps won't render)
-* Run `python -m flask run`
-
-### testing
+## testing
 
 The test suite uses pytest and coverage.
 
