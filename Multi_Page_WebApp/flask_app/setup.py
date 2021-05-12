@@ -25,11 +25,7 @@ setuptools.setup(
     ],
     packages=setuptools.find_packages(),
     install_requires=[
-        "panel",
-        "holoviews",
-        "xarray",
-        "numpy",
-        "scipy",
+        #TODO
         ],
     extras_require={
         "test":  ["pytest", "coverage"],
