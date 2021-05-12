@@ -212,7 +212,7 @@ class DefaultRunConfig(RunConfig):
         self.l_meter = "y"
         self.l_wri_3D = "y"
         #
-        ## Modele ocean
+        # Modele ocean
         # Dimensions
         self.jpoi = 182
         self.jpoj = 149
@@ -228,7 +228,7 @@ class DefaultRunConfig(RunConfig):
         # Ordre des noms
         self.locerev = "n"
         #
-        ## Modele atmosphere
+        # Modele atmosphere
         # Dimensions
         self.jpai = 96
         self.jpaj = 95
@@ -291,15 +291,15 @@ class DefaultRunConfig(RunConfig):
         self.cotes_amsk = "full"
 
         # Le masque ocean du run-off est sans les points doubles
-        self.l_runoff_msk_noperio = "y"  ## Non actif
+        self.l_runoff_msk_noperio = "y"  # Non actif
         # Le masque atmosphere du run-off est extensif (tous les points avec iun fraction de terre sont comptes terre)
-        self.l_runoff_msk_ext = "y"  ## Non actif
+        self.l_runoff_msk_ext = "y"  # Non actif
 
         # Parametre de calcul des poids pour le calvin
 
         # Fichier du masque de bassin
         # En fait egal a paleorca2.nc qui est sorti dans DOMSK lorsque l_wri_3D = y
-        self.c_basins = "PALEORCA2.20MaF.nc"  ##eORCA1.2.nc
+        self.c_basins = "PALEORCA2.20MaF.nc"  # eORCA1.2.nc
         # Nom des variables
         self.cl_atl = "mask_atl"
         self.cl_pac = "mask_pac"

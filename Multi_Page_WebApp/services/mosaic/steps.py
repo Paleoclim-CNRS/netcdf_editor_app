@@ -7,7 +7,7 @@ import shutil
 import subprocess
 
 from netcdf_editor_app import create_app
-from netcdf_editor_app.db import get_file_path, get_filename, save_file_to_db
+from netcdf_editor_app.db import get_file_path, save_file_to_db
 
 
 def calculate_weights(body):

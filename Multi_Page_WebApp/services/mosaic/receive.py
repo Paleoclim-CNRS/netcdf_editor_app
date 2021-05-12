@@ -1,7 +1,6 @@
 #!/usr/bin/env python
 import pika
 import os
-import sys
 import steps  # noqa: F401
 import json
 
@@ -15,9 +14,6 @@ from netcdf_editor_app import create_app
 import functools
 import logging
 import threading
-import time
-import pika
-from pika.exchange_type import ExchangeType
 
 LOG_FORMAT = (
     "%(levelname) -10s %(asctime)s %(name) -30s %(funcName) "

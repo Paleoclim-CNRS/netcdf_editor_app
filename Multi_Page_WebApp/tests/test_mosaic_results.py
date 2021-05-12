@@ -4,7 +4,8 @@ import os
 import xarray as xr
 import numpy
 
-import sys, getopt
+import sys
+import getopt
 
 
 def compare_xarrays(ds1, ds2, name):
