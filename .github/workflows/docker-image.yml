@@ -4,7 +4,6 @@ on:
   push:
     branches:
       - main
-      - CICD
     paths:
       - '*_Page_WebApp/**'
       - '!**/*.md'
