@@ -24,7 +24,13 @@ setuptools.setup(
         "Operating System :: OS Independent",
     ],
     packages=setuptools.find_packages(),
+    include_package_data=True,
+    package_data={
+      '': ['bc/ipsl/*.npy', 'bc/ipsl/*.nc'],
+   },
+    zip_safe=False,
     install_requires=[
+        'setuptools-git'
         #TODO
         ],
     extras_require={
