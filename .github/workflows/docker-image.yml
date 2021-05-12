@@ -5,6 +5,7 @@ on:
     branches:
       - main
     paths:
+      - .github/workflows/docker-image.yml
       - '*_Page_WebApp/**'
       - '!**/*.md'
 
