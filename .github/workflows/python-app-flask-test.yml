@@ -25,6 +25,10 @@ jobs:
         python -m pip install --upgrade pip
         pip install flake8 pytest coverage
         if [ -f Multi_Page_WebApp/requirements.txt ]; then pip install -r Multi_Page_WebApp/requirements.txt; fi
+    - name: Install Packages 
+      run: |
+        pip install Multi_Page_WebApp/flask_app
+        pip install Multi_Page_WebApp/python_tools
     - name: Lint with flake8
       run: |
         # stop the build if there are Python syntax errors or undefined names
