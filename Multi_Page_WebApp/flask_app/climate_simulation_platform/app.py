@@ -24,9 +24,9 @@ from flask import (
 )
 
 import holoviews as hv
-from netcdf_editor_app.auth import login_required
-from netcdf_editor_app.constants import invalidates, order_steps, tasks
-from netcdf_editor_app.db import (
+from climate_simulation_platform.auth import login_required
+from climate_simulation_platform.constants import invalidates, order_steps, tasks
+from climate_simulation_platform.db import (
     get_coord_names,
     get_file_path,
     get_file_type_counts,
@@ -42,7 +42,7 @@ from netcdf_editor_app.db import (
     step_seen,
     step_up_to_date,
 )
-from netcdf_editor_app.message_broker import send_preprocessing_message
+from climate_simulation_platform.message_broker import send_preprocessing_message
 
 bp = Blueprint("app", __name__)
 
@@ -256,7 +256,7 @@ def stepsTable(_id):
             if step_up_to_date(_id, step):
                 status = '<i class="fas fa-check-square" style="color:#2ECC40"></i>'
             # if it is a python task then we show it being processed
-            elif step in tasks["python"]:
+            elif step in tasks["python"] + tasks['mosaic']:
                 status = '<i class="fas fa-cog fa-spin" style="color:#377ba8"></i>'
         step_text = " ".join(step.split("_")).title()
 
@@ -568,7 +568,9 @@ def calculate_weights(_id):
             return redirect(url_for("app.steps", _id=_id))
 
         flash(error)
-    return render_template("app/calculate_weights.html", title="Calculate Weights")
+    has_bathy = get_file_path(_id, "bathy") is not  None
+    has_subbasins = get_file_path(_id, "sub_basins") is not None
+    return render_template("app/calculate_weights.html", title="Calculate Weights", has_bathy=has_bathy, has_subbasins=has_subbasins, _id=_id)
 
 
 # @bp.route("/<int:_id>/heatflow", methods=("GET", "POST"))

@@ -4,6 +4,6 @@ FROM python:3.8
 RUN pip install pika numpy
 
 COPY services/message_dispatcher/receive.py /tmp/
-COPY netcdf_editor_app/constants.py /tmp/
+COPY flask_app/climate_simulation_platform/constants.py /tmp/
 
 ENTRYPOINT [ "python", "/tmp/receive.py"]

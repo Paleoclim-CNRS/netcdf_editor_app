@@ -1,4 +1,4 @@
-from netcdf_editor_app.utils import routing
+from climpy.bc.ipsl import routing
 
 import numpy
 import xarray as xr

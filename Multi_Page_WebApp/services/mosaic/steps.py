@@ -6,8 +6,8 @@ import tempfile
 import shutil
 import subprocess
 
-from netcdf_editor_app import create_app
-from netcdf_editor_app.db import get_file_path, save_file_to_db
+from climate_simulation_platform import create_app
+from climate_simulation_platform.db import get_file_path, save_file_to_db
 
 
 def calculate_weights(body):

@@ -20,6 +20,7 @@ invalidates = OrderedDict(
             "calculate_weights",
         ],
         "passage_problems": ["subbasins", "heatflow", "ahmcoef", "calculate_weights"],
+        "subbasins" : ["calculate_weights"],
     }
 )
 

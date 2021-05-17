@@ -32,7 +32,7 @@ def create_app(test_config=None):
     # a simple page that says hello
     @app.route("/hello")
     def hello():
-        return "Hello, World! from NetCDF Editor App"
+        return "Hello, World! from The Climate Simulation Platform"
 
     @app.route("/session")
     def debug_session():

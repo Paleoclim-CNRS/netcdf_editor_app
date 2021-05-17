@@ -1,4 +1,4 @@
-from value_changer import ValueChanger
+from climpy.interactive import ValueChanger
 import panel as pn
 import xarray as xr
 import numpy

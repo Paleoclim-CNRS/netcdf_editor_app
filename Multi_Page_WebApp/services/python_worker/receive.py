@@ -5,8 +5,8 @@ import sys
 import steps  # noqa: F401
 import json
 
-from netcdf_editor_app.db import step_parameters, save_step, step_seen
-from netcdf_editor_app import create_app
+from climate_simulation_platform.db import step_parameters, save_step, step_seen
+from climate_simulation_platform import create_app
 
 
 def func_params(func, body):

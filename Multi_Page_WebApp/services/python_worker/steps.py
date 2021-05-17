@@ -1,18 +1,18 @@
 import numpy
 import json
 
-from netcdf_editor_app import create_app
-from netcdf_editor_app.db import (
+from climate_simulation_platform import create_app
+from climate_simulation_platform.db import (
     get_lon_lat_names,
     load_file,
     save_revision,
     step_seen,
     invalidate_step,
 )
-from netcdf_editor_app.utils.routing import run_routines
-from netcdf_editor_app.utils.heatflow import create_heatflow
-from netcdf_editor_app.utils.ahmcoef import create_ahmcoef
-from netcdf_editor_app.utils.pft import generate_pft_netcdf
+from climpy.bc.ipsl.routing import run_routines
+from climpy.bc.ipsl.heatflow import create_heatflow
+from climpy.bc.ipsl.ahmcoef import create_ahmcoef
+from climpy.bc.ipsl.pft import generate_pft_netcdf
 
 
 def regrid(body):

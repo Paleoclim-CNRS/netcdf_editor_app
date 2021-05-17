@@ -1,4 +1,4 @@
-from internal_oceans import InternalOceans
+from climpy.interactive import InternalOceans
 import panel as pn
 import xarray as xr
 import numpy

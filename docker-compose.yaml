@@ -55,7 +55,7 @@ services:
       - 5000
     depends_on: 
       - message_broker
-    entrypoint: gunicorn --bind 0.0.0.0:5000 "netcdf_editor_app:create_app()"
+    entrypoint: gunicorn --bind 0.0.0.0:5000 "climate_simulation_platform:create_app()"
     # entrypoint: python -m flask run
     volumes:
       - instance_storage:/usr/src/app/instance

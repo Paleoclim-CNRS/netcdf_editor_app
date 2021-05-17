@@ -2,8 +2,8 @@ import os
 import tempfile
 
 import pytest
-from netcdf_editor_app import create_app
-from netcdf_editor_app.db import get_db, init_db
+from climate_simulation_platform import create_app
+from climate_simulation_platform.db import get_db, init_db
 
 with open(os.path.join(os.path.dirname(__file__), "data", "data.sql"), "rb") as f:
     _data_sql = f.read().decode("utf8")
