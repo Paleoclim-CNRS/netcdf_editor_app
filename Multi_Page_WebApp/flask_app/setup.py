@@ -34,6 +34,6 @@ setuptools.setup(
     zip_safe=False,
     include_package_data=True,
     package_data={
-      '': ['db_schema.sql'],
+      '': ['templates/*/*.html', 'templates/*.html', 'static/*', 'db_schema.sql'],
    },
 )
