@@ -1,4 +1,4 @@
-from climate_simulation_platform.ipsl_utils import pft
+from climpy.bc.ipsl import pft
 
 import xarray as xr
 import numpy

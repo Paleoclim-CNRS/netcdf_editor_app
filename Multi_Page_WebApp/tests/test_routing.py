@@ -1,4 +1,4 @@
-from climate_simulation_platform.ipsl_utils import routing
+from climpy.bc.ipsl import routing
 
 import numpy
 import xarray as xr
