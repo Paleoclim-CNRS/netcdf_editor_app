@@ -256,7 +256,7 @@ def stepsTable(_id):
             if step_up_to_date(_id, step):
                 status = '<i class="fas fa-check-square" style="color:#2ECC40"></i>'
             # if it is a python task then we show it being processed
-            elif step in tasks["python"]:
+            elif step in tasks["python"] + tasks['mosaic']:
                 status = '<i class="fas fa-cog fa-spin" style="color:#377ba8"></i>'
         step_text = " ".join(step.split("_")).title()
 
