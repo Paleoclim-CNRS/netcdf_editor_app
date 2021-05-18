@@ -46,6 +46,9 @@
           <span class="navbar-text" aria-current="page">{{ g.user['username'] }}</span>
         </li>
         <li class="nav-item active">
+          <a class="nav-link" aria-current="page" href="{{ url_for('about') }}">About</a>
+        </li>
+        <li class="nav-item active">
           <a class="nav-link" aria-current="page" href="{{ url_for('auth.logout') }}">Log Out</a>
         </li>
         {% else %}
