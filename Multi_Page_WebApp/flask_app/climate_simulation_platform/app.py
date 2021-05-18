@@ -27,11 +27,13 @@ import holoviews as hv
 from climate_simulation_platform.auth import login_required
 from climate_simulation_platform.constants import invalidates, order_steps, tasks
 from climate_simulation_platform.db import (
+    add_info,
     get_coord_names,
     get_file_path,
     get_file_type_counts,
     get_file_types,
     get_filename,
+    get_info,
     get_latest_file_versions,
     get_lon_lat_names,
     load_file,
@@ -82,7 +84,7 @@ def upload():
     if request.method == "POST":
         file = _validate_file(request)
         if file and allowed_file(file.filename):
-            data_file_id = upload_file(file)
+            data_file_id = upload_file(file, info=request.form)
             return redirect(url_for("app.set_coords", _id=data_file_id))
 
     return render_template("app/upload.html")
@@ -100,10 +102,14 @@ def download(_id, file_type):
     )
     data_file_name = ".".join(filename_parts)
 
+    # Add info into the netcdf file
+    info = get_info(_id, file_type)
+    add_info(_id, file_type, info)
+
     uploads = os.path.join(current_app.root_path, current_app.config["UPLOAD_FOLDER"])
     return send_from_directory(
         directory=uploads,
-        filename=filename,
+        path=filename,
         as_attachment=True,
         attachment_filename=data_file_name,
     )
@@ -125,6 +131,11 @@ def download_all(_id):
             filename_parts = filename.split(".")
             filename_parts[0] = name
             filename_out = ".".join(filename_parts)
+
+            # Add info into the netcdf file
+            print(f"Adding info to {file_type}", flush=True)
+            info = get_info(_id, file_type)
+            add_info(_id, file_type, info)
 
             uploads = os.path.join(
                 current_app.root_path, current_app.config["UPLOAD_FOLDER"]
@@ -225,7 +236,8 @@ def file_info(_id, file_type):
     dataset_info = ds._repr_html_().replace(
         "<div class='xr-wrap' hidden>", "<div class='xr-wrap'>"
     )
-    return render_template("app/file_info.html", file_info=dataset_info)
+    extra_info = get_info(_id, file_type)
+    return render_template("app/file_info.html", file_info=dataset_info, extra_info=extra_info)
 
 
 @bp.route("/api/<int:_id>/steps/stepsTable")

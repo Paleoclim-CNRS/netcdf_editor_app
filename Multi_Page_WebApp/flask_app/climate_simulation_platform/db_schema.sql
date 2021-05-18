@@ -13,6 +13,7 @@ CREATE TABLE data_files (
   filename TEXT NOT NULL,
   longitude TEXT,
   latitude TEXT,
+  info TEXT,
   FOREIGN KEY (owner_id) REFERENCES user (id)
 );
 
@@ -23,6 +24,7 @@ CREATE TABLE revisions (
   filepath TEXT NOT NULL,
   revision INTEGER NOT NULL,
   file_type TEXT NOT NULL,
+  info TEXT,
   FOREIGN KEY (data_file_id) REFERENCES data_files (id)
 );
 

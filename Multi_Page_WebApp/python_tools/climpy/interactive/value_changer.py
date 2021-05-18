@@ -95,6 +95,10 @@ class ValueChanger(param.Parameterized):
         self.save_button = pn.widgets.Button(
             name="Save", align="end", button_type="success"
         )
+        # Description
+        self.description = pn.widgets.input.TextAreaInput(
+            name="Description: ", placeholder="Notable changes ..."
+        )
         # Mask
         self.mask = pn.widgets.Checkbox(name="Mask", max_width=100)
         self.mask_value = pn.widgets.IntInput(name="Mask Value", value=0)
@@ -358,7 +362,10 @@ class ValueChanger(param.Parameterized):
 
     def save(self, event):
         with self.app.app_context():
-            save_revision(self.data_file_id, self.ds, self.file_type)
+            info = {
+                'changes' : self.description.value
+            }
+            save_revision(self.data_file_id, self.ds, self.file_type, info)
             if self.step is not None:
                 save_step(
                     self.data_file_id,
@@ -644,6 +651,7 @@ class ValueChanger(param.Parameterized):
         template.sidebar.append(self.file_pane)
         template.sidebar.append(self.options_pane)
         template.main.append(self.graph_pane)
+        template.main.append(self.description)
         template.main.append(self.save_button)
         return template
 
