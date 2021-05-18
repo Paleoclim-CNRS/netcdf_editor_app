@@ -11,6 +11,15 @@ html {
     align-items: center;
     background-color: #3a3a3a;
   }
+
+  #banner-container {
+    position: absolute;
+    text-align: left;
+    color: black;
+    padding: 16px;
+    width: 100%;
+    background-color: rgb(235, 236, 237);
+  }
   
   #main-holder {
     width: 50%;
