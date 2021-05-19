@@ -50,7 +50,6 @@ services:
     env_file: ${FLASK_CONFIG}
     environment: 
       - BROKER_HOSTNAME=message_broker
-    image: netcdf_editor_flask_app:latest 
     expose:
       - 5000
     depends_on: 

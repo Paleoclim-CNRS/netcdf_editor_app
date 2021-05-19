@@ -1,6 +1,7 @@
 import os
 
 from flask import Flask, session
+from flask.templating import render_template
 
 from werkzeug.exceptions import abort
 
@@ -35,6 +36,10 @@ def create_app(test_config=None):
     @app.route("/hello")
     def hello():
         return "Hello, World! from The Climate Simulation Platform"
+
+    @app.route("/about")
+    def about():
+        return render_template("app/about.html")
 
     @app.route("/session")
     def debug_session():

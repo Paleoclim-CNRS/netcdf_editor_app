@@ -82,13 +82,17 @@ jobs:
       run: |
         docker login -u $DOCKER_USER -p $DOCKER_PASSWORD
         docker login registry.osupytheas.fr -u $DOCKER_USER_OSU -p $DOCKER_PASSWORD_OSU
-    - name: Build the Docker image
+    - name: Build DockerHub image
       working-directory: ./Multi_Page_WebApp
       run: |
         docker build . --file services/flask/Dockerfile \
-          --tag registry.osupytheas.fr:443/netcdf_editor_flask_app:$(date +%s) \
-          --tag registry.osupytheas.fr:443/netcdf_editor_flask_app:latest \
           --tag ceregecl/netcdf_editor_flask_app:latest
+    - name: Build OSU image
+      run: |
+        echo "FROM ceregecl/netcdf_editor_flask_app:latest" > Dockerfile
+        echo "ENV THANKS=CEREGE" >> Dockerfile
+        docker build . --tag registry.osupytheas.fr:443/netcdf_editor_flask_app:$(date +%s) \
+          --tag registry.osupytheas.fr:443/netcdf_editor_flask_app:latest 
     - name: Docker Push
       run: |
         docker push ceregecl/netcdf_editor_flask_app
