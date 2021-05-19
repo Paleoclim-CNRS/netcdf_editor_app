@@ -72,7 +72,7 @@ def login():
 
         flash(error)
 
-    thanks_to = os.environ.get('THANKS', '')
+    thanks_to = os.environ.get("THANKS", "")
     return render_template("auth/login.html", thanks_to=thanks_to)
 
 

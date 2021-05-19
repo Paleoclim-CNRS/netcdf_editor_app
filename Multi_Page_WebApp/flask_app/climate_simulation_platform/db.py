@@ -4,6 +4,7 @@ import json
 import tempfile
 
 import click
+from climate_simulation_platform.constants import dependant_files
 from flask import current_app, g
 from flask.cli import with_appcontext
 from flask import flash
@@ -50,6 +51,17 @@ def load_file(_id, file_type=None, revision=-1):
     return ds
 
 
+def overwrite_file_nc(_id, ds, file_type=None, revision=-1):
+    # Get filename
+    filepath = get_file_path(_id, file_type=file_type, revision=revision)
+    if filepath is None:
+        return None
+    ds.to_netcdf(
+        filepath,
+        format="NETCDF3_64BIT",
+    )
+
+
 def get_coord_names(_id):
     ds = load_file(_id)
     return [name for name in ds.coords]
@@ -64,7 +76,7 @@ def set_data_file_coords(_id, longitude, latitude):
     db.commit()
 
 
-def upload_file(file, data_file_id=None, file_type="raw"):
+def upload_file(file, data_file_id=None, file_type="raw", info={}):
     if file_type == "raw" and data_file_id is not None:
         raise AttributeError("Cannot upload a raw file to a different datafile")
     filename = secure_filename(file.filename)
@@ -78,8 +90,8 @@ def upload_file(file, data_file_id=None, file_type="raw"):
     db = get_db()
     if data_file_id is None:
         data_file = db.execute(
-            "INSERT INTO data_files (owner_id, filename)" " VALUES (?, ?)",
-            (g.user["id"], filename),
+            "INSERT INTO data_files (owner_id, filename, info)" " VALUES (?, ?, ?)",
+            (g.user["id"], filename, json.dumps(info)),
         )
         db.commit()
         data_file_id = data_file.lastrowid
@@ -104,7 +116,49 @@ def upload_file(file, data_file_id=None, file_type="raw"):
     return data_file_id
 
 
-def save_revision(_id, ds, file_type):
+def add_info(_id, file_type, info={}, revision=-1):
+    ds = load_file(_id, file_type, revision)
+    for key, value in info.items():
+        key = "climate_sim_" + key
+        if key in ds.attrs:
+            if str(value) not in ds.attrs[key]:
+                ds.attrs[key] += "\n" + str(value)
+        else:
+            ds.attrs[key] = str(value)
+    overwrite_file_nc(_id, ds, file_type, revision)
+
+
+def get_info(_id, file_type):
+    db = get_db()
+
+    # Get initial datafile info
+    query = "SELECT info FROM data_files WHERE id = ?"
+    info = json.loads(db.execute(query, (str(_id),)).fetchone()["info"])
+
+    # Get specific file modification info
+    file_types_to_analyse = dependant_files(file_type)
+    for file_type in file_types_to_analyse:
+        query = "SELECT revision, info FROM revisions WHERE data_file_id = ? AND file_type = ? ORDER BY revision"
+        results = db.execute(query, (str(_id), file_type)).fetchall()
+        new_info = []
+        for i in range(len(results)):
+            res = results[i]
+            if res["info"] is not None and len(res["info"]):
+                new_info.append([i + 1, json.loads(res["info"])])
+        for item in new_info:
+            rev, d = item
+            for key, item in d.items():
+                key = key + "_" + file_type
+                item = f"Revision {rev}: " + item
+                if key in info.keys():
+                    if item not in info[key]:
+                        info[key] += "\n" + item
+                else:
+                    info[key] = item
+    return info
+
+
+def save_revision(_id, ds, file_type, info={}):
     temp_name = next(tempfile._get_candidate_names()) + ".nc"
     # Save the file to the file system
     # We use NETCDF3_64Bit files because on some of the calculators the later libraries have not been installed
@@ -115,19 +169,19 @@ def save_revision(_id, ds, file_type):
         format="NETCDF3_64BIT",
     )
 
-    save_file_to_db(_id, temp_name, file_type)
+    save_file_to_db(_id, temp_name, file_type, info)
 
 
-def save_file_to_db(_id, filename, file_type):
+def save_file_to_db(_id, filename, file_type, info={}):
     # ADD the file to the revisions table
     db = get_db()
     # Get latest revision
     query = "SELECT revision FROM revisions WHERE data_file_id = ? ORDER BY revision DESC LIMIT 0, 1"
     revision_nb = db.execute(query, (str(_id),)).fetchone()["revision"] + 1
     db.execute(
-        "INSERT INTO revisions (data_file_id, filepath, revision, file_type)"
-        " VALUES (?, ?, ?, ?)",
-        (str(_id), filename, revision_nb, file_type),
+        "INSERT INTO revisions (data_file_id, filepath, revision, file_type, info)"
+        " VALUES (?, ?, ?, ?, ?)",
+        (str(_id), filename, revision_nb, file_type, json.dumps(info)),
     )
     db.commit()
     try:
