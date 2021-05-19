@@ -90,7 +90,8 @@ jobs:
           --tag ceregecl/netcdf_editor_flask_app:latest
     - name: Build OSU image
       run: |
-        echo "FROM ceregecl/netcdf_editor_flask_app:latest\nENV THANKS=CEREGE" > Dockerfile
+        echo "FROM ceregecl/netcdf_editor_flask_app:latest" > Dockerfile
+        echo "ENV THANKS=CEREGE" >> Dockerfile
         cat Dockerfile
         docker build . --tag registry.osupytheas.fr:443/netcdf_editor_flask_app:$(date +%s) \
           --tag registry.osupytheas.fr:443/netcdf_editor_flask_app:latest 
