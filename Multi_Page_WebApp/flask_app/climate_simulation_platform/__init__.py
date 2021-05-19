@@ -4,6 +4,8 @@ from flask import Flask, session
 
 from werkzeug.exceptions import abort
 
+from ._version import __version__
+
 
 def create_app(test_config=None):
     # create and configure the app

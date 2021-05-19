@@ -1,11 +1,23 @@
 import setuptools
 
+# Get long description
 with open("README.md", "r", encoding="utf-8") as fh:
     long_description = fh.read()
 
+# Get version string embedded inside package
+import re
+VERSIONFILE="climate_simulation_platform/_version.py"
+verstrline = open(VERSIONFILE, "rt").read()
+VSRE = r"^__version__ = ['\"]([^'\"]*)['\"]"
+mo = re.search(VSRE, verstrline, re.M)
+if mo:
+    verstr = mo.group(1)
+else:
+    raise RuntimeError("Unable to find version string in %s." % (VERSIONFILE,))
+
 setuptools.setup(
     name="csp",
-    version="1.0.0",
+    version=verstr,
     license='MIT',
     author="Wesley Banfield",
     author_email="banfield@cerege.fr",
