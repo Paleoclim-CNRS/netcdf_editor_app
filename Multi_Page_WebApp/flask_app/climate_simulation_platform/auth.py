@@ -1,4 +1,5 @@
 import functools
+import os
 
 from flask import (
     Blueprint,
@@ -71,7 +72,8 @@ def login():
 
         flash(error)
 
-    return render_template("auth/login.html")
+    thanks_to = os.environ.get('THANKS', '')
+    return render_template("auth/login.html", thanks_to=thanks_to)
 
 
 @bp.before_app_request

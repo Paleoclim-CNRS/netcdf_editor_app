@@ -9,11 +9,14 @@
 </head>
 
 <body>
+  {% if thanks_to == 'CEREGE' %}
   <div id="banner-container">
     <div style="text-align: center;">
       Thanks to <a href="https://cerege-cl.github.io">CEREGE PaleoClimate Group</a>, <a href="https://www.osupytheas.fr/?lang=fr">Osupytheas</a> and <a href="https://www.total.com">Total
         </a> for supporting us! 🎉</div>
   </div>
+  {% elif thanks_to == '' %}
+  {% endif %}
   <main id="main-holder">
     <h1 id="login-header">Login</h1>
 
