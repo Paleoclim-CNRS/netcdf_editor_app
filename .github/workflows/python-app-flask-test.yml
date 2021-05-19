@@ -5,9 +5,17 @@ name: Python Tests
 
 on:
   push:
-    branches: [ main, flask* ]
+    branches:
+      - main
   pull_request:
-    branches: [ main, flask* ]
+    branches:
+      - main
+  paths:
+    - .github/workflows/python-app-flask-test.yml
+    - 'Multi_Page_WebApp/flask_app'
+    - 'Multi_Page_WebApp/python_tools'
+    - 'Multi_Page_WebApp/tests'
+    - '!**/*.md'
 
 jobs:
   run_tests:
