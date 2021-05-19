@@ -1,6 +1,11 @@
 import os
 import zipfile
 import io
+from datetime import datetime
+import platform
+import xarray as xr
+
+import climate_simulation_platform
 
 import hvplot.xarray  # noqa: F401
 import pandas as pd
@@ -14,6 +19,7 @@ from flask import (
     Blueprint,
     current_app,
     flash,
+    g,
     redirect,
     render_template,
     request,
@@ -104,6 +110,12 @@ def download(_id, file_type):
 
     # Add info into the netcdf file
     info = get_info(_id, file_type)
+    # Add extra info
+    info['source']       = f"Climate Simulation Platform version {climate_simulation_platform.__version__} https://cerege-cl.github.io/netcdf_editor_app/"
+    info['created_date'] = '{:%Y-%b-%d %H:%M:%S}'.format (datetime.now())
+    info['created_by']   = g.user['username']
+    info['Python']       = 'Python version: ' +  platform.python_version ()
+    info['xarray']       = 'xarray version: ' +  xr.__version__
     add_info(_id, file_type, info)
 
     uploads = os.path.join(current_app.root_path, current_app.config["UPLOAD_FOLDER"])
@@ -135,6 +147,12 @@ def download_all(_id):
             # Add info into the netcdf file
             print(f"Adding info to {file_type}", flush=True)
             info = get_info(_id, file_type)
+            # Add extra info
+            info['source']       = f"Climate Simulation Platform version {climate_simulation_platform.__version__} https://cerege-cl.github.io/netcdf_editor_app/"
+            info['created_date'] = '{:%Y-%b-%d %H:%M:%S}'.format (datetime.now())
+            info['created_by']   = g.user['username']
+            info['Python']       = 'Python version: ' +  platform.python_version ()
+            info['xarray']       = 'xarray version: ' +  xr.__version__
             add_info(_id, file_type, info)
 
             uploads = os.path.join(

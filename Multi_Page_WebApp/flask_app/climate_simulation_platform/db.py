@@ -116,6 +116,7 @@ def upload_file(file, data_file_id=None, file_type="raw", info={}):
 def add_info(_id, file_type, info={}, revision=-1):
     ds = load_file(_id, file_type, revision)
     for key, value in info.items():
+        key = "climate_sim_" + key
         if key in ds.attrs:
             if str(value) not in ds.attrs[key]:
                 ds.attrs[key] += "\n" + str(value)
