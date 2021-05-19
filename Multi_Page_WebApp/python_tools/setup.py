@@ -6,7 +6,7 @@ with open("README.md", "r", encoding="utf-8") as fh:
 setuptools.setup(
     name="climpy",
     version="0.0.1",
-    license='MIT',
+    license="MIT",
     author="Wesley Banfield",
     author_email="banfield@cerege.fr",
     description="Python tools for Climate Simulation Sciences",
@@ -18,7 +18,7 @@ setuptools.setup(
         "Documentation": "https://cerege-cl.github.io/netcdf_editor_app/",
     },
     classifiers=[
-        'Development Status :: 3 - Alpha',
+        "Development Status :: 3 - Alpha",
         "Programming Language :: Python :: 3",
         "License :: OSI Approved :: MIT License",
         "Operating System :: OS Independent",
@@ -26,15 +26,15 @@ setuptools.setup(
     packages=setuptools.find_packages(),
     include_package_data=True,
     package_data={
-      '': ['bc/ipsl/*.npy', 'bc/ipsl/*.nc'],
-   },
+        "": ["bc/ipsl/*.npy", "bc/ipsl/*.nc"],
+    },
     zip_safe=False,
     install_requires=[
-        'setuptools-git'
-        #TODO
-        ],
+        "setuptools-git"
+        # TODO
+    ],
     extras_require={
-        "test":  ["pytest", "coverage"],
+        "test": ["pytest", "coverage"],
     },
     python_requires=">=3.6",
 )

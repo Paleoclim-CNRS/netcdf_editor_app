@@ -50,6 +50,7 @@ def load_file(_id, file_type=None, revision=-1):
         ds = xr.open_dataset(filepath, decode_times=False)
     return ds
 
+
 def overwrite_file_nc(_id, ds, file_type=None, revision=-1):
     # Get filename
     filepath = get_file_path(_id, file_type=file_type, revision=revision)
@@ -59,6 +60,7 @@ def overwrite_file_nc(_id, ds, file_type=None, revision=-1):
         filepath,
         format="NETCDF3_64BIT",
     )
+
 
 def get_coord_names(_id):
     ds = load_file(_id)
@@ -113,6 +115,7 @@ def upload_file(file, data_file_id=None, file_type="raw", info={}):
 
     return data_file_id
 
+
 def add_info(_id, file_type, info={}, revision=-1):
     ds = load_file(_id, file_type, revision)
     for key, value in info.items():
@@ -124,23 +127,24 @@ def add_info(_id, file_type, info={}, revision=-1):
             ds.attrs[key] = str(value)
     overwrite_file_nc(_id, ds, file_type, revision)
 
+
 def get_info(_id, file_type):
     db = get_db()
 
     # Get initial datafile info
     query = "SELECT info FROM data_files WHERE id = ?"
-    info = json.loads(db.execute(query, (str(_id),)).fetchone()['info'])
+    info = json.loads(db.execute(query, (str(_id),)).fetchone()["info"])
 
     # Get specific file modification info
     file_types_to_analyse = dependant_files(file_type)
     for file_type in file_types_to_analyse:
         query = "SELECT revision, info FROM revisions WHERE data_file_id = ? AND file_type = ? ORDER BY revision"
-        results = db.execute(query, (str(_id),file_type)).fetchall()
+        results = db.execute(query, (str(_id), file_type)).fetchall()
         new_info = []
         for i in range(len(results)):
             res = results[i]
-            if res['info'] is not None and len(res['info']):
-                new_info.append([i +1, json.loads(res["info"])])
+            if res["info"] is not None and len(res["info"]):
+                new_info.append([i + 1, json.loads(res["info"])])
         for item in new_info:
             rev, d = item
             for key, item in d.items():
@@ -153,7 +157,8 @@ def get_info(_id, file_type):
                     info[key] = item
     return info
 
-def save_revision(_id, ds, file_type, info = {}):
+
+def save_revision(_id, ds, file_type, info={}):
     temp_name = next(tempfile._get_candidate_names()) + ".nc"
     # Save the file to the file system
     # We use NETCDF3_64Bit files because on some of the calculators the later libraries have not been installed

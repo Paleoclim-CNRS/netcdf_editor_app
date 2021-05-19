@@ -6,7 +6,8 @@ with open("README.md", "r", encoding="utf-8") as fh:
 
 # Get version string embedded inside package
 import re
-VERSIONFILE="climate_simulation_platform/_version.py"
+
+VERSIONFILE = "climate_simulation_platform/_version.py"
 verstrline = open(VERSIONFILE, "rt").read()
 VSRE = r"^__version__ = ['\"]([^'\"]*)['\"]"
 mo = re.search(VSRE, verstrline, re.M)
@@ -18,7 +19,7 @@ else:
 setuptools.setup(
     name="csp",
     version=verstr,
-    license='MIT',
+    license="MIT",
     author="Wesley Banfield",
     author_email="banfield@cerege.fr",
     description="Flask app for Climate simulations",
@@ -30,22 +31,22 @@ setuptools.setup(
         "Documentation": "https://cerege-cl.github.io/netcdf_editor_app/",
     },
     classifiers=[
-        'Development Status :: 3 - Alpha',
+        "Development Status :: 3 - Alpha",
         "Programming Language :: Python :: 3",
         "License :: OSI Approved :: MIT License",
         "Operating System :: OS Independent",
     ],
     packages=setuptools.find_packages(),
     install_requires=[
-        #TODO
-        ],
+        # TODO
+    ],
     extras_require={
-        "test":  ["pytest", "coverage"],
+        "test": ["pytest", "coverage"],
     },
     python_requires=">=3.6",
     zip_safe=False,
     include_package_data=True,
     package_data={
-      '': ['templates/*/*.html', 'templates/*.html', 'static/*', 'db_schema.sql'],
-   },
+        "": ["templates/*/*.html", "templates/*.html", "static/*", "db_schema.sql"],
+    },
 )

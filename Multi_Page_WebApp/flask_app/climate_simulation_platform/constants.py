@@ -1,5 +1,4 @@
 from collections import OrderedDict
-from os import walk
 import numpy
 
 tasks = {
@@ -21,18 +20,18 @@ invalidates = OrderedDict(
             "calculate_weights",
         ],
         "passage_problems": ["subbasins", "heatflow", "ahmcoef", "calculate_weights"],
-        "subbasins" : ["calculate_weights"],
+        "subbasins": ["calculate_weights"],
     }
 )
 
 file_dependancies = {
-    "bathy" : ['raw'],
-    "pft" : ["bathy"],
-    "routing": ['raw'],
-    "soils" : ['raw'],
-    "topo_high_res" : ['raw'],
-    "heatflow": ['bathy'],
-    "ahmcoef": ['bathy']
+    "bathy": ["raw"],
+    "pft": ["bathy"],
+    "routing": ["raw"],
+    "soils": ["raw"],
+    "topo_high_res": ["raw"],
+    "heatflow": ["bathy"],
+    "ahmcoef": ["bathy"],
 }
 
 no_params = ["heatflow", "ahmcoef"]
@@ -77,10 +76,12 @@ def order_steps(steps):
 def invalidated(root):
     return walk_through(invalidates, root)
 
+
 def dependant_files(root):
-    results =  walk_through(file_dependancies, root)
+    results = walk_through(file_dependancies, root)
     results.append(root)
     return results
+
 
 def walk_through(dictionnary, root, _list=[]):
     if root not in dictionnary.keys():

@@ -111,11 +111,14 @@ def download(_id, file_type):
     # Add info into the netcdf file
     info = get_info(_id, file_type)
     # Add extra info
-    info['source']       = f"Climate Simulation Platform version {climate_simulation_platform.__version__} https://cerege-cl.github.io/netcdf_editor_app/"
-    info['created_date'] = '{:%Y-%b-%d %H:%M:%S}'.format (datetime.now())
-    info['created_by']   = g.user['username']
-    info['Python']       = 'Python version: ' +  platform.python_version ()
-    info['xarray']       = 'xarray version: ' +  xr.__version__
+    info[
+        "source"
+    ] = f"Climate Simulation Platform version {climate_simulation_platform.__version__}\
+         https://cerege-cl.github.io/netcdf_editor_app/"
+    info["created_date"] = "{:%Y-%b-%d %H:%M:%S}".format(datetime.now())
+    info["created_by"] = g.user["username"]
+    info["Python"] = "Python version: " + platform.python_version()
+    info["xarray"] = "xarray version: " + xr.__version__
     add_info(_id, file_type, info)
 
     uploads = os.path.join(current_app.root_path, current_app.config["UPLOAD_FOLDER"])
@@ -148,11 +151,14 @@ def download_all(_id):
             print(f"Adding info to {file_type}", flush=True)
             info = get_info(_id, file_type)
             # Add extra info
-            info['source']       = f"Climate Simulation Platform version {climate_simulation_platform.__version__} https://cerege-cl.github.io/netcdf_editor_app/"
-            info['created_date'] = '{:%Y-%b-%d %H:%M:%S}'.format (datetime.now())
-            info['created_by']   = g.user['username']
-            info['Python']       = 'Python version: ' +  platform.python_version ()
-            info['xarray']       = 'xarray version: ' +  xr.__version__
+            info[
+                "source"
+            ] = f"Climate Simulation Platform version {climate_simulation_platform.__version__}\
+                 https://cerege-cl.github.io/netcdf_editor_app/"
+            info["created_date"] = "{:%Y-%b-%d %H:%M:%S}".format(datetime.now())
+            info["created_by"] = g.user["username"]
+            info["Python"] = "Python version: " + platform.python_version()
+            info["xarray"] = "xarray version: " + xr.__version__
             add_info(_id, file_type, info)
 
             uploads = os.path.join(
@@ -255,7 +261,9 @@ def file_info(_id, file_type):
         "<div class='xr-wrap' hidden>", "<div class='xr-wrap'>"
     )
     extra_info = get_info(_id, file_type)
-    return render_template("app/file_info.html", file_info=dataset_info, extra_info=extra_info)
+    return render_template(
+        "app/file_info.html", file_info=dataset_info, extra_info=extra_info
+    )
 
 
 @bp.route("/api/<int:_id>/steps/stepsTable")
@@ -286,7 +294,7 @@ def stepsTable(_id):
             if step_up_to_date(_id, step):
                 status = '<i class="fas fa-check-square" style="color:#2ECC40"></i>'
             # if it is a python task then we show it being processed
-            elif step in tasks["python"] + tasks['mosaic']:
+            elif step in tasks["python"] + tasks["mosaic"]:
                 status = '<i class="fas fa-cog fa-spin" style="color:#377ba8"></i>'
         step_text = " ".join(step.split("_")).title()
 
@@ -598,9 +606,15 @@ def calculate_weights(_id):
             return redirect(url_for("app.steps", _id=_id))
 
         flash(error)
-    has_bathy = get_file_path(_id, "bathy") is not  None
+    has_bathy = get_file_path(_id, "bathy") is not None
     has_subbasins = get_file_path(_id, "sub_basins") is not None
-    return render_template("app/calculate_weights.html", title="Calculate Weights", has_bathy=has_bathy, has_subbasins=has_subbasins, _id=_id)
+    return render_template(
+        "app/calculate_weights.html",
+        title="Calculate Weights",
+        has_bathy=has_bathy,
+        has_subbasins=has_subbasins,
+        _id=_id,
+    )
 
 
 # @bp.route("/<int:_id>/heatflow", methods=("GET", "POST"))

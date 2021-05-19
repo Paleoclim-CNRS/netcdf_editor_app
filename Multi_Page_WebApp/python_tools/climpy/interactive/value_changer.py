@@ -362,9 +362,7 @@ class ValueChanger(param.Parameterized):
 
     def save(self, event):
         with self.app.app_context():
-            info = {
-                'changes' : self.description.value
-            }
+            info = {"changes": self.description.value}
             save_revision(self.data_file_id, self.ds, self.file_type, info)
             if self.step is not None:
                 save_step(
