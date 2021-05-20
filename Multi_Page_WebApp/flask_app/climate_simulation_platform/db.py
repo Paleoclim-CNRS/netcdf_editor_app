@@ -39,32 +39,38 @@ def init_db():
     with current_app.open_resource("db_schema.sql") as f:
         db.executescript(f.read().decode("utf8"))
 
+
 def update_user_password(user_id, password):
     print(f"Updating password for userid {user_id}", flush=True)
     db = get_db()
     db.execute(
-    "UPDATE user SET password = ? WHERE id = ?",
-        (generate_password_hash(password), user_id)
+        "UPDATE user SET password = ? WHERE id = ?",
+        (generate_password_hash(password), user_id),
     )
     db.commit()
+
 
 def add_user(username, password, init=False):
     db = get_db()
 
     try:
-        row = db.execute("SELECT id FROM user WHERE username = ?", (username,)).fetchone()
-        _id = row['id']
+        row = db.execute(
+            "SELECT id FROM user WHERE username = ?", (username,)
+        ).fetchone()
+        _id = row["id"]
     except IndexError:
         _id = None
     # The user is already in the database
     if _id is not None:
         # Check Updating own name
-        if g.user['id'] == _id:
+        if g.user["id"] == _id:
             update_user_password(_id, password)
         elif init:
             update_user_password(_id, password)
         else:
-            flash("User already in database and you don't have permission to change password")
+            flash(
+                "User already in database and you don't have permission to change password"
+            )
 
     else:
         db.execute(
@@ -310,12 +316,14 @@ def invalidate_step(_id, step):
     except RuntimeError:
         pass
 
+
 def get_owner_id(data_file_id):
     db = get_db()
 
     query = "SELECT owner_id FROM data_files WHERE id = ?"
-    owner_id = db.execute(query, (data_file_id, )).fetchone()['owner_id']
+    owner_id = db.execute(query, (data_file_id,)).fetchone()["owner_id"]
     return owner_id
+
 
 def get_latest_file_versions():
     query = (
@@ -326,7 +334,7 @@ def get_latest_file_versions():
         + " ORDER BY created DESC"
     )
     db = get_db()
-    data_files = db.execute(query, (g.user['id'], )).fetchall()
+    data_files = db.execute(query, (g.user["id"],)).fetchall()
     return data_files
 
 
@@ -424,7 +432,8 @@ def init_db_command():
     init_db()
     click.echo("Initialized the database.")
 
-@click.command('create-user')
+
+@click.command("create-user")
 @click.argument("username")
 @click.argument("password")
 @with_appcontext

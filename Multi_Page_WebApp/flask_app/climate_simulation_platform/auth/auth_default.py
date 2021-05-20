@@ -13,14 +13,14 @@ from werkzeug.security import check_password_hash
 
 from climate_simulation_platform.db import add_user, get_db
 
-class DefaultAuth(object):
 
+class DefaultAuth(object):
     @staticmethod
     def register():
         if request.method == "POST":
             username = request.form["username"]
             password = request.form["password"]
-            error = ''
+            error = ""
 
             if not username:
                 error += "Username is required."
@@ -66,7 +66,9 @@ class DefaultAuth(object):
             g.user = None
         else:
             g.user = (
-                get_db().execute("SELECT * FROM user WHERE id = ?", (user_id,)).fetchone()
+                get_db()
+                .execute("SELECT * FROM user WHERE id = ?", (user_id,))
+                .fetchone()
             )
 
     @staticmethod
