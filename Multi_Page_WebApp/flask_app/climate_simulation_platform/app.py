@@ -30,7 +30,7 @@ from flask import (
 )
 
 import holoviews as hv
-from climate_simulation_platform.auth import login_required
+from climate_simulation_platform.auth import login_required, user_required
 from climate_simulation_platform.constants import invalidates, order_steps, tasks
 from climate_simulation_platform.db import (
     add_info,
@@ -98,6 +98,7 @@ def upload():
 
 @bp.route("/<int:_id>/<string:file_type>/download", methods=["GET"])
 @login_required
+@user_required
 def download(_id, file_type):
     input_file_name = get_filename(_id)
 
@@ -132,6 +133,7 @@ def download(_id, file_type):
 
 @bp.route("/<int:_id>/download", methods=["GET"])
 @login_required
+@user_required
 def download_all(_id):
     data_file_name = get_filename(_id)
     ori_name, extension = data_file_name.split(".")
@@ -180,6 +182,7 @@ def download_all(_id):
 
 @bp.route("/<int:_id>/delete", methods=("GET", "POST"))
 @login_required
+@user_required
 def delete(_id):
     if request.method == "POST":
         remove_data_file(_id)
@@ -189,6 +192,7 @@ def delete(_id):
 
 @bp.route("/<int:_id>/set_coords", methods=("GET", "POST"))
 @login_required
+@user_required
 def set_coords(_id):
     if request.method == "POST":
         lat = request.form["Latitude"]
@@ -206,6 +210,7 @@ def set_coords(_id):
 
 @bp.route("/<int:_id>/<string:file_type>/view", methods=["GET"])
 @login_required
+@user_required
 def view_database_file(_id, file_type):
 
     ds = load_file(_id, file_type)
@@ -255,6 +260,7 @@ def view_database_file(_id, file_type):
 
 @bp.route("/<int:_id>/<string:file_type>/fileInfo")
 @login_required
+@user_required
 def file_info(_id, file_type):
     ds = load_file(_id, file_type)
     dataset_info = ds._repr_html_().replace(
@@ -267,6 +273,8 @@ def file_info(_id, file_type):
 
 
 @bp.route("/api/<int:_id>/steps/stepsTable")
+@user_required
+@login_required
 def stepsTable(_id):
     # Get which steps have already been executed
     steps_to_show = steps_seen(_id)
@@ -323,6 +331,7 @@ def stepsTable(_id):
 
 @bp.route("/api/<int:_id>/steps/assetsTable")
 @login_required
+@user_required
 def assetsTable(_id):
 
     seen_file_types = get_file_types(_id)
@@ -374,6 +383,7 @@ def assetsTable(_id):
 
 
 @bp.route("/<int:_id>/steps")
+@user_required
 @login_required
 def steps(_id):
     data_file_name = get_filename(_id)
@@ -393,12 +403,14 @@ def steps(_id):
 
 @bp.route("/<int:_id>")
 @login_required
+@user_required
 def redirect_steps(_id):
     return redirect(url_for("app.steps", _id=_id))
 
 
 @bp.route("/<int:_id>/map")
 @login_required
+@user_required
 def map(_id):
     ds = load_file(_id)
     lon, lat = get_lon_lat_names(_id)
@@ -411,6 +423,7 @@ def map(_id):
 
 @bp.route("/<int:_id>/<string:file_type>/revision_comparison")
 @login_required
+@user_required
 def revision_comparison(_id, file_type):
     try:
         ds_latest = load_file(_id, file_type, -1)
@@ -429,6 +442,7 @@ def revision_comparison(_id, file_type):
 
 @bp.route("/<int:_id>/<string:file_type>/variable_explorer")
 @login_required
+@user_required
 def variable_explorer(_id, file_type):
     arguments = {
         "id": _id,
@@ -447,6 +461,7 @@ def variable_explorer(_id, file_type):
 
 @bp.route("/<int:_id>/regrid", methods=("GET", "POST"))
 @login_required
+@user_required
 def regrid(_id):
     if request.method == "POST":
         limits = request.form["limits"]
@@ -484,6 +499,7 @@ def regrid(_id):
 
 @bp.route("/<int:_id>/internal_oceans")
 @login_required
+@user_required
 def internal_oceans(_id):
     arguments = {"id": _id, "redirect": url_for("app.steps", _id=_id)}
     return render_template(
@@ -496,6 +512,7 @@ def internal_oceans(_id):
 
 @bp.route("/<int:_id>/routing", methods=("GET", "POST"))
 @login_required
+@user_required
 def routing(_id):
     ds = load_file(_id, "raw")
     variable_names = list(ds.data_vars)
@@ -539,6 +556,7 @@ def routing(_id):
 
 @bp.route("/<int:_id>/passage_problems")
 @login_required
+@user_required
 def passage_problems(_id):
     seen_file_types = get_file_types(_id)
     if "routing" not in seen_file_types:
@@ -563,6 +581,7 @@ def passage_problems(_id):
 
 @bp.route("/<int:_id>/pft", methods=("GET", "POST"))
 @login_required
+@user_required
 def pft(_id):
     if request.method == "POST":
         body = {"id": _id, **request.form}
@@ -579,6 +598,7 @@ def pft(_id):
 
 @bp.route("/<int:_id>/sub_basins")
 @login_required
+@user_required
 def subbasins(_id):
     arguments = {"id": _id, "redirect": url_for("app.steps", _id=_id)}
     return render_template(
@@ -591,6 +611,7 @@ def subbasins(_id):
 
 @bp.route("/<int:_id>/calculate_weights", methods=("GET", "POST"))
 @login_required
+@user_required
 def calculate_weights(_id):
     if request.method == "POST":
         error = ""
