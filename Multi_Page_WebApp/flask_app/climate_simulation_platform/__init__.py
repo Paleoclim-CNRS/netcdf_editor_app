@@ -17,9 +17,22 @@ def create_app(test_config=None):
         SECRET_KEY=b'\xd8\xb7\xc5 \xdc\xac\x92\xa6\xfd"\xc2a\xe4k*\x17',
         DATABASE=os.path.join(app.instance_path, "netcdf_editor.sqlite"),
         UPLOAD_FOLDER=app.instance_path,
-        AUTH = os.environ.get("AUTH", 'basic'),
+        AUTH = os.environ.get("AUTH", 'basic').lower(),
         THANKS = os.environ.get("THANKS", "")
     )
+
+    if app.config['AUTH'] == 'logged_in':
+        with app.app_context():
+            from .db import add_user
+            import random
+            import string
+            password = ''.join(random.choice(string.ascii_lowercase) for i in range(10))
+            username = os.environ.get("CSP_USERNAME", 'admin')
+            password = os.environ.get("CSP_PASSWORD", password)
+            print("Username: ", username, flush=True)
+            print("Password: ", password, flush=True)
+            add_user(username, password)
+        
 
     if test_config is None:
         # load the instance config, if it exists, when not testing

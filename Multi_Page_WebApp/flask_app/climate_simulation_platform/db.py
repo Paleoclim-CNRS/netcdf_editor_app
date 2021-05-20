@@ -13,6 +13,8 @@ from werkzeug.utils import secure_filename
 
 import xarray as xr
 
+from werkzeug.security import generate_password_hash
+
 
 def get_db():
     if "db" not in g:
@@ -36,6 +38,27 @@ def init_db():
 
     with current_app.open_resource("db_schema.sql") as f:
         db.executescript(f.read().decode("utf8"))
+
+def add_user(username, password):
+    db = get_db()
+
+    try:
+        row = db.execute("SELECT id FROM user WHERE username = ?", (username,)).fetchone()
+        _id = row['id']
+    except IndexError:
+        _id = None
+    if _id is not None:
+        print(f"Updating user {username}", flush=True)
+        db.execute(
+            "UPDATE user SET password = ? WHERE id = ?",
+            (generate_password_hash(password), _id)
+        )
+    else:
+        db.execute(
+            "INSERT INTO user (username, password) VALUES (?, ?)",
+            (username, generate_password_hash(password)),
+        )
+    db.commit()
 
 
 def load_file(_id, file_type=None, revision=-1):
@@ -281,8 +304,6 @@ def get_owner_id(data_file_id):
     owner_id = db.execute(query, (data_file_id, )).fetchone()['owner_id']
     return owner_id
 
-
-
 def get_latest_file_versions():
     query = (
         "SELECT created, filename, df.id FROM"
@@ -390,7 +411,15 @@ def init_db_command():
     init_db()
     click.echo("Initialized the database.")
 
+@click.command('create-user')
+@click.argument("username")
+@click.argument("password")
+@with_appcontext
+def create_user_command(username, password):
+    add_user(username, password)
+
 
 def init_app(app):
     app.teardown_appcontext(close_db)
     app.cli.add_command(init_db_command)
+    app.cli.add_command(create_user_command)
