@@ -287,12 +287,12 @@ def get_latest_file_versions():
     query = (
         "SELECT created, filename, df.id FROM"
         + " (SELECT MAX(revision) as revision, created, data_file_id FROM revisions GROUP BY data_file_id) as r"
-        + " JOIN data_files df ON r.data_file_id = df.id"
+        + " JOIN (SELECT * FROM data_files WHERE owner_id = ?) AS df ON r.data_file_id = df.id"
         + " JOIN user u ON df.owner_id = u.id"
         + " ORDER BY created DESC"
     )
     db = get_db()
-    data_files = db.execute(query).fetchall()
+    data_files = db.execute(query, (g.user['id'], )).fetchall()
     return data_files
 
 
