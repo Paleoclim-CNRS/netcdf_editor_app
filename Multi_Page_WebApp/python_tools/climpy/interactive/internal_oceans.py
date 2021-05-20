@@ -14,6 +14,32 @@ class InternalOceans(ValueChanger):
     file_type = "raw"
     step = "internal_oceans"
     elevation_positif = True
+    ensure_poles = True
+
+    def _calculate_ensure_poles(self):
+        arr = numpy.zeros(self.ds[self.attribute.value].shape)
+        lon, lat = self._get_ordered_coordinate_dimension_names()
+
+        # Values pole ward of 78S should all be land
+        if self.elevation_positif:
+            out = xr.where((self.ds[lat] < - 78) & (self.ds[self.attribute.value] < 0), 1, 0)
+        else:
+            out = xr.where((self.ds[lat] < - 78) & (self.ds[self.attribute.value] > 0), 1, 0)
+        
+        # Values poleward of 86N should eith be all land or all ocean
+        high_lats = self.ds[self.attribute.value][self.ds[lat] > 86]
+        # get predominant
+        use_land = ((high_lats > 0).sum() / high_lats.size) > 0.5
+        if use_land:
+            out = xr.where((self.ds[lat] > 86) & (self.ds[self.attribute.value] < 0), 1, out)
+        else:
+            out = xr.where((self.ds[lat] > 86) & (self.ds[self.attribute.value] > 0), 1, out)
+
+        if self.elevation_positif:
+            out = xr.where((self.ds[self.attribute.value] > 0) & (out != 1), numpy.NaN, out)
+        else:
+            out = xr.where((self.ds[self.attribute.value] < 0) & (out != 1), numpy.NaN, out)
+        return out
 
     def _calculate_internal_oceans(self):
         # Calculate a binary array of above and below see level
@@ -111,8 +137,21 @@ class InternalOceans(ValueChanger):
         )
         return internal_oceans_image
 
+    @pn.depends("ds", "attribute.value")
+    def load_ensure_poles(self):
+        arr = numpy.random.rand(*self.ds[self.attribute.value].shape)
+        arr = self._calculate_ensure_poles()
+        ensure_poles_image = hv.Image(
+            arr,
+            [*self._get_ordered_coordinate_dimension_names()],
+            group="Ensure_Poles",
+            clim=(0.2,0.5),
+            clipping_colors={"NaN": "#dedede", "max": "red", "min": "#ffffff"},
+        )
+        return ensure_poles_image
+
     def _get_graphs(self):
-        default_grpahs = super()._get_graphs()
+        graphs = super()._get_graphs()
         internal_oceans = hv.DynamicMap(self.load_internal_oceans).opts(
             hv.opts.Image(
                 "Internal_Oceans",
@@ -122,7 +161,21 @@ class InternalOceans(ValueChanger):
                 tools=[],
             )
         )
-        return default_grpahs + internal_oceans
+        graphs += internal_oceans
+
+        if self.ensure_poles:
+            ensure_poles = hv.DynamicMap(self.load_ensure_poles).opts(
+                hv.opts.Image(
+                    "Ensure_Poles",
+                    clipping_colors={"NaN": "#dedede", "max": "red", "min": "#ffffff"},
+                    clim=(0.2, 0.5),
+                    colorbar=False,
+                    tools=[],
+                )
+            )
+            graphs += ensure_poles
+        return graphs
+        
 
 
 if "bokeh_app" in __name__:

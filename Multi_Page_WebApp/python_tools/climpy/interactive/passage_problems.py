@@ -14,6 +14,7 @@ class PassageProblems(InternalOceans):
     file_type = "bathy"
     step = "passage_problems"
     elevation_positif = False
+    ensure_poles = False
 
     def __init__(self, **params):
         super().__init__(*params)
