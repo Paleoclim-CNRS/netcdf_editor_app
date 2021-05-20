@@ -1,10 +1,6 @@
-import functools
-import os
-
 from climate_simulation_platform.auth import bp
 
 from flask import (
-    Blueprint,
     flash,
     g,
     redirect,
@@ -13,9 +9,9 @@ from flask import (
     session,
     url_for,
 )
-from werkzeug.security import check_password_hash, generate_password_hash
+from werkzeug.security import check_password_hash
 
-from climate_simulation_platform.db import get_db
+from climate_simulation_platform.db import add_user, get_db
 
 class DefaultAuth(object):
 
@@ -24,28 +20,16 @@ class DefaultAuth(object):
         if request.method == "POST":
             username = request.form["username"]
             password = request.form["password"]
-            db = get_db()
-            error = None
+            error = ''
 
             if not username:
-                error = "Username is required."
+                error += "Username is required."
             elif not password:
-                error = "Password is required."
-            elif (
-                db.execute("SELECT id FROM user WHERE username = ?", (username,)).fetchone()
-                is not None
-            ):
-                error = "User {} is already registered.".format(username)
+                error += "Password is required."
 
-            if error is None:
-                db.execute(
-                    "INSERT INTO user (username, password) VALUES (?, ?)",
-                    (username, generate_password_hash(password)),
-                )
-                db.commit()
+            if len(error) == 0:
+                add_user(username, password)
                 return redirect(url_for("auth.login"))
-
-            flash(error)
 
         return render_template("auth/register.html")
 

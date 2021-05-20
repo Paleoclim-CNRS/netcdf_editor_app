@@ -39,7 +39,16 @@ def init_db():
     with current_app.open_resource("db_schema.sql") as f:
         db.executescript(f.read().decode("utf8"))
 
-def add_user(username, password):
+def update_user_password(user_id, password):
+    print(f"Updating password for userid {user_id}", flush=True)
+    db = get_db()
+    db.execute(
+    "UPDATE user SET password = ? WHERE id = ?",
+        (generate_password_hash(password), user_id)
+    )
+    db.commit()
+
+def add_user(username, password, init=False):
     db = get_db()
 
     try:
@@ -47,12 +56,16 @@ def add_user(username, password):
         _id = row['id']
     except IndexError:
         _id = None
+    # The user is already in the database
     if _id is not None:
-        print(f"Updating user {username}", flush=True)
-        db.execute(
-            "UPDATE user SET password = ? WHERE id = ?",
-            (generate_password_hash(password), _id)
-        )
+        # Check Updating own name
+        if g.user['id'] == _id:
+            update_user_password(_id, password)
+        elif init:
+            update_user_password(_id, password)
+        else:
+            flash("User already in database and you don't have permission to change password")
+
     else:
         db.execute(
             "INSERT INTO user (username, password) VALUES (?, ?)",

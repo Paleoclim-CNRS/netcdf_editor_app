@@ -31,7 +31,7 @@ def create_app(test_config=None):
             password = os.environ.get("CSP_PASSWORD", password)
             print("Username: ", username, flush=True)
             print("Password: ", password, flush=True)
-            add_user(username, password)
+            add_user(username, password, init=True)
         
 
     if test_config is None:
