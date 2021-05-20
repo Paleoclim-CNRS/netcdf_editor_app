@@ -274,6 +274,14 @@ def invalidate_step(_id, step):
     except RuntimeError:
         pass
 
+def get_owner_id(data_file_id):
+    db = get_db()
+
+    query = "SELECT owner_id FROM data_files WHERE id = ?"
+    owner_id = db.execute(query, (data_file_id, )).fetchone()['owner_id']
+    return owner_id
+
+
 
 def get_latest_file_versions():
     query = (
