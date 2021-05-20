@@ -9,7 +9,7 @@
 </head>
 
 <body>
-  {% if thanks_to == 'CEREGE' %}
+  {% if config['THANKS'] == 'CEREGE' %}
   <div id="banner-container">
     <div style="text-align: center;">
       Thanks to <a href="https://cerege-cl.github.io">CEREGE PaleoClimate Group</a>, <a href="https://www.osupytheas.fr/?lang=fr">Osupytheas</a> and <a href="https://www.total.com">Total
@@ -31,7 +31,13 @@
     </form>
 
     <div>
-      <a href="{{ url_for('auth.register') }}">Register</a>
+      {% if config['AUTH'] == 'basic' %}
+        <a href="{{ url_for('auth.register') }}">Register</a>
+      {% elif config["AUTH"] == "logged_in" %}
+        <a href="mailto:banfield@cerege.fr">
+          Please contact admin for an account
+        </a>
+      {% endif %}
     </div>
 
   </main>

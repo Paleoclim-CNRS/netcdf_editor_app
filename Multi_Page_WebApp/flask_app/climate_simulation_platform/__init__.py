@@ -17,6 +17,8 @@ def create_app(test_config=None):
         SECRET_KEY=b'\xd8\xb7\xc5 \xdc\xac\x92\xa6\xfd"\xc2a\xe4k*\x17',
         DATABASE=os.path.join(app.instance_path, "netcdf_editor.sqlite"),
         UPLOAD_FOLDER=app.instance_path,
+        AUTH = os.environ.get("AUTH", 'basic'),
+        THANKS = os.environ.get("THANKS", "")
     )
 
     if test_config is None:
