@@ -75,6 +75,13 @@ def set_data_file_coords(_id, longitude, latitude):
     )
     db.commit()
 
+def is_data_file(_id, file_type):
+    name, extension = os.path.splitext(get_file_path(_id, file_type, full=False))
+    print(extension, flush=True)
+    if extension in ['.nc']:
+        return True
+    return False
+
 
 def upload_file(file, data_file_id=None, file_type="raw", info={}):
     if file_type == "raw" and data_file_id is not None:
@@ -117,6 +124,9 @@ def upload_file(file, data_file_id=None, file_type="raw", info={}):
 
 
 def add_info(_id, file_type, info={}, revision=-1):
+    # If the file isnt a data file but a tar for example then return
+    if not is_data_file(_id, file_type):
+        return
     ds = load_file(_id, file_type, revision)
     for key, value in info.items():
         key = "climate_sim_" + key
