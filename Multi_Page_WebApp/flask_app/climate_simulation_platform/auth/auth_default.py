@@ -15,6 +15,7 @@ from climate_simulation_platform.db import add_user, get_db
 
 
 class DefaultAuth(object):
+
     @staticmethod
     def register():
         if request.method == "POST":
@@ -29,7 +30,7 @@ class DefaultAuth(object):
 
             if len(error) == 0:
                 add_user(username, password)
-                return redirect(url_for("auth.login"))
+                return redirect(url_for("index"))
 
         return render_template("auth/register.html")
 
@@ -72,7 +73,6 @@ class DefaultAuth(object):
             )
 
     @staticmethod
-    @bp.route("/logout")
     def logout():
         session.clear()
         return redirect(url_for("index"))

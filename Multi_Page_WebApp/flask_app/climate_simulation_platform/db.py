@@ -58,14 +58,14 @@ def add_user(username, password, init=False):
             "SELECT id FROM user WHERE username = ?", (username,)
         ).fetchone()
         _id = row["id"]
-    except IndexError:
+    except (IndexError, TypeError):
         _id = None
     # The user is already in the database
     if _id is not None:
         # Check Updating own name
-        if g.user["id"] == _id:
+        if init:
             update_user_password(_id, password)
-        elif init:
+        elif "id" in g.user and g.user["id"] == _id:
             update_user_password(_id, password)
         else:
             flash(

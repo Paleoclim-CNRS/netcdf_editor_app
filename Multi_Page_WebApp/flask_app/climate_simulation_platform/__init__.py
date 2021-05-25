@@ -66,7 +66,27 @@ def create_app(test_config=None):
 
     db.init_app(app)
 
-    from . import auth
+    # Authentification
+    from .auth import bp
+    if app.config["AUTH"] == 'basic':
+        from .auth.auth_default import DefaultAuth as obj
+    elif app.config['AUTH'] == 'logged_in':
+        from .auth.auth_logged_in import LoggedInAuth as obj
+    else:
+        raise AttributeError(f"Unknown authentification type: {app.config['AUTH']}")
+
+    # Set global
+    @bp.route("/register", methods=("GET", "POST"))
+    def register():
+        return obj.register()
+
+    @bp.route("/login", methods=("GET", "POST"))
+    def login():
+        return obj.login()
+    
+    @bp.route("/logout")
+    def logout():
+        return  obj.logout()
 
     app.register_blueprint(auth.bp)
 
