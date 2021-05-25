@@ -17,7 +17,22 @@ def create_app(test_config=None):
         SECRET_KEY=b'\xd8\xb7\xc5 \xdc\xac\x92\xa6\xfd"\xc2a\xe4k*\x17',
         DATABASE=os.path.join(app.instance_path, "netcdf_editor.sqlite"),
         UPLOAD_FOLDER=app.instance_path,
+        AUTH=os.environ.get("AUTH", "basic").lower(),
+        THANKS=os.environ.get("THANKS", ""),
     )
+
+    if app.config["AUTH"] == "logged_in":
+        with app.app_context():
+            from .db import add_user
+            import random
+            import string
+
+            password = "".join(random.choice(string.ascii_lowercase) for i in range(10))
+            username = os.environ.get("CSP_USERNAME", "admin")
+            password = os.environ.get("CSP_PASSWORD", password)
+            print("Username: ", username, flush=True)
+            print("Password: ", password, flush=True)
+            add_user(username, password, init=True)
 
     if test_config is None:
         # load the instance config, if it exists, when not testing
@@ -51,7 +66,27 @@ def create_app(test_config=None):
 
     db.init_app(app)
 
-    from . import auth
+    # Authentification
+    from .auth import bp
+    if app.config["AUTH"] == 'basic':
+        from .auth.auth_default import DefaultAuth as obj
+    elif app.config['AUTH'] == 'logged_in':
+        from .auth.auth_logged_in import LoggedInAuth as obj
+    else:
+        raise AttributeError(f"Unknown authentification type: {app.config['AUTH']}")
+
+    # Set global
+    @bp.route("/register", methods=("GET", "POST"))
+    def register():
+        return obj.register()
+
+    @bp.route("/login", methods=("GET", "POST"))
+    def login():
+        return obj.login()
+    
+    @bp.route("/logout")
+    def logout():
+        return  obj.logout()
 
     app.register_blueprint(auth.bp)
 

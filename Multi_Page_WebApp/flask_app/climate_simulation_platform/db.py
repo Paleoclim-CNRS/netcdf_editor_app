@@ -13,6 +13,8 @@ from werkzeug.utils import secure_filename
 
 import xarray as xr
 
+from werkzeug.security import generate_password_hash
+
 
 def get_db():
     if "db" not in g:
@@ -36,6 +38,46 @@ def init_db():
 
     with current_app.open_resource("db_schema.sql") as f:
         db.executescript(f.read().decode("utf8"))
+
+
+def update_user_password(user_id, password):
+    print(f"Updating password for userid {user_id}", flush=True)
+    db = get_db()
+    db.execute(
+        "UPDATE user SET password = ? WHERE id = ?",
+        (generate_password_hash(password), user_id),
+    )
+    db.commit()
+
+
+def add_user(username, password, init=False):
+    db = get_db()
+
+    try:
+        row = db.execute(
+            "SELECT id FROM user WHERE username = ?", (username,)
+        ).fetchone()
+        _id = row["id"]
+    except (IndexError, TypeError):
+        _id = None
+    # The user is already in the database
+    if _id is not None:
+        # Check Updating own name
+        if init:
+            update_user_password(_id, password)
+        elif "id" in g.user and g.user["id"] == _id:
+            update_user_password(_id, password)
+        else:
+            flash(
+                "User already in database and you don't have permission to change password"
+            )
+
+    else:
+        db.execute(
+            "INSERT INTO user (username, password) VALUES (?, ?)",
+            (username, generate_password_hash(password)),
+        )
+    db.commit()
 
 
 def load_file(_id, file_type=None, revision=-1):
@@ -285,16 +327,24 @@ def invalidate_step(_id, step):
         pass
 
 
+def get_owner_id(data_file_id):
+    db = get_db()
+
+    query = "SELECT owner_id FROM data_files WHERE id = ?"
+    owner_id = db.execute(query, (data_file_id,)).fetchone()["owner_id"]
+    return owner_id
+
+
 def get_latest_file_versions():
     query = (
         "SELECT created, filename, df.id FROM"
         + " (SELECT MAX(revision) as revision, created, data_file_id FROM revisions GROUP BY data_file_id) as r"
-        + " JOIN data_files df ON r.data_file_id = df.id"
+        + " JOIN (SELECT * FROM data_files WHERE owner_id = ?) AS df ON r.data_file_id = df.id"
         + " JOIN user u ON df.owner_id = u.id"
         + " ORDER BY created DESC"
     )
     db = get_db()
-    data_files = db.execute(query).fetchall()
+    data_files = db.execute(query, (g.user["id"],)).fetchall()
     return data_files
 
 
@@ -393,6 +443,15 @@ def init_db_command():
     click.echo("Initialized the database.")
 
 
+@click.command("create-user")
+@click.argument("username")
+@click.argument("password")
+@with_appcontext
+def create_user_command(username, password):
+    add_user(username, password)
+
+
 def init_app(app):
     app.teardown_appcontext(close_db)
     app.cli.add_command(init_db_command)
+    app.cli.add_command(create_user_command)
