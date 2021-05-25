@@ -42,6 +42,7 @@ from climate_simulation_platform.db import (
     get_info,
     get_latest_file_versions,
     get_lon_lat_names,
+    is_data_file,
     load_file,
     remove_data_file,
     set_data_file_coords,
@@ -338,28 +339,42 @@ def assetsTable(_id):
     file_type_counts = get_file_type_counts(_id)
     data = []
     for name in seen_file_types:
-
-        data.append(
-            [
-                name.capitalize(),
-                f"<div style='text-align:center'>{file_type_counts[name]}</div>",
-                f"<form action=\"{ url_for('app.file_info', _id=_id, file_type=name.lower()) }\" method=\"GET\"> \
-                    <button type=\"submit\" class=\"btn btn-info\"><i class=\"fas fa-database\"></i> View</button> \
-                </form>",
-                f"<form action=\"{ url_for('app.view_database_file', _id=_id, file_type=name.lower()) }\" method=\"GET\"> \
-                    <button type=\"submit\" class=\"btn btn-info\"><i class=\"fas fa-map\"></i> View</button> \
-                </form>",
-                f"<form action=\"{ url_for('app.variable_explorer', _id=_id, file_type=name.lower()) }\" method=\"GET\"> \
-                    <button type=\"submit\" class=\"btn btn-info\"><i class=\"fas fa-columns\"></i> View</button> \
-                </form>",
-                f"<form action=\"{ url_for('app.revision_comparison', _id=_id, file_type=name.lower()) }\" method=\"GET\"> \
-                    <button type=\"submit\" class=\"btn btn-info\"><i class=\"fas fa-arrows-alt-h\"></i> View</button> \
-                </form>",
-                f"<form action=\"{ url_for('app.download', _id=_id, file_type=name.lower()) }\" method=\"GET\"> \
-                    <button type=\"submit\" class=\"btn btn-primary\"><i class=\"fas fa-download\"></i> Download</button> \
-                </form>",
-            ]
-        )
+        if is_data_file(_id, name):
+            data.append(
+                [
+                    name.capitalize(),
+                    f"<div style='text-align:center'>{file_type_counts[name]}</div>",
+                    f"<form action=\"{ url_for('app.file_info', _id=_id, file_type=name.lower()) }\" method=\"GET\"> \
+                        <button type=\"submit\" class=\"btn btn-info\"><i class=\"fas fa-database\"></i> View</button> \
+                    </form>",
+                    f"<form action=\"{ url_for('app.view_database_file', _id=_id, file_type=name.lower()) }\" method=\"GET\"> \
+                        <button type=\"submit\" class=\"btn btn-info\"><i class=\"fas fa-map\"></i> View</button> \
+                    </form>",
+                    f"<form action=\"{ url_for('app.variable_explorer', _id=_id, file_type=name.lower()) }\" method=\"GET\"> \
+                        <button type=\"submit\" class=\"btn btn-info\"><i class=\"fas fa-columns\"></i> View</button> \
+                    </form>",
+                    f"<form action=\"{ url_for('app.revision_comparison', _id=_id, file_type=name.lower()) }\" method=\"GET\"> \
+                        <button type=\"submit\" class=\"btn btn-info\"><i class=\"fas fa-arrows-alt-h\"></i> View</button> \
+                    </form>",
+                    f"<form action=\"{ url_for('app.download', _id=_id, file_type=name.lower()) }\" method=\"GET\"> \
+                        <button type=\"submit\" class=\"btn btn-primary\"><i class=\"fas fa-download\"></i> Download</button> \
+                    </form>",
+                ]
+            )
+        else:
+            data.append(
+                [
+                    name.capitalize(),
+                    f"<div style='text-align:center'>{file_type_counts[name]}</div>",
+                    '',
+                    '',
+                    '',
+                    '',
+                    f"<form action=\"{ url_for('app.download', _id=_id, file_type=name.lower()) }\" method=\"GET\"> \
+                        <button type=\"submit\" class=\"btn btn-primary\"><i class=\"fas fa-download\"></i> Download</button> \
+                    </form>",
+                ]
+            )
 
     df_assets = pd.DataFrame(
         data,
