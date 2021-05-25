@@ -9,9 +9,9 @@ on:
       - main
     paths:
     - .github/workflows/python-app-flask-test.yml
-    - 'Multi_Page_WebApp/flask_app'
-    - 'Multi_Page_WebApp/python_tools'
-    - 'Multi_Page_WebApp/tests'
+    - 'Multi_Page_WebApp/flask_app/'
+    - 'Multi_Page_WebApp/python_tools/'
+    - 'Multi_Page_WebApp/tests/'
     - '!**/*.md'
     
   pull_request:
@@ -19,9 +19,9 @@ on:
       - main
     paths:
       - .github/workflows/python-app-flask-test.yml
-      - 'Multi_Page_WebApp/flask_app'
-      - 'Multi_Page_WebApp/python_tools'
-      - 'Multi_Page_WebApp/tests'
+      - 'Multi_Page_WebApp/flask_app/'
+      - 'Multi_Page_WebApp/python_tools/'
+      - 'Multi_Page_WebApp/tests/'
       - '!**/*.md'
 
 jobs:
