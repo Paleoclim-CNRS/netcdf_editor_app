@@ -91,7 +91,7 @@ jobs:
       run: |
         echo "FROM ceregecl/netcdf_editor_flask_app:latest" > Dockerfile
         echo "ENV THANKS=CEREGE" >> Dockerfile
-        echo "ENV AUTH="logged_in" >> Dockerfile
+        echo "ENV AUTH=logged_in" >> Dockerfile
         docker build . --tag registry.osupytheas.fr:443/netcdf_editor_flask_app:$(date +%s) \
           --tag registry.osupytheas.fr:443/netcdf_editor_flask_app:latest 
     - name: Docker Push
