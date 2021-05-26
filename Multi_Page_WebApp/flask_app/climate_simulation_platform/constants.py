@@ -74,11 +74,11 @@ def order_steps(steps):
 
 
 def invalidated(root):
-    return walk_through(invalidates, root)
+    return walk_through(invalidates, root, [])
 
 
 def dependant_files(root):
-    results = walk_through(file_dependancies, root)
+    results = walk_through(file_dependancies, root, [])
     results.append(root)
     return results
 
