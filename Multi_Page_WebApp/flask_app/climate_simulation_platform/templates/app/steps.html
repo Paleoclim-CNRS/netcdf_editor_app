@@ -25,10 +25,21 @@ Datafile chosen: {{ data_file_name }}
 <div style="display: flex; justify-content: center;">
     {{ file_info|safe }}
 </div>
-<h2>Workflow</h2>
-<div id="steps"></div>
-<h2>Assets</h2>
-<div id="assets" style="display: flex;flex-direction: column;align-items: center;"></div>
+<div class='container'>
+    <h2>Workflow</h2>
+    <div style='flex-direction: row;display: flex; justify-content: space-between;'>
+        <div id="steps"></div>
+        <div>
+            <img
+                src='https://mermaid.ink/img/eyJjb2RlIjoiZ3JhcGggVERcbiAgICBBKFJhdykgLS0-IEIoUmVncmlkKVxuICAgIEIgLS0-IEMoSW50ZXJuYWwgT2NlYW5zKVxuICAgIEMgLS0-IEQoUm91dGluZylcbiAgICBEIC0tPiBFKFBGVClcbiAgICBEIC0tPiBGKFBhc3NhZ2UgUHJvYmxlbXMpXG4gICAgRiAtLT4gSChIZWF0ZmxvdylcbiAgICBGIC0tPiBHKFN1YmJhc2lucylcbiAgICBGIC0tPiBJKEFITUNvZWYpXG4gICAgRyAtLT4gSihDYWxjdWxhdGUgV2VpZ2h0cykiLCJtZXJtYWlkIjp7InRoZW1lIjoibmV1dHJhbCJ9LCJ1cGRhdGVFZGl0b3IiOmZhbHNlfQ'>
+        </div>
+    </div>
+</div>
+<div class="container">
+    <h2>Assets</h2>
+    <div id="assets" style="display: flex;flex-direction: column;align-items: center;">
+    </div>
+</div>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
 <script>
     $(document).ready(function () {
