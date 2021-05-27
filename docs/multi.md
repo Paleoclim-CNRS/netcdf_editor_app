@@ -3,13 +3,6 @@
 As more and more tools were being added to the single page web app the workflow outgrew the scope of a single page web app. A full web app was built to handle this task.
 
 
-
-
-DB
-
-
-
-
 ### Preprocessing
 {:.no_toc}
 The Web tool allows a certain number of steps needed to create the boundary conditions for climate simulation models, notably IPSL.
@@ -43,7 +36,9 @@ Inside a data file we can see it is separeted into two parts:
 
 The workflow has links through to the different steps that can be carried out. By default they have a <i class="fas fa-times-circle" style="color:#FF4136"></i> this means that the step is out of sync or has not been carried out.
 
-When processing steps will have a <i class="fas fa-cog fa-spin" style="color:#377ba8"></i> and when completed a <i class="fas fa-check-square" style="color:#2ECC40"></i>. Note that if you update a prior step dependant steps are automatically carried out and the state is updated automatically. Certains steps notably [panel steps](#panel) can not be automatically updated and will be given a <i class="fas fa-times-circle" style="color:#FF4136"></i> to show they are no longer in sync.
+When processing steps will have a <i class="fas fa-cog fa-spin" style="color:#377ba8"></i> and when completed a <i class="fas fa-check-square" style="color:#2ECC40"></i>. Note that if you update a prior step dependant steps are automatically carried out and the state is updated automatically, see image below. Certains steps notably [panel steps](#panel) can not be automatically updated and will be given a <i class="fas fa-times-circle" style="color:#FF4136"></i> to show they are no longer in sync.
+
+[![](https://mermaid.ink/img/eyJjb2RlIjoiZ3JhcGggVERcbiAgICBBKFJhdykgLS0-IEIoUmVncmlkKVxuICAgIEIgLS0-IEMoSW50ZXJuYWwgT2NlYW5zKVxuICAgIEMgLS0-IEQoUm91dGluZylcbiAgICBEIC0tPiBFKFBGVClcbiAgICBEIC0tPiBGKFBhc3NhZ2UgUHJvYmxlbXMpXG4gICAgRiAtLT4gRyhTdWJiYXNpbnMpXG4gICAgRyAtLT4gSChIZWF0ZmxvdylcbiAgICBHIC0tPiBJKEFITUNvZWYpXG4gICAgRyAtLT4gSihDYWxjdWxhdGUgV2VpZ2h0cykiLCJtZXJtYWlkIjp7InRoZW1lIjoibmV1dHJhbCJ9LCJ1cGRhdGVFZGl0b3IiOmZhbHNlfQ)](https://mermaid-js.github.io/mermaid-live-editor/#/edit/eyJjb2RlIjoiZ3JhcGggVERcbiAgICBBKFJhdykgLS0-IEIoUmVncmlkKVxuICAgIEIgLS0-IEMoSW50ZXJuYWwgT2NlYW5zKVxuICAgIEMgLS0-IEQoUm91dGluZylcbiAgICBEIC0tPiBFKFBGVClcbiAgICBEIC0tPiBGKFBhc3NhZ2UgUHJvYmxlbXMpXG4gICAgRiAtLT4gRyhTdWJiYXNpbnMpXG4gICAgRyAtLT4gSChIZWF0ZmxvdylcbiAgICBHIC0tPiBJKEFITUNvZWYpXG4gICAgRyAtLT4gSihDYWxjdWxhdGUgV2VpZ2h0cykiLCJtZXJtYWlkIjp7InRoZW1lIjoibmV1dHJhbCJ9LCJ1cGRhdGVFZGl0b3IiOmZhbHNlfQ)
 
 The assests table show the currently availible files. You can download them by clicking the download button. The view button will give a basic overview of the file. The complex viewer opens the panel app allowing you to change values inside the file. The Revision comparison does a diff and show this to the previous version of the same file.
 
