@@ -69,6 +69,14 @@ def routing(body):
     topo_variable = body["topo_var"]
     _id = body["id"]
 
+    save_routing = True
+    save_bathy = True
+    save_soils = True
+    save_topo_high_res = True
+
+    if body.get("next_step_only", False):
+        save_bathy = False
+
     # Load file
     with app.app_context():
         ds = load_file(_id, "raw")
@@ -81,10 +89,14 @@ def routing(body):
         topography, latitudes, ds_orca
     )
     with app.app_context():
-        save_revision(_id, ds_routing, "routing")
-        save_revision(_id, ds_bathy, "bathy")
-        save_revision(_id, ds_soils, "soils")
-        save_revision(_id, ds_topo_high_res, "topo_high_res")
+        if save_routing:
+            save_revision(_id, ds_routing, "routing")
+        if save_bathy:
+            save_revision(_id, ds_bathy, "bathy")
+        if save_soils:
+            save_revision(_id, ds_soils, "soils")
+        if save_topo_high_res:
+            save_revision(_id, ds_topo_high_res, "topo_high_res")
 
 
 def pft(body):

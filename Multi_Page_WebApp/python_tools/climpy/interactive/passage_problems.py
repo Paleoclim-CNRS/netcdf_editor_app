@@ -1,3 +1,5 @@
+from climate_simulation_platform.db import save_revision, save_step
+from climate_simulation_platform.message_broker import send_preprocessing_message
 from climpy.interactive import InternalOceans
 import panel as pn
 import xarray as xr
@@ -115,6 +117,21 @@ class PassageProblems(InternalOceans):
             )
         )
         return default_grpahs + passage_problems
+
+    def save(self, event):
+        with self.app.app_context():
+            info = {"changes": self.description.value}
+            save_revision(self.data_file_id, self.ds, self.file_type, info)
+            if self.step is not None:
+                save_step(
+                    self.data_file_id,
+                    step=self.step,
+                    parameters={"id": self.data_file_id},
+                    up_to_date=True,
+                )
+                send_preprocessing_message(
+                    self.step + ".done", message={"id": self.data_file_id}
+                )
 
 
 if "bokeh_app" in __name__:

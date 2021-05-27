@@ -117,9 +117,10 @@ def set_data_file_coords(_id, longitude, latitude):
     )
     db.commit()
 
+
 def is_data_file(_id, file_type):
     name, extension = os.path.splitext(get_file_path(_id, file_type, full=False))
-    if extension in ['.nc']:
+    if extension in [".nc"]:
         return True
     return False
 
