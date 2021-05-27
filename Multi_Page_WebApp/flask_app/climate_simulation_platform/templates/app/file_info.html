@@ -1,0 +1,18 @@
+{% extends 'base.html' %}
+
+{% block header %}
+<h1>{% block title %}File Info{% endblock %}</h1>
+{% endblock %}
+
+{% block content %}
+<div style="display: flex; justify-content: center;">
+    {{ file_info|safe }}
+</div>
+
+Modified Attributes:
+<ul>
+{% for key, value in extra_info.items() %}
+    <li>{{ key }}: {{ value }}</li>
+{% endfor %}
+</ul>
+{% endblock %}

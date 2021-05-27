@@ -1,7 +1,8 @@
-version: '3'
+version: '2'
 services:
   nginx:
-    build: Multi_Page_WebApp/services/nginx
+    image: ceregecl/netcdf_editor_nginx
+    restart: on-failure
     ports:
       - ${NGINX_PORT}:80
     depends_on: 
@@ -14,9 +15,7 @@ services:
       - 5672
   
   message_dispatcher:
-    build:
-      context: Multi_Page_WebApp
-      dockerfile: services/message_dispatcher/Dockerfile
+    image: ceregecl/netcdf_editor_message_dispatcher
     restart: on-failure
     environment: 
       - BROKER_HOSTNAME=message_broker
@@ -24,9 +23,20 @@ services:
       - message_broker
 
   python_worker:
+    image: ceregecl/netcdf_editor_python_worker
+    restart: on-failure
+    environment: 
+      - BROKER_HOSTNAME=message_broker
+    depends_on: 
+      - message_broker
+      - message_dispatcher
+    volumes:
+      - instance_storage:/usr/src/app/instance
+
+  mosaic_worker:
     build:
       context: Multi_Page_WebApp
-      dockerfile: services/python_worker/Dockerfile
+      dockerfile: services/mosaic/Dockerfile
     restart: on-failure
     environment: 
       - BROKER_HOSTNAME=message_broker
@@ -37,26 +47,23 @@ services:
       - instance_storage:/usr/src/app/instance
     
   flask_app:
-    build:
-      context: Multi_Page_WebApp
-      dockerfile: services/flask/Dockerfile
+    image: ceregecl/netcdf_editor_flask_app
+    restart: on-failure
     env_file: ${FLASK_CONFIG}
     environment: 
       - BROKER_HOSTNAME=message_broker
-    image: netcdf_editor_flask_app:latest 
     expose:
       - 5000
     depends_on: 
       - message_broker
-    entrypoint: gunicorn --bind 0.0.0.0:5000 "netcdf_editor_app:create_app()"
+    entrypoint: gunicorn --bind 0.0.0.0:5000 "climate_simulation_platform:create_app()"
     # entrypoint: python -m flask run
     volumes:
       - instance_storage:/usr/src/app/instance
   
   panel_app:
-    build:
-      context: Multi_Page_WebApp
-      dockerfile: services/panel/Dockerfile
+    image: ceregecl/netcdf_editor_panel_app
+    restart: on-failure
     env_file: ${PANEL_CONFIG}
     environment: 
       - BROKER_HOSTNAME=message_broker

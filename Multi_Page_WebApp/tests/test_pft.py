@@ -1,4 +1,4 @@
-from netcdf_editor_app.utils import pft
+from climpy.bc.ipsl import pft
 
 import xarray as xr
 import numpy

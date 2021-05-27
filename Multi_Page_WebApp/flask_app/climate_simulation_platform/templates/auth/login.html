@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Login</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='login-page.css') }}">
+</head>
+
+<body>
+  {% if config['THANKS'] == 'CEREGE' %}
+  <div id="banner-container">
+    <div style="text-align: center;">
+      Thanks to <a href="https://cerege-cl.github.io">CEREGE PaleoClimate Group</a>, <a href="https://www.osupytheas.fr/?lang=fr">Osupytheas</a> and <a href="https://www.total.com">Total
+        </a> for supporting us! 🎉</div>
+  </div>
+  {% elif thanks_to == '' %}
+  {% endif %}
+  <main id="main-holder">
+    <h1 id="login-header">Login</h1>
+
+    {% for message in get_flashed_messages() %}
+    <div class="flash">{{ message }}</div>
+    {% endfor %}
+
+    <form id="login-form" method="POST">
+      <input type="text" name="username" id="username" class="login-form-field" placeholder="Username" required>
+      <input type="password" name="password" id="password" class="login-form-field" placeholder="Password" required>
+      <input type="submit" value="Login" id="login-form-submit">
+    </form>
+
+    <div>
+      {% if config['AUTH'] == 'basic' %}
+        <a href="{{ url_for('auth.register') }}">Register</a>
+      {% elif config["AUTH"] == "logged_in" %}
+        <a href="mailto:banfield@cerege.fr">
+          Please contact admin for an account
+        </a>
+      {% endif %}
+    </div>
+
+  </main>
+</body>
+
+</html>

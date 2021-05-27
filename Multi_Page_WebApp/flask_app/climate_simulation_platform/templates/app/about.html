@@ -1,0 +1,54 @@
+{% extends 'base.html' %}
+
+{% block header %}
+<h1>{% block title %}About{% endblock %}</h1>
+{% endblock %}
+
+{% block content %}
+<div style="display: flex; justify-content: center;">
+    <div class="card" style="margin-top: 2em; width: 80%;">
+        <div class="card-body">
+            <p>
+                The Climate Simulation Platform was born at and maintained by the CEREGE paleoclimate group, headed by
+                Yannick Donnadieu, from the need to have a tool to quickly and easily setup climate simulations.
+                The app was developped as part of the <a style="color: red;">XXX Project</a> funded by <a
+                    style="color: red;">Total</a>.
+            </p>
+            <p>
+                Notable contributions from the CEREGE paleoclimate team have occured, in particular from:
+                <ul>
+                    <li>
+                        Yannick Donnadieu
+                    </li>
+                    <li>
+                        Wesley Banfield
+                    </li>
+                    <li>
+                        Anta Sarr
+                    </li>
+                    <li>
+                        Delphine Tardif
+                    </li>
+                </ul>
+
+                <!-- But also from the greater French paleoclimate group with contributions from: -->
+                We would also like to thank the following for the contributions of algorithms and routines:
+                <ul>
+                    <li>
+                        Jean-Baptiste Ladant
+                    </li>
+                    <li>
+                        Fred Fluteau
+                    </li>
+                    <li>
+                        Olivier Marti
+                    </li>
+                    <li>
+                        Patrick Brockmann
+                    </li>
+                </ul>
+            </p>
+        </div>
+    </div>
+</div>
+{% endblock %}

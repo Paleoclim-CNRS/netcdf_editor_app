@@ -1,0 +1,1 @@
+Collection of config files that are used to determine the enviroments. Ideally only the `.env.*` should be passed to docker compose and these call the other files as needed.

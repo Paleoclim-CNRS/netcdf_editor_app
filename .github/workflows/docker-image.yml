@@ -4,10 +4,14 @@ on:
   push:
     branches:
       - main
+    paths:
+      - .github/workflows/docker-image.yml
+      - '*_Page_WebApp/**'
+      - '!**/*.md'
 
 jobs:
 
-  build:
+  message_dispatcher:
 
     runs-on: ubuntu-latest
 
@@ -17,9 +21,191 @@ jobs:
       env:
         DOCKER_USER: ${{secrets.DOCKER_USER}}
         DOCKER_PASSWORD: ${{secrets.DOCKER_PASSWORD}}
-        
-      run: docker login -u $DOCKER_USER -p $DOCKER_PASSWORD
+        DOCKER_USER_OSU: ${{secrets.DOCKER_USER_OSU}}
+        DOCKER_PASSWORD_OSU: ${{secrets.DOCKER_PASSWORD_OSU}}
+      run: |
+        docker login -u $DOCKER_USER -p $DOCKER_PASSWORD
+        docker login registry.osupytheas.fr -u $DOCKER_USER_OSU -p $DOCKER_PASSWORD_OSU
     - name: Build the Docker image
-      run: docker build . --file app.Dockerfile --tag ceregecl/netcdf_editor:$(date +%s) --tag ceregecl/netcdf_editor:latest
+      working-directory: ./Multi_Page_WebApp
+      run: |
+        docker build . --file services/message_dispatcher/Dockerfile \
+          --tag registry.osupytheas.fr:443/netcdf_editor_message_dispatcher:$(date +%s) \
+          --tag registry.osupytheas.fr:443/netcdf_editor_message_dispatcher:latest \
+          --tag ceregecl/netcdf_editor_message_dispatcher:latest
     - name: Docker Push
-      run: docker push ceregecl/netcdf_editor
+      run: |
+        docker push ceregecl/netcdf_editor_message_dispatcher
+        docker push registry.osupytheas.fr:443/netcdf_editor_message_dispatcher
+
+  nginx:
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v2
+    - name: docker login
+      env:
+        DOCKER_USER: ${{secrets.DOCKER_USER}}
+        DOCKER_PASSWORD: ${{secrets.DOCKER_PASSWORD}}
+        DOCKER_USER_OSU: ${{secrets.DOCKER_USER_OSU}}
+        DOCKER_PASSWORD_OSU: ${{secrets.DOCKER_PASSWORD_OSU}}
+        
+      run: |
+        docker login -u $DOCKER_USER -p $DOCKER_PASSWORD
+        docker login registry.osupytheas.fr -u $DOCKER_USER_OSU -p $DOCKER_PASSWORD_OSU
+    - name: Build the Docker image
+      working-directory: ./Multi_Page_WebApp/services/nginx
+      run: |
+        docker build . --file Dockerfile \
+          --tag registry.osupytheas.fr:443/netcdf_editor_nginx:$(date +%s) \
+          --tag registry.osupytheas.fr:443/netcdf_editor_nginx:latest \
+          --tag ceregecl/netcdf_editor_nginx:latest
+    - name: Docker Push
+      run: |
+        docker push ceregecl/netcdf_editor_nginx
+        docker push registry.osupytheas.fr:443/netcdf_editor_nginx:latest
+
+  flask_app:
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v2
+    - name: docker login
+      env:
+        DOCKER_USER: ${{secrets.DOCKER_USER}}
+        DOCKER_PASSWORD: ${{secrets.DOCKER_PASSWORD}}
+        DOCKER_USER_OSU: ${{secrets.DOCKER_USER_OSU}}
+        DOCKER_PASSWORD_OSU: ${{secrets.DOCKER_PASSWORD_OSU}}
+        
+      run: |
+        docker login -u $DOCKER_USER -p $DOCKER_PASSWORD
+        docker login registry.osupytheas.fr -u $DOCKER_USER_OSU -p $DOCKER_PASSWORD_OSU
+    - name: Build DockerHub image
+      working-directory: ./Multi_Page_WebApp
+      run: |
+        docker build . --file services/flask/Dockerfile \
+          --tag ceregecl/netcdf_editor_flask_app:latest
+    - name: Build OSU image
+      run: |
+        echo "FROM ceregecl/netcdf_editor_flask_app:latest" > Dockerfile
+        echo "ENV THANKS=CEREGE" >> Dockerfile
+        echo "ENV AUTH=logged_in" >> Dockerfile
+        docker build . --tag registry.osupytheas.fr:443/netcdf_editor_flask_app:$(date +%s) \
+          --tag registry.osupytheas.fr:443/netcdf_editor_flask_app:latest 
+    - name: Docker Push
+      run: |
+        docker push ceregecl/netcdf_editor_flask_app
+        docker push registry.osupytheas.fr:443/netcdf_editor_flask_app
+
+  python_worker:
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v2
+    - name: docker login
+      env:
+        DOCKER_USER: ${{secrets.DOCKER_USER}}
+        DOCKER_PASSWORD: ${{secrets.DOCKER_PASSWORD}}
+        DOCKER_USER_OSU: ${{secrets.DOCKER_USER_OSU}}
+        DOCKER_PASSWORD_OSU: ${{secrets.DOCKER_PASSWORD_OSU}}
+      run: |
+        docker login -u $DOCKER_USER -p $DOCKER_PASSWORD
+        docker login registry.osupytheas.fr -u $DOCKER_USER_OSU -p $DOCKER_PASSWORD_OSU
+    - name: Build the Docker image
+      working-directory: ./Multi_Page_WebApp
+      run: |
+        docker build . --file services/python_worker/Dockerfile \
+          --tag registry.osupytheas.fr:443/netcdf_editor_python_worker:$(date +%s) \
+          --tag registry.osupytheas.fr:443/netcdf_editor_python_worker:latest \
+          --tag ceregecl/netcdf_editor_python_worker:latest
+    - name: Docker Push
+      run: |
+        docker push ceregecl/netcdf_editor_python_worker
+        docker push registry.osupytheas.fr:443/netcdf_editor_python_worker
+
+  mosaic_worker:
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v2
+    - name: docker login
+      env:
+        DOCKER_USER: ${{secrets.DOCKER_USER}}
+        DOCKER_PASSWORD: ${{secrets.DOCKER_PASSWORD}}
+        DOCKER_USER_OSU: ${{secrets.DOCKER_USER_OSU}}
+        DOCKER_PASSWORD_OSU: ${{secrets.DOCKER_PASSWORD_OSU}}
+
+      run: |
+        docker login -u $DOCKER_USER -p $DOCKER_PASSWORD
+        docker login registry.osupytheas.fr -u $DOCKER_USER_OSU -p $DOCKER_PASSWORD_OSU
+    - name: Build the Docker image
+      working-directory: ./Multi_Page_WebApp
+      run: |
+        docker build . --file services/mosaic/Dockerfile \
+          --tag registry.osupytheas.fr:443/netcdf_editor_mosaic_worker:$(date +%s) \
+          --tag registry.osupytheas.fr:443/netcdf_editor_mosaic_worker:latest \
+          --tag ceregecl/netcdf_editor_mosaic_worker:latest
+    - name: Docker Push
+      run: |
+        docker push ceregecl/netcdf_editor_mosaic_worker
+        docker push registry.osupytheas.fr:443/netcdf_editor_mosaic_worker
+
+  panel_app:
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v2
+    - name: docker login
+      env:
+        DOCKER_USER: ${{secrets.DOCKER_USER}}
+        DOCKER_PASSWORD: ${{secrets.DOCKER_PASSWORD}}
+        DOCKER_USER_OSU: ${{secrets.DOCKER_USER_OSU}}
+        DOCKER_PASSWORD_OSU: ${{secrets.DOCKER_PASSWORD_OSU}}
+
+      run: |
+        docker login -u $DOCKER_USER -p $DOCKER_PASSWORD
+        docker login registry.osupytheas.fr -u $DOCKER_USER_OSU -p $DOCKER_PASSWORD_OSU
+    - name: Build the Docker image
+      working-directory: ./Multi_Page_WebApp
+      run: |
+        docker build . --file services/panel/Dockerfile \
+          --tag registry.osupytheas.fr:443/netcdf_editor_panel_app:$(date +%s) \
+          --tag registry.osupytheas.fr:443/netcdf_editor_panel_app:latest \
+          --tag ceregecl/netcdf_editor_panel_app:latest
+    - name: Docker Push
+      run: |
+        docker push ceregecl/netcdf_editor_panel_app
+        docker push registry.osupytheas.fr:443/netcdf_editor_panel_app
+
+  single_page_app:
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v2
+    - name: docker login
+      env:
+        DOCKER_USER: ${{secrets.DOCKER_USER}}
+        DOCKER_PASSWORD: ${{secrets.DOCKER_PASSWORD}}
+        DOCKER_USER_OSU: ${{secrets.DOCKER_USER_OSU}}
+        DOCKER_PASSWORD_OSU: ${{secrets.DOCKER_PASSWORD_OSU}}
+        
+      run: |
+        docker login -u $DOCKER_USER -p $DOCKER_PASSWORD
+        docker login registry.osupytheas.fr -u $DOCKER_USER_OSU -p $DOCKER_PASSWORD_OSU
+    - name: Build the Docker image
+      working-directory: ./Single_Page_WebApp
+      run: |
+        docker build . --file single_page_webapp.Dockerfile \
+          --tag registry.osupytheas.fr:443/netcdf_editor:$(date +%s) \
+          --tag registry.osupytheas.fr:443/netcdf_editor:latest \
+          --tag ceregecl/netcdf_editor:latest
+    - name: Docker Push
+      run: |
+        docker push ceregecl/netcdf_editor
+        docker push registry.osupytheas.fr:443/netcdf_editor

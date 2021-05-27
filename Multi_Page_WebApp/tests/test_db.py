@@ -1,7 +1,7 @@
 import sqlite3
 
 import pytest
-from netcdf_editor_app.db import (
+from climate_simulation_platform.db import (
     get_db,
     get_file_types,
     get_file_type_counts,
@@ -27,7 +27,7 @@ def test_init_db_command(runner, monkeypatch):
     def fake_init_db():
         Recorder.called = True
 
-    monkeypatch.setattr("netcdf_editor_app.db.init_db", fake_init_db)
+    monkeypatch.setattr("climate_simulation_platform.db.init_db", fake_init_db)
     result = runner.invoke(args=["init-db"])
     assert "Initialized" in result.output
     assert Recorder.called

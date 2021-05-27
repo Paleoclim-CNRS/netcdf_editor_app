@@ -1,0 +1,89 @@
+{% extends 'base.html' %}
+
+{% block header %}
+<h1>{% block title %}{{title}}{% endblock %}</h1>
+{% endblock %}
+
+{% block content %}
+<div class="alert alert-info">
+    This will run the <a href="https://forge.ipsl.jussieu.fr/igcmg/browser/TOOLS/MOZAIC">Mosaic</a> code to
+    calculate the weights between the ocean and the atmosphere. The results will be saved into a tar File
+    that <b>YOU</b> need to copy to your simulateur.
+</div>
+
+<div style="display: flex; align-items: center; justify-content: center;">
+    <div id="loading" style="display: none; padding: 10vh;">
+        <div class="loader"></div>
+        <p style="padding-top: 2em;">Uploading this Generally takes a few moments ...</p>
+    </div>
+</div>
+
+{% if not has_subbasins %}
+<div class="alert alert-danger" role="alert">
+    <p>Subbasins has not been run</p>
+    <button type="submit" class="btn btn-success btn-lg" onclick="window.location.href='{{ url_for( 'app.subbasins' , _id=_id ) }}';">
+        <i class="fas fa-calculator"></i>
+        Subbasins
+    </button>
+</div>
+{% endif %}
+
+{% if not has_bathy %}
+<div class="alert alert-danger" role="alert">
+    <p>Routing has not been run</p>
+    <button type="submit" class="btn btn-success btn-lg" onclick="window.location.href='{{ url_for( 'app.routing' , _id=_id ) }}';">
+        <i class="fas fa-calculator"></i>
+        Routing
+    </button>
+</div>
+{% endif %}
+
+<form name="form" method=post enctype=multipart/form-data>
+    <label for="coordsfile">Coordiantes File:</label>
+    <div id='uploadcoords' class="alert alert-warning" role="alert">
+        <p>
+            Please ensure the file has "XXX" and "YYY" coorindates in curvilinear format.
+        </p>
+        <label for="coordsFileUpload">Coords input file</label>
+        <input type="file" name="file" accept=".nc" class="form-control-file" id="coordsFileUpload">
+    </div>
+    <button id="submit" type="submit" class="btn btn-success btn-lg" onclick="$('#loading').show();$('#proc').hide();">
+        <i class="fas fa-calculator"></i>
+        Start Processing
+    </button>
+</form>
+
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+
+<script>
+    $(document).ready(function () {
+        function isValid() {
+            {% if not has_subbasins %}
+                return false
+            {% endif %}
+            {% if not has_bathy %}
+                return false
+            {% endif %}
+            if (document.getElementById("coordsFileUpload").files.length < 1) {
+                return false
+            }
+            return true
+        }
+
+        function updateProcessing() {
+            var valid = isValid();
+            if (valid) {
+                $('#submit').attr('disabled', false)
+            } else {
+                $('#submit').attr('disabled', true)
+            }
+        }
+
+        $('#coordsFileUpload').change(function () {
+            updateProcessing();
+        })
+        $('#submit').attr('disabled', true)
+    })
+</script>
+{% endblock %}
