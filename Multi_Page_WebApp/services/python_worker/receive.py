@@ -10,18 +10,23 @@ from climate_simulation_platform import create_app
 
 
 def func_params(func, body):
+    print("body: ", body, flush=True)
     # If invalidated isn't in keys then this is a "root" call meaning it should be run
     if "invalidated" not in body.keys():
+        print("Doing nothing returning body", flush=True)
         return body
     # If 'invalidated': 'y(es)' in the body then this means the step has been invalidated
     # It should be rerun IF it has already been run before OR has no params
     # We will rerun it with the same parameters
     if "invalidated" in body.keys() and body["invalidated"].lower() in ["yes", "y"]:
+        print("Invalidated in keys", flush=True)
         if "has_params" in body.keys() and body["has_params"].lower() in ["no", "n"]:
+            print("Doing nothing returning body", flush=True)
             return body
         app = create_app()
         with app.app_context():
             if step_seen(body["id"], func):
+                print("Getting step parameters", flush=True)
                 return step_parameters(body["id"], func)
     return None
 
@@ -55,6 +60,7 @@ def main():
         func = routing_key.split(".")[1]
         body = json.loads(body.decode())
         params = func_params(func, body)
+        print(params, flush=True)
         if params is not None:
             _id = body["id"]
             if func != "invalidate":
@@ -65,19 +71,22 @@ def main():
                 with app.app_context():
                     save_step(_id, func, params, up_to_date=True)
 
-            routing_key_done = ".".join([*routing_key.split(".")[:2], "done"])
-            channel.basic_publish(
-                exchange="preprocessing",
-                routing_key=routing_key_done,
-                body=json.dumps(body),
-                properties=pika.BasicProperties(
-                    delivery_mode=2,  # make message persistent
-                ),
-            )
-            print(
-                " [x] Sent message to {} {}".format(routing_key_done, body),
-                flush=True,
-            )
+            # If next_step_only = True then we don't continue the invalidation chain
+            # If it isn't present then we invalidate -> default option is True
+            if body.get("next_step_only", False):
+                routing_key_done = ".".join([*routing_key.split(".")[:2], "done"])
+                channel.basic_publish(
+                    exchange="preprocessing",
+                    routing_key=routing_key_done,
+                    body=json.dumps(body),
+                    properties=pika.BasicProperties(
+                        delivery_mode=2,  # make message persistent
+                    ),
+                )
+                print(
+                    " [x] Sent message to {} {}".format(routing_key_done, body),
+                    flush=True,
+                )
         print(" [x] Done", flush=True)
         ch.basic_ack(delivery_tag=method.delivery_tag)
 

@@ -22,10 +22,7 @@ def login_required(view):
 def user_required(view):
     @functools.wraps(view)
     def wrapped_view(**kwargs):
-        print("kw: ", kwargs, flush=True)
-        print(g.user["id"])
         owner_id = get_owner_id(kwargs["_id"])
-        print(owner_id)
         if g.user["id"] != owner_id:
             return redirect(url_for("index"))
 

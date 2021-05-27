@@ -366,10 +366,10 @@ def assetsTable(_id):
                 [
                     name.capitalize(),
                     f"<div style='text-align:center'>{file_type_counts[name]}</div>",
-                    '',
-                    '',
-                    '',
-                    '',
+                    "",
+                    "",
+                    "",
+                    "",
                     f"<form action=\"{ url_for('app.download', _id=_id, file_type=name.lower()) }\" method=\"GET\"> \
                         <button type=\"submit\" class=\"btn btn-primary\"><i class=\"fas fa-download\"></i> Download</button> \
                     </form>",

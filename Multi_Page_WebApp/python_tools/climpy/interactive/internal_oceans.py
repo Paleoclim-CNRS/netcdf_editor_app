@@ -1,3 +1,5 @@
+from climate_simulation_platform.db import save_revision, save_step
+from climate_simulation_platform.message_broker import send_preprocessing_message
 from climpy.interactive import ValueChanger
 import panel as pn
 import xarray as xr
@@ -17,28 +19,39 @@ class InternalOceans(ValueChanger):
     ensure_poles = True
 
     def _calculate_ensure_poles(self):
-        arr = numpy.zeros(self.ds[self.attribute.value].shape)
         lon, lat = self._get_ordered_coordinate_dimension_names()
 
         # Values pole ward of 78S should all be land
         if self.elevation_positif:
-            out = xr.where((self.ds[lat] < - 78) & (self.ds[self.attribute.value] < 0), 1, 0)
+            out = xr.where(
+                (self.ds[lat] < -78) & (self.ds[self.attribute.value] < 0), 1, 0
+            )
         else:
-            out = xr.where((self.ds[lat] < - 78) & (self.ds[self.attribute.value] > 0), 1, 0)
-        
+            out = xr.where(
+                (self.ds[lat] < -78) & (self.ds[self.attribute.value] > 0), 1, 0
+            )
+
         # Values poleward of 86N should eith be all land or all ocean
         high_lats = self.ds[self.attribute.value][self.ds[lat] > 86]
         # get predominant
         use_land = ((high_lats > 0).sum() / high_lats.size) > 0.5
         if use_land:
-            out = xr.where((self.ds[lat] > 86) & (self.ds[self.attribute.value] < 0), 1, out)
+            out = xr.where(
+                (self.ds[lat] > 86) & (self.ds[self.attribute.value] < 0), 1, out
+            )
         else:
-            out = xr.where((self.ds[lat] > 86) & (self.ds[self.attribute.value] > 0), 1, out)
+            out = xr.where(
+                (self.ds[lat] > 86) & (self.ds[self.attribute.value] > 0), 1, out
+            )
 
         if self.elevation_positif:
-            out = xr.where((self.ds[self.attribute.value] > 0) & (out != 1), numpy.NaN, out)
+            out = xr.where(
+                (self.ds[self.attribute.value] > 0) & (out != 1), numpy.NaN, out
+            )
         else:
-            out = xr.where((self.ds[self.attribute.value] < 0) & (out != 1), numpy.NaN, out)
+            out = xr.where(
+                (self.ds[self.attribute.value] < 0) & (out != 1), numpy.NaN, out
+            )
         return out
 
     def _calculate_internal_oceans(self):
@@ -145,7 +158,7 @@ class InternalOceans(ValueChanger):
             arr,
             [*self._get_ordered_coordinate_dimension_names()],
             group="Ensure_Poles",
-            clim=(0.2,0.5),
+            clim=(0.2, 0.5),
             clipping_colors={"NaN": "#dedede", "max": "red", "min": "#ffffff"},
         )
         return ensure_poles_image
@@ -175,7 +188,50 @@ class InternalOceans(ValueChanger):
             )
             graphs += ensure_poles
         return graphs
-        
+
+    def only_topo_modified(self):
+        # get the original values of the modified points
+        ori_vals = xr.where(
+            self.ds[self.attribute.value] != self._original_ds[self.attribute.value],
+            self._original_ds[self.attribute.value],
+            numpy.NaN,
+        )
+
+        # get the new values of the modified points
+        new_vals = xr.where(
+            self.ds[self.attribute.value] != self._original_ds[self.attribute.value],
+            self.ds[self.attribute.value],
+            numpy.NaN,
+        )
+        print("new vals min: ", new_vals.min())
+        print("ori vals min: ", ori_vals.min())
+
+        # See if ocean is modified
+        if self.elevation_positif:
+            only_topo = (ori_vals.min() > 0) and (new_vals.min() > 0)
+            print(ori_vals.min() > 0, new_vals.min() > 0, only_topo)
+        else:
+            only_topo = (ori_vals.max() < 0) and (new_vals.min() < 0)
+        return only_topo
+
+    def save(self, event):
+        with self.app.app_context():
+            info = {"changes": self.description.value}
+            save_revision(self.data_file_id, self.ds, self.file_type, info)
+            if self.step is not None:
+                save_step(
+                    self.data_file_id,
+                    step=self.step,
+                    parameters={"id": self.data_file_id},
+                    up_to_date=True,
+                )
+
+                message = {"id": self.data_file_id}
+                task = self.step + ".done"
+                if self.only_topo_modified():
+                    message["next_step_only"] = True
+
+                send_preprocessing_message(task, message=message)
 
 
 if "bokeh_app" in __name__:
