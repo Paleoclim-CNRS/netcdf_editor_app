@@ -119,7 +119,6 @@ def set_data_file_coords(_id, longitude, latitude):
 
 def is_data_file(_id, file_type):
     name, extension = os.path.splitext(get_file_path(_id, file_type, full=False))
-    print(extension, flush=True)
     if extension in ['.nc']:
         return True
     return False
