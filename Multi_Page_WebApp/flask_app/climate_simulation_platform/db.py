@@ -100,7 +100,7 @@ def overwrite_file_nc(_id, ds, file_type=None, revision=-1):
         return None
     ds.to_netcdf(
         filepath,
-        format="NETCDF3_64BIT",
+        engine='scipy'
     )
 
 
