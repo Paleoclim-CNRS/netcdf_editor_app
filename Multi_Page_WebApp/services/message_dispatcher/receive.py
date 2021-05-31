@@ -65,19 +65,20 @@ def main():
 
         if len(routing_key.split(".")) == 3:
             if task in invalidates.keys():
-                tasks_to_process = None
+                tasks_to_invalidate = None
                 if json.loads(body).get("next_step_only", False):
-                    tasks_to_process = invalidates[task]
+                    tasks_to_invalidate = invalidates[task]
                 else:
-                    tasks_to_process = invalidated(task)
-                print(f"[X] task: {task} invalidates {tasks_to_process}", flush=True)
+                    tasks_to_invalidate = invalidated(task)
+                print(f"[X] task: {task} invalidates {tasks_to_invalidate}", flush=True)
                 _id = json.loads(body)["id"]
                 send_task(
                     "invalidate",
-                    json.dumps({"id": _id, "tasks": tasks_to_process}),
+                    json.dumps({"id": _id, "tasks": tasks_to_invalidate}),
                     ch=ch,
                 )
 
+                tasks_to_process = invalidates[task]
                 for step_invalidated in tasks_to_process:
                     _body = {"id": _id, "invalidated": "yes"}
                     if step_invalidated in no_params:
