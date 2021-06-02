@@ -252,6 +252,7 @@ def calculate_orog(topo):
 
 
 def calculate_omsk(topo):
+    # omsk has the value of 0 on continents and 1 in ocean
     omsk = numpy.zeros(topo.shape)
     omsk[topo <= 0] = 1
     return omsk
@@ -690,13 +691,13 @@ def calculate_dzz(topo, trip, distbox, omsk):
     # If values are less than 5 then clip them to "avoid unpleasant surprises"
     dzz = numpy.where(dzz > 5, dzz, 5)
     # Replace ocean values with 0
-    dzz = numpy.where(omsk == 0, dzz, 0)
+    dzz = numpy.where(omsk == 1, dzz, 0)
     return dzz
 
 
 def calculate_topo_index(distbox, dzz, omsk):
     topoindex = numpy.sqrt(distbox ** 3.0 / (dzz * 10 ** 6))
-    topoindex = numpy.where(omsk == 0, topoindex, numpy.nan)
+    topoindex = numpy.where(omsk == 1, topoindex, numpy.nan)
     return topoindex
 
 
@@ -872,10 +873,10 @@ def create_topo_high_res(topo):
 def create_soils(rlat, rlon, omsk):
     soil_color = numpy.ones(rlat.shape) * 4.0
     # Mask Oceans
-    soil_color[omsk == 0] = 0
+    soil_color[omsk == 1] = 0
     soil_text = numpy.ones(rlat.shape) * 3.0
     # Mask Oceans
-    soil_text[omsk == 0] = 0
+    soil_text[omsk == 1] = 0
 
     # create output dataset
     ds = xr.Dataset(
