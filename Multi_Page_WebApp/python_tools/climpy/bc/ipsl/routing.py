@@ -691,13 +691,13 @@ def calculate_dzz(topo, trip, distbox, omsk):
     # If values are less than 5 then clip them to "avoid unpleasant surprises"
     dzz = numpy.where(dzz > 5, dzz, 5)
     # Replace ocean values with 0
-    dzz = numpy.where(omsk == 1, dzz, 0)
+    dzz = numpy.where(omsk == 0, dzz, 0)
     return dzz
 
 
 def calculate_topo_index(distbox, dzz, omsk):
     topoindex = numpy.sqrt(distbox ** 3.0 / (dzz * 10 ** 6))
-    topoindex = numpy.where(omsk == 1, topoindex, numpy.nan)
+    topoindex = numpy.where(omsk == 0, topoindex, numpy.nan)
     return topoindex
 
 
