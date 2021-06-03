@@ -372,7 +372,7 @@ class ValueChanger(param.Parameterized):
     def cleanup_ds(self, ds):
         # Reset coords will remove the lat lon coords that we moved from data variables to coords
         # drop will remove the dimensions we added
-        ds = ds.reset_coords([self._lat_lon_ori.keys()]).drop([*ds.dims])
+        ds = ds.reset_coords([*self._lat_lon_ori.keys()]).drop([*ds.dims])
         return ds
 
     def save(self, event):
