@@ -884,8 +884,8 @@ def create_soils(rlat, rlon, omsk):
         data_vars={
             "nav_lon": (["y", "x"], rlon),
             "nav_lat": (["y", "x"], rlat),
-            "soilcolor": (["y", "x"], soil_color),
-            "soiltext": (["y", "x"], soil_text),
+            "soilcolor": (["y", "x"], soil_color[::-1]),
+            "soiltext": (["y", "x"], soil_text[::-1]),
         },
     )
     ds["nav_lon"].attrs = {
