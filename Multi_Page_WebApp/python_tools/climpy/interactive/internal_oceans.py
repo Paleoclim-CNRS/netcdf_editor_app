@@ -217,7 +217,8 @@ class InternalOceans(ValueChanger):
     def save(self, event):
         with self.app.app_context():
             info = {"changes": self.description.value}
-            save_revision(self.data_file_id, self.ds, self.file_type, info)
+            ds = self.cleanup_ds(self.ds)
+            save_revision(self.data_file_id, ds, self.file_type, info)
             if self.step is not None:
                 save_step(
                     self.data_file_id,

@@ -172,6 +172,15 @@ class ValueChanger(param.Parameterized):
         self.loaded = False
         with self.app.app_context():
             ds = load_file(_id, self.file_type)
+
+        # If lat and lon are in varaibles move them to coords
+        d = {}
+        for var in ds.data_vars:
+            if 'lat' in var.lower() or 'lon' in var.lower():
+                d[var] = var
+        ds = ds.set_coords(d)
+        self._lat_lon_ori = d
+
         self.curvilinear_coordinates = None
 
         number_coordinates_in_system = len(list(ds.coords.variables.values())[0].dims)
@@ -359,11 +368,18 @@ class ValueChanger(param.Parameterized):
         self._apply_action(redo_action)
         # Add the action to the list of undo actions
         self._undo_list.append(redo_action)
+    
+    def cleanup_ds(self, ds):
+        # Reset coords will remove the lat lon coords that we moved from data variables to coords
+        # drop will remove the dimensions we added
+        ds = ds.reset_coords([self._lat_lon_ori.keys()]).drop([*ds.dims])
+        return ds
 
     def save(self, event):
         with self.app.app_context():
             info = {"changes": self.description.value}
-            save_revision(self.data_file_id, self.ds, self.file_type, info)
+            ds = self.cleanup_ds(self.ds)
+            save_revision(self.data_file_id, ds, self.file_type, info)
             if self.step is not None:
                 save_step(
                     self.data_file_id,
