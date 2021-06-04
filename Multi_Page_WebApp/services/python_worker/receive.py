@@ -73,7 +73,7 @@ def main():
 
             # If next_step_only = True then we don't continue the invalidation chain
             # If it isn't present then we invalidate -> default option is True
-            if body.get("next_step_only", False):
+            if not body.get("next_step_only", False):
                 routing_key_done = ".".join([*routing_key.split(".")[:2], "done"])
                 channel.basic_publish(
                     exchange="preprocessing",
