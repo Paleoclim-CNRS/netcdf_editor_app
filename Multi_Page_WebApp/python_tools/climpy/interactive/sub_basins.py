@@ -33,6 +33,15 @@ class SubBasins(ValueChanger):
         assert ds.Bathymetry.shape == (149, 182)
         ds.Bathymetry.values = self._default_ocean_values(ds.Bathymetry.values)
         ds = ds.rename({"Bathymetry": "Oceans"})
+
+        # If lat and lon are in varaibles move them to coords
+        d = {}
+        for var in ds.data_vars:
+            if 'lat' in var.lower() or 'lon' in var.lower():
+                d[var] = var
+        ds = ds.set_coords(d)
+        self._lat_lon_ori = d
+
         self.curvilinear_coordinates = None
 
         number_coordinates_in_system = len(list(ds.coords.variables.values())[0].dims)
