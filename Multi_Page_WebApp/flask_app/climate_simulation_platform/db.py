@@ -39,6 +39,21 @@ def init_db():
     with current_app.open_resource("db_schema.sql") as f:
         db.executescript(f.read().decode("utf8"))
 
+def get_undo_list(_id, step):
+    db = get_db()
+
+    query ="SELECT parameters FROM STEPS WHERE data_file_id = ? AND step = ?"
+
+    row = db.execute(query, (_id, step)).fetchone()
+    if row is not None:
+        parameters = json.loads(row['parameters'])
+        try:
+            return json.loads(parameters['undo_list'])
+        except KeyError:
+            return []
+    return []
+    
+
 
 def update_user_password(user_id, password):
     print(f"Updating password for userid {user_id}", flush=True)

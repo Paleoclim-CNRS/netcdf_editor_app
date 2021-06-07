@@ -1,5 +1,5 @@
 from climate_simulation_platform import create_app
-from climate_simulation_platform.db import load_file, save_revision, save_step
+from climate_simulation_platform.db import load_file, save_revision, save_step, get_undo_list
 from climate_simulation_platform.message_broker import send_preprocessing_message
 from bokeh.models import FixedTicker
 import panel as pn
@@ -96,6 +96,9 @@ class ValueChanger(param.Parameterized):
         self.redo_button = pn.widgets.Button(
             name="Redo \u21B7", align="end", button_type="warning"
         )
+        self.apply_previous_changes = pn.widgets.Button(
+            name="\u2713 Apply Previous Changes", align="end", button_type="primary"
+        )
         self.save_button = pn.widgets.Button(
             name="Save", align="end", button_type="success"
         )
@@ -138,6 +141,7 @@ class ValueChanger(param.Parameterized):
         super().__init__(**params)
 
         self.apply.on_click(self._apply_values)
+        self.apply_previous_changes.on_click(self._apply_previous_changes)
         self.undo_button.on_click(self.undo)
         self.redo_button.on_click(self.redo)
         self.save_button.on_click(self.save)
@@ -439,6 +443,16 @@ class ValueChanger(param.Parameterized):
 
         self.selection.selection_expr = None
 
+    def _apply_previous_changes(self, event):
+        with self.app.app_context():
+            undo_list = get_undo_list(self.data_file_id, self.step)
+        for action in undo_list:
+            # Apply the action
+            self._apply_action(action)
+
+            # Add the action to the list of undo actions
+            self._undo_list.append(action)
+
     def _get_ordered_coordinate_dimension_names(self):
         dimension_names = list(self.ds.coords)
         if "lat" in dimension_names[0].lower() and "lon" in dimension_names[1].lower():
@@ -530,6 +544,7 @@ class ValueChanger(param.Parameterized):
                     self.spinner,
                     self.apply,
                     pn.Row(self.undo_button, self.redo_button),
+                    self.apply_previous_changes,
                 ),
             ]
         )

@@ -1,3 +1,4 @@
+import json
 from climate_simulation_platform.db import save_revision, save_step
 from climate_simulation_platform.message_broker import send_preprocessing_message
 from climpy.interactive import ValueChanger
@@ -219,11 +220,15 @@ class InternalOceans(ValueChanger):
             info = {"changes": self.description.value}
             ds = self.cleanup_ds(self.ds)
             save_revision(self.data_file_id, ds, self.file_type, info)
+            print(self._undo_list, flush=True)
             if self.step is not None:
                 save_step(
                     self.data_file_id,
                     step=self.step,
-                    parameters={"id": self.data_file_id},
+                    parameters={
+                        "id": self.data_file_id,
+                        "undo_list": json.dumps(self._undo_list),
+                    },
                     up_to_date=True,
                 )
 
