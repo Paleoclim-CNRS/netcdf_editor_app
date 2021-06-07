@@ -5,9 +5,13 @@ from bokeh.models import FixedTicker
 import panel as pn
 from holoviews import opts
 from holoviews.selection import link_selections
+# Used for selection_expr as string
+from holoviews.util.transform import dim  # noqa: F401
+
 import xarray as xr
 import param
 import numpy
+import json
 
 from scipy.ndimage import measurements
 from scipy.signal import convolve2d
@@ -266,7 +270,11 @@ class ValueChanger(param.Parameterized):
 
     def _set_values(
         self, value, calculation_type, selection_expr, land=True, ocean=True
-    ):
+    ):  
+        # If the selection_expr is in string representation then
+        # Convert to object code
+        if isinstance(selection_expr, str):
+            selection_expr = eval(selection_expr)
         hvds = hv.Dataset(
             self.ds.to_dataframe(
                 dim_order=[*list(self.ds[self.attribute.value].dims)]
@@ -387,7 +395,10 @@ class ValueChanger(param.Parameterized):
                 save_step(
                     self.data_file_id,
                     step=self.step,
-                    parameters={"id": self.data_file_id},
+                    parameters={
+                        "id": self.data_file_id, 
+                        "undo_list": json.dumps(self._undo_list)
+                    },
                     up_to_date=True,
                 )
                 send_preprocessing_message(
@@ -414,7 +425,7 @@ class ValueChanger(param.Parameterized):
         if self.selection.selection_expr is None:
             return
         action = {
-            "selection_expr": self.selection.selection_expr,
+            "selection_expr": str(self.selection.selection_expr),
             "calculation_type": self.calculation_type.value,
             "value": self.spinner.value,
             "land": self.land.value,
