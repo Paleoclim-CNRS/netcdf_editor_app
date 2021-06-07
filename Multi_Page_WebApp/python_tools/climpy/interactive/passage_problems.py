@@ -1,3 +1,4 @@
+import json
 from climate_simulation_platform.db import save_revision, save_step
 from climate_simulation_platform.message_broker import send_preprocessing_message
 from climpy.interactive import InternalOceans
@@ -127,7 +128,10 @@ class PassageProblems(InternalOceans):
                 save_step(
                     self.data_file_id,
                     step=self.step,
-                    parameters={"id": self.data_file_id},
+                    parameters={
+                        "id": self.data_file_id, 
+                        "undo_list": json.dumps(self._undo_list)
+                    },
                     up_to_date=True,
                 )
                 send_preprocessing_message(

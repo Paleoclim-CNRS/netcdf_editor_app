@@ -1,3 +1,4 @@
+import json
 from climpy.interactive import ValueChanger
 import panel as pn
 import xarray as xr
@@ -154,7 +155,10 @@ class SubBasins(ValueChanger):
                 save_step(
                     self.data_file_id,
                     step=self.step,
-                    parameters={"id": self.data_file_id},
+                    parameters={
+                        "id": self.data_file_id, 
+                        "undo_list": json.dumps(self._undo_list)
+                    },
                     up_to_date=True,
                 )
                 send_preprocessing_message(
