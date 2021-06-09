@@ -203,6 +203,10 @@ def set_coords(_id):
         next_page = request.form["next"]
         if "/upload" in next_page:
             next_page = url_for("index")
+        if "None" in next_page:
+            next_page = url_for("index")
+        if next_page is None:
+            next_page = url_for("index")
         return redirect(next_page)
 
     coordinate_names = get_coord_names(_id)
