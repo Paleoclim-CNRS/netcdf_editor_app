@@ -63,19 +63,19 @@ def main():
                 with app.app_context():
                     save_step(_id, func, params, up_to_date=True)
 
-        routing_key_done = ".".join([*routing_key.split(".")[:2], "done"])
-        channel.basic_publish(
-            exchange="preprocessing",
-            routing_key=routing_key_done,
-            body=json.dumps(body),
-            properties=pika.BasicProperties(
-                delivery_mode=2,  # make message persistent
-            ),
-        )
-        print(
-            " [x] {} Sent message to {} {}".format(datetime.now(), routing_key_done, body),
-            flush=True,
-        )
+            routing_key_done = ".".join([*routing_key.split(".")[:2], "done"])
+            channel.basic_publish(
+                exchange="preprocessing",
+                routing_key=routing_key_done,
+                body=json.dumps(body),
+                properties=pika.BasicProperties(
+                    delivery_mode=2,  # make message persistent
+                ),
+            )
+            print(
+                " [x] {} Sent message to {} {}".format(datetime.now(), routing_key_done, body),
+                flush=True,
+            )
         print(f" [x] {datetime.now()} Done", flush=True)
         ch.basic_ack(delivery_tag=method.delivery_tag)
 
