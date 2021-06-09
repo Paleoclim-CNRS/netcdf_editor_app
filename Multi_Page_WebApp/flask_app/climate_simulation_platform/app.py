@@ -151,7 +151,7 @@ def download_all(_id):
             filename_out = ".".join(filename_parts)
 
             # Add info into the netcdf file
-            print(f"Adding info to {file_type}", flush=True)
+            print(f"{datetime.now()} Adding info to {file_type}", flush=True)
             info = get_info(_id, file_type)
             # Add extra info
             info[

@@ -1,3 +1,4 @@
+from datetime import datetime
 import sqlite3
 import os
 import json
@@ -56,7 +57,7 @@ def get_undo_list(_id, step):
 
 
 def update_user_password(user_id, password):
-    print(f"Updating password for userid {user_id}", flush=True)
+    print(f"{datetime.now()} Updating password for userid {user_id}", flush=True)
     db = get_db()
     db.execute(
         "UPDATE user SET password = ? WHERE id = ?",
@@ -311,16 +312,16 @@ def save_step(_id, step, parameters, up_to_date=True):
             " VALUES (?, ?, ?, ?)",
             (str(_id), step, parameters, int(up_to_date)),
         )
-        print(f" [*] Saving : {(str(_id), step, parameters, int(up_to_date))}")
+        print(f" [*] {datetime.now()} Saving : {(str(_id), step, parameters, int(up_to_date))}")
     else:  # update parameters and set as up to date
         db.execute(
             "UPDATE steps SET parameters = ?, up_to_date = ? WHERE data_file_id = ? AND step = ?",
             (parameters, int(up_to_date), str(_id), step),
         )
-        print(f" [*] Saving : {(parameters, int(up_to_date), str(_id), step)}")
+        print(f" [*] {datetime.now()} Saving : {(parameters, int(up_to_date), str(_id), step)}")
     db.commit()
     try:
-        flash(f"Updated Step {step} for {_id}")
+        flash(f" {datetime.now()} Updated Step {step} for {_id}")
     except RuntimeError:
         pass
 
@@ -332,7 +333,7 @@ def invalidate_step(_id, step):
         "UPDATE steps SET up_to_date = ? WHERE data_file_id = ? AND step = ?",
         (0, str(_id), step),
     )
-    print(f" [*] Invalidating : {(0, str(_id), step)}")
+    print(f" [*] {datetime.now()} Invalidating : {(0, str(_id), step)}")
 
     db.commit()
 

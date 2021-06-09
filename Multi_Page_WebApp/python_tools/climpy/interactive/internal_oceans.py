@@ -204,13 +204,10 @@ class InternalOceans(ValueChanger):
             self.ds[self.attribute.value],
             numpy.NaN,
         )
-        print("new vals min: ", new_vals.min())
-        print("ori vals min: ", ori_vals.min())
 
         # See if ocean is modified
         if self.elevation_positif:
             only_topo = (ori_vals.min() > 0) and (new_vals.min() > 0)
-            print(ori_vals.min() > 0, new_vals.min() > 0, only_topo)
         else:
             only_topo = (ori_vals.max() < 0) and (new_vals.min() < 0)
         return only_topo
@@ -220,7 +217,6 @@ class InternalOceans(ValueChanger):
             info = {"changes": self.description.value}
             ds = self.cleanup_ds(self.ds)
             save_revision(self.data_file_id, ds, self.file_type, info)
-            print(self._undo_list, flush=True)
             if self.step is not None:
                 save_step(
                     self.data_file_id,

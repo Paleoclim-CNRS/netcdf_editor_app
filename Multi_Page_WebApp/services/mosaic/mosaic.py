@@ -1,3 +1,4 @@
+from datetime import datetime
 from pathlib import Path
 import os
 import shutil
@@ -82,15 +83,15 @@ class MosaicRunner(object):
         self.run_def.to_file(run_def_filepath)
 
         # Run Grids.sh
-        print("Running Grids", flush=True)
+        print(f"{datetime.now()} Running Grids", flush=True)
         subprocess.Popen("./grids.sh", cwd=mozaic_dir, stdout=subprocess.PIPE).wait()
 
-        print("Running mosaic", flush=True)
+        print(f"{datetime.now()} Running mosaic", flush=True)
         proc = subprocess.Popen("./mosaic.exe", cwd=mozaic_dir, stdout=subprocess.PIPE)
         (output, err) = proc.communicate()
         proc.wait()
 
-        print("Updating rundef jma2o and jmo2a")
+        print(f"{datetime.now()} Updating rundef jma2o and jmo2a")
         output = output.decode("utf-8").split("\n")
         for line in output:
             if "oce -> atm ADRESSE1 WEIGHTS1 Neighbors :" in line:
@@ -122,18 +123,18 @@ class MosaicRunner(object):
         self.run_def.to_file(run_def_filepath)
 
         # Run Grids.sh -r
-        print("Running Grids", flush=True)
+        print(f"{datetime.now()} Running Grids", flush=True)
         subprocess.Popen(
             ["./grids.sh", "-r"], cwd=mozaic_dir, stdout=subprocess.PIPE
         ).wait()
 
         # Running cotes
-        print("Running cotes", flush=True)
+        print(f"{datetime.now()} Running cotes", flush=True)
         proc = subprocess.Popen("./cotes.exe", cwd=mozaic_dir, stdout=subprocess.PIPE)
         (output, err) = proc.communicate()
         proc.wait()
 
-        print("Updating rundef jma2or")
+        print(f"{datetime.now()} Updating rundef jma2or")
         output = output.decode("utf-8").split("\n")
         for line in output:
             if "atm -> oce ADRESSE3 WEIGHTS3 Number of neighbors :" in line:
@@ -152,7 +153,7 @@ class MosaicRunner(object):
         self.run_def.to_file(run_def_filepath)
 
         # Run allwei
-        print("Running allwei")
+        print(f"{datetime.now()} Running allwei")
         subprocess.Popen(
             ["./allwei.sh"], cwd=self.mosaic_dir, stdout=subprocess.PIPE
         ).wait()

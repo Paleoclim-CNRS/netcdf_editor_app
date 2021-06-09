@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+from datetime import datetime
 import pika
 import os
 import steps  # noqa: F401
@@ -44,7 +45,7 @@ def func_params(func, body):
 def run_function(method, body):
     app = create_app()
     routing_key = method.routing_key
-    print(" [x] Received %r" % routing_key, flush=True)
+    print(f" [x] {datetime.now()} Received message from {routing_key} with body: {body.decode()}", flush=True)
     func = routing_key.split(".")[1]
     body = json.loads(body.decode())
     params = func_params(func, body)
@@ -170,7 +171,7 @@ def do_work(conn, ch, method, delivery_tag, body):
 
 def on_message(ch, method_frame, _header_frame, body, args):
     (conn, thrds) = args
-    print(" [x] Received %r" % body.decode(), flush=True)
+    print(f" [x] {datetime.now()} Received {body.decode()}", flush=True)
     delivery_tag = method_frame.delivery_tag
     t = threading.Thread(
         target=do_work, args=(conn, ch, method_frame, delivery_tag, body)

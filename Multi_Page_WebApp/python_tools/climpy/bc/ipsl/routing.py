@@ -376,8 +376,8 @@ def get_next_cell(cells, temp_array, trip):
         jp1 = 0
     next_cell = (ip1, jp1)
     if ip1 >= temp_array.shape[0] or ip1 < 0:
-        raise AssertionError(f"Shouldn't be here, {ii}, {jj}")
-        print(f"Shouldn't be here, {ii}, {jj}")
+        raise AssertionError(f"{datetime.now()} Shouldn't be here, {ii}, {jj}")
+        print(f" {datetime.now()} Shouldn't be here, {ii}, {jj}")
         return cells, "outside", next_cell
     # If the next cell is ocean then we are done
     if numpy.isnan(trip[next_cell]):

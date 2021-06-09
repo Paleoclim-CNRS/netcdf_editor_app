@@ -3,6 +3,7 @@ import pika
 import sys
 import os
 import json
+from datetime import datetime
 
 from constants import tasks, invalidates, invalidated, no_params
 
@@ -20,7 +21,7 @@ def send_task(task, body, ch):
                 ),
             )
             print(
-                " [x] Sent message to {} {}".format(routing_key, body),
+                " [x] {} Sent message to {} {}".format(datetime.now(), routing_key, body),
                 flush=True,
             )
             return
@@ -48,13 +49,9 @@ def main():
     )
 
     def callback(ch, method, properties, body):
-        # print(" [x] ch: ", ch, flush=True)
-        # print(" [x] method: ", method, flush=True)
-        # print(" [x] properties: ", properties, flush=True)
-        print(" [x] Received %r" % body.decode(), flush=True)
 
         routing_key = method.routing_key
-        print(" [x] Received %r" % routing_key, flush=True)
+        print(f" [x] {datetime.now()} Received message from {routing_key} with body: {body.decode()}", flush=True)
 
         # task is second object
         task = routing_key.split(".")[1]
@@ -77,7 +74,7 @@ def main():
                     tasks_to_invalidate = []
                 else:
                     tasks_to_invalidate = invalidated(task)
-                print(f"[X] task: {task} invalidates {tasks_to_invalidate}", flush=True)
+                print(f"[x] {datetime.now()} task: {task} invalidates {tasks_to_invalidate}", flush=True)
                 _id = json.loads(body)["id"]
                 send_task(
                     "invalidate",
@@ -93,7 +90,7 @@ def main():
                         _body['next_step_only'] = 'done'
                     send_task(step_invalidated, body=json.dumps(_body), ch=ch)
 
-        print(" [x] Done", flush=True)
+        print(f" [x] {datetime.now()} Done", flush=True)
         ch.basic_ack(delivery_tag=method.delivery_tag)
 
     channel.basic_qos(prefetch_count=1)
@@ -101,7 +98,7 @@ def main():
         queue="preprocessing_task_queue", on_message_callback=callback
     )
 
-    print(" [*] Waiting for messages. To exit press CTRL+C", flush=True)
+    print(f" [*] {datetime.now()} Waiting for messages. To exit press CTRL+C", flush=True)
     channel.start_consuming()
 
 

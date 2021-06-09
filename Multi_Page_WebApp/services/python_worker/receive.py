@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+from datetime import datetime
 import pika
 import os
 import sys
@@ -10,23 +11,18 @@ from climate_simulation_platform import create_app
 
 
 def func_params(func, body):
-    print("body: ", body, flush=True)
     # If invalidated isn't in keys then this is a "root" call meaning it should be run
     if "invalidated" not in body.keys():
-        print("Doing nothing returning body", flush=True)
         return body
     # If 'invalidated': 'y(es)' in the body then this means the step has been invalidated
     # It should be rerun IF it has already been run before OR has no params
     # We will rerun it with the same parameters
     if "invalidated" in body.keys() and body["invalidated"].lower() in ["yes", "y"]:
-        print("Invalidated in keys", flush=True)
         if "has_params" in body.keys() and body["has_params"].lower() in ["no", "n"]:
-            print("Doing nothing returning body", flush=True)
             return body
         app = create_app()
         with app.app_context():
             if step_seen(body["id"], func):
-                print("Getting step parameters", flush=True)
                 return step_parameters(body["id"], func)
     return None
 
@@ -50,17 +46,13 @@ def main():
     )
 
     def callback(ch, method, properties, body):
-        # print(" [x] ch: ", ch, flush=True)
-        # print(" [x] method: ", method, flush=True)
-        # print(" [x] properties: ", properties, flush=True)
-        print(" [x] Received %r" % body.decode(), flush=True)
 
         routing_key = method.routing_key
-        print(" [x] Received %r" % routing_key, flush=True)
+        print(f" [x] {datetime.now()} Received message from {routing_key} with body: {body.decode()}", flush=True)
         func = routing_key.split(".")[1]
         body = json.loads(body.decode())
         params = func_params(func, body)
-        print(params, flush=True)
+        print(f"{datetime.now()} Params: {params}", flush=True)
         if params is not None:
             _id = body["id"]
             if func != "invalidate":
@@ -81,10 +73,10 @@ def main():
             ),
         )
         print(
-            " [x] Sent message to {} {}".format(routing_key_done, body),
+            f" [x] {} Sent message to {} {}".format(datetime.now(), routing_key_done, body),
             flush=True,
         )
-        print(" [x] Done", flush=True)
+        print(f" [x] {datetime.now()} Done", flush=True)
         ch.basic_ack(delivery_tag=method.delivery_tag)
 
     channel.basic_qos(prefetch_count=1)
@@ -92,7 +84,7 @@ def main():
         queue="preprocessing_python_task_queue", on_message_callback=callback
     )
 
-    print(" [*] Waiting for messages. To exit press CTRL+C", flush=True)
+    print(f" [*] {datetime.now()} Waiting for messages. To exit press CTRL+C", flush=True)
     channel.start_consuming()
 
 

@@ -3,6 +3,8 @@ from flask import g
 import os
 import json
 
+from datetime import datetime
+
 
 def get_connection():
     if "connection" not in g:
@@ -43,4 +45,4 @@ def send_preprocessing_message(routing_key, message=None):
             delivery_mode=2,  # make message persistent
         ),
     )
-    print(f" [x] Message Sent {json.dumps(message)}", flush=True)
+    print(f" [x] {datetime.now()} Message Sent {json.dumps(message)}", flush=True)
