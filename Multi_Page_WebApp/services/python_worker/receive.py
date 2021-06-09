@@ -73,7 +73,7 @@ def main():
             ),
         )
         print(
-            f" [x] {} Sent message to {} {}".format(datetime.now(), routing_key_done, body),
+            " [x] {} Sent message to {} {}".format(datetime.now(), routing_key_done, body),
             flush=True,
         )
         print(f" [x] {datetime.now()} Done", flush=True)
