@@ -1,3 +1,4 @@
+from datetime import datetime
 import numpy
 import json
 
@@ -57,7 +58,7 @@ def regrid(body):
         lat: new_values[1],
     }
     ds = ds.interp(interp_options, method=interpolator, kwargs=dict(fill_value=None))
-    print(" [x] interpolation finished", flush=True)
+    print(f" [x] {datetime.now()} interpolation finished", flush=True)
     # Save file
     with app.app_context():
         save_revision(_id, ds, "raw")
