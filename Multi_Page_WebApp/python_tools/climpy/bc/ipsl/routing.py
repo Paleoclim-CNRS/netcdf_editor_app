@@ -194,8 +194,9 @@ def _add_gradient_to_flats(topo):
     is_flat = numpy.sum(arrays == 0, axis=0) > 0
 
     # Only take land cells
-    is_pas[topo < 0] = False
-    is_flat[topo < 0] = False
+    #TODO maybe we should be passing omsk in to ensure we have the correct values
+    is_pas[topo <= 0] = False
+    is_flat[topo <= 0] = False
 
     # Exit points from flat basins are defined as the points that have the same
     # altitude as a neighbor cell (is_flat) and at least one downward cell (is_pas)
@@ -248,12 +249,15 @@ def fix_topo(topo, latitudes):
 
 def calculate_orog(topo):
     orog = topo.copy()
+    # Set see  values to NaN
+    #TODO pass omsk in??
     orog[orog <= 0] = numpy.nan
     return orog
 
 
 def calculate_omsk(topo):
     # omsk has the value of 0 on continents and 1 in ocean
+    # Oceans are defined as values less than or equal to 0
     omsk = numpy.zeros(topo.shape)
     omsk[topo <= 0] = 1
     return omsk
@@ -406,7 +410,8 @@ def calculate_basins(topo, trip, area):
     # Setup a basin number
     basin_nb = 1
 
-    # While we still have points higher than 0 calculate the runoff cells from this high point
+    # While we still have points that are on land (higher than 0)
+    #  calculate the runoff cells from this high point
     while topo[highest_point] > 0:
         # Get cells connected to current cell
         cells, end_reason, next_cell = get_next_cell([highest_point], basins, trip)
@@ -692,12 +697,18 @@ def calculate_dzz(topo, trip, distbox, omsk):
     # If values are less than 5 then clip them to "avoid unpleasant surprises"
     dzz = numpy.where(dzz > 5, dzz, 5)
     # Replace ocean values with 0
+    # omsk: 
+    # - ocean = 1
+    # - land = 0
+    # Keep dzz values on land and everything else make 0
     dzz = numpy.where(omsk == 0, dzz, 0)
     return dzz
 
 
 def calculate_topo_index(distbox, dzz, omsk):
     topoindex = numpy.sqrt(distbox ** 3.0 / (dzz * 10 ** 6))
+    # omsk == 0 -> Land values
+    # keep topoindex on land and NaN in the ocean
     topoindex = numpy.where(omsk == 0, topoindex, numpy.nan)
     return topoindex
 
@@ -786,6 +797,9 @@ def create_routing_netcdf(
 def create_bathy_paleo_orca(topo, custom_orca=None):
     # Transform topo to bathy and mask land
     bathy = topo * -1
+    # Ocean values are now positive or equal to 0
+    # Any strictly negative value is a continent
+    #TODO we could pass omsk in for consitency
     bathy[bathy < 0] = 0
     # Remap to nemo grid
     # Load grid
@@ -865,6 +879,8 @@ def create_topo_high_res(topo):
     }
     ds.RELIEF.attrs = {"long_name": "relief"}
     relief = ds.RELIEF.values.copy()
+    # Ocean values are <= 0
+    # < 0 chooses all ocean points not already set to 0
     relief[relief < 0] = 0
     relief[numpy.isnan(relief)] = 0
     ds.RELIEF.values = relief

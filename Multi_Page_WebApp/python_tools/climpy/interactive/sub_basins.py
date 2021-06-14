@@ -24,6 +24,7 @@ class SubBasins(ValueChanger):
         arr[:, 0:93] = 2
         arr[:, 93:145] = 1
         arr[:, 145:183] = 3
+        # bathy values of 0 -> Land
         arr[bathy <= 0] = 0
         return arr
 

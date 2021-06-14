@@ -27,7 +27,7 @@ def test_generate_pft_netcdf():
     results = ds.maxvegetfrac.values
     assert results.shape == (1, 13, 360, 720)
     # Make sure ocean values are nan
-    x, y = numpy.where(topo < 0)
+    x, y = numpy.where(topo <= 0)
     assert numpy.all(numpy.isnan(results[0, :, x, y]))
 
     empty_arrs = [0, 3, 6, 10, 11, 12]

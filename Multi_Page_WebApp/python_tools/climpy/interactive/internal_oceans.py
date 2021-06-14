@@ -23,13 +23,14 @@ class InternalOceans(ValueChanger):
         lon, lat = self._get_ordered_coordinate_dimension_names()
 
         # Values pole ward of 78S should all be land
+        # Ocean includes 0
         if self.elevation_positif:
             out = xr.where(
-                (self.ds[lat] < -78) & (self.ds[self.attribute.value] < 0), 1, 0
+                (self.ds[lat] < -78) & (self.ds[self.attribute.value] <= 0), 1, 0
             )
         else:
             out = xr.where(
-                (self.ds[lat] < -78) & (self.ds[self.attribute.value] > 0), 1, 0
+                (self.ds[lat] < -78) & (self.ds[self.attribute.value] >= 0), 1, 0
             )
 
         # Values poleward of 86N should eith be all land or all ocean
@@ -38,7 +39,7 @@ class InternalOceans(ValueChanger):
         use_land = ((high_lats > 0).sum() / high_lats.size) > 0.5
         if use_land:
             out = xr.where(
-                (self.ds[lat] > 86) & (self.ds[self.attribute.value] < 0), 1, out
+                (self.ds[lat] > 86) & (self.ds[self.attribute.value] <= 0), 1, out
             )
         else:
             out = xr.where(
@@ -63,7 +64,7 @@ class InternalOceans(ValueChanger):
         if self.elevation_positif:
             ocean = self.ds[self.attribute.value] <= 0
         else:
-            ocean = self.ds[self.attribute.value] > 0
+            ocean = self.ds[self.attribute.value] >= 0
 
         # Use scipy to calculate internal oceans
         labeled_array, num_features = measurements.label(ocean)

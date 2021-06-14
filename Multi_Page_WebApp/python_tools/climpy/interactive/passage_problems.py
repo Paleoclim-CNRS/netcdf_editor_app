@@ -41,6 +41,7 @@ class PassageProblems(InternalOceans):
 
         # we recode the values of land to -1 as
         # we did in the template
+        # We are dealing with the bathy file normally so ocean values are > 0
         values = (self.ds[self.attribute.value].values > 0).astype(int)
         values[values == 0] = -1
 
