@@ -63,7 +63,7 @@ def generate_pft_netcdf(topo, latitudes, pft_values):
         _from = _to
 
     # Convert oceans values to NaN values
-    xx, yy = numpy.where(topo < 0)
+    xx, yy = numpy.where(topo <= 0)
     arr[:, xx, yy] = numpy.nan
 
     ds = xr.Dataset(
