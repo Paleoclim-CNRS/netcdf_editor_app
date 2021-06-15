@@ -24,7 +24,7 @@ def test_register(client, app):
     (
         ("", "", b"Username is required."),
         ("a", "", b"Password is required."),
-        ("test", "test", b"already registered"),
+        ("test", "test", b"User already in database and you don&#39;t have permission to change password"),
     ),
 )
 def test_register_validate_input(client, username, password, message):

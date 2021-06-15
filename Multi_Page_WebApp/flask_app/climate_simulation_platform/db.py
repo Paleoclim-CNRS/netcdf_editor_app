@@ -79,21 +79,22 @@ def add_user(username, password, init=False):
     # The user is already in the database
     if _id is not None:
         # Check Updating own name
+        # init = True -> intializing database so we can add even if we don't have permission
         if init:
             update_user_password(_id, password)
-        elif "id" in g.user and g.user["id"] == _id:
+        # If not initializing check user exists in g and that it is the current user
+        elif g.user is not None and "id" in g.user and g.user["id"] == _id:
             update_user_password(_id, password)
         else:
-            flash(
-                "User already in database and you don't have permission to change password"
-            )
+            error = "User already in database and you don't have permission to change password"
+            return error
 
     else:
         db.execute(
             "INSERT INTO user (username, password) VALUES (?, ?)",
             (username, generate_password_hash(password)),
         )
-    db.commit()
+        db.commit()
 
 
 def load_file(_id, file_type=None, revision=-1):

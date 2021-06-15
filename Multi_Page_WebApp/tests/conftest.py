@@ -17,6 +17,7 @@ def app():
         {
             "TESTING": True,
             "DATABASE": db_path,
+            "AUTH": "basic",
         }
     )
 

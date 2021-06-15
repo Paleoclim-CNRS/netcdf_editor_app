@@ -28,8 +28,11 @@ class DefaultAuth(object):
                 error += "Password is required."
 
             if len(error) == 0:
-                add_user(username, password)
-                return redirect(url_for("auth.login"))
+                error = add_user(username, password)
+                if error is None:
+                    return redirect(url_for("auth.login"))
+            
+            flash(error)
 
         return render_template("auth/register.html")
 
