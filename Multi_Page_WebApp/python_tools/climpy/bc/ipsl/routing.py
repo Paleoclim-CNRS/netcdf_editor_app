@@ -194,7 +194,7 @@ def _add_gradient_to_flats(topo):
     is_flat = numpy.sum(arrays == 0, axis=0) > 0
 
     # Only take land cells
-    #TODO maybe we should be passing omsk in to ensure we have the correct values
+    # TODO maybe we should be passing omsk in to ensure we have the correct values
     is_pas[topo <= 0] = False
     is_flat[topo <= 0] = False
 
@@ -250,7 +250,7 @@ def fix_topo(topo, latitudes):
 def calculate_orog(topo):
     orog = topo.copy()
     # Set see  values to NaN
-    #TODO pass omsk in??
+    # TODO pass omsk in??
     orog[orog <= 0] = numpy.nan
     return orog
 
@@ -697,7 +697,7 @@ def calculate_dzz(topo, trip, distbox, omsk):
     # If values are less than 5 then clip them to "avoid unpleasant surprises"
     dzz = numpy.where(dzz > 5, dzz, 5)
     # Replace ocean values with 0
-    # omsk: 
+    # omsk:
     # - ocean = 1
     # - land = 0
     # Keep dzz values on land and everything else make 0
@@ -799,7 +799,7 @@ def create_bathy_paleo_orca(topo, custom_orca=None):
     bathy = topo * -1
     # Ocean values are now positive or equal to 0
     # Any strictly negative value is a continent
-    #TODO we could pass omsk in for consitency
+    # TODO we could pass omsk in for consitency
     bathy[bathy < 0] = 0
     # Remap to nemo grid
     # Load grid

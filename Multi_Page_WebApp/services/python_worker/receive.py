@@ -48,7 +48,10 @@ def main():
     def callback(ch, method, properties, body):
 
         routing_key = method.routing_key
-        print(f" [x] {datetime.now()} Received message from {routing_key} with body: {body.decode()}", flush=True)
+        print(
+            f" [x] {datetime.now()} Received message from {routing_key} with body: {body.decode()}",
+            flush=True,
+        )
         func = routing_key.split(".")[1]
         body = json.loads(body.decode())
         params = func_params(func, body)
@@ -73,7 +76,9 @@ def main():
                 ),
             )
             print(
-                " [x] {} Sent message to {} {}".format(datetime.now(), routing_key_done, body),
+                " [x] {} Sent message to {} {}".format(
+                    datetime.now(), routing_key_done, body
+                ),
                 flush=True,
             )
         print(f" [x] {datetime.now()} Done", flush=True)
@@ -84,7 +89,9 @@ def main():
         queue="preprocessing_python_task_queue", on_message_callback=callback
     )
 
-    print(f" [*] {datetime.now()} Waiting for messages. To exit press CTRL+C", flush=True)
+    print(
+        f" [*] {datetime.now()} Waiting for messages. To exit press CTRL+C", flush=True
+    )
     channel.start_consuming()
 
 

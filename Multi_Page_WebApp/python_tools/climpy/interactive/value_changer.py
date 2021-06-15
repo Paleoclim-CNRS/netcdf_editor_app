@@ -1,10 +1,16 @@
 from climate_simulation_platform import create_app
-from climate_simulation_platform.db import load_file, save_revision, save_step, get_undo_list
+from climate_simulation_platform.db import (
+    load_file,
+    save_revision,
+    save_step,
+    get_undo_list,
+)
 from climate_simulation_platform.message_broker import send_preprocessing_message
 from bokeh.models import FixedTicker
 import panel as pn
 from holoviews import opts
 from holoviews.selection import link_selections
+
 # Used for selection_expr as string
 from holoviews.util.transform import dim  # noqa: F401
 
@@ -184,7 +190,7 @@ class ValueChanger(param.Parameterized):
         # If lat and lon are in varaibles move them to coords
         d = {}
         for var in ds.data_vars:
-            if 'lat' in var.lower() or 'lon' in var.lower():
+            if "lat" in var.lower() or "lon" in var.lower():
                 d[var] = var
         ds = ds.set_coords(d)
         self._lat_lon_ori = d
@@ -274,7 +280,7 @@ class ValueChanger(param.Parameterized):
 
     def _set_values(
         self, value, calculation_type, selection_expr, land=True, ocean=True
-    ):  
+    ):
         # If the selection_expr is in string representation then
         # Convert to object code
         if isinstance(selection_expr, str):
@@ -380,7 +386,7 @@ class ValueChanger(param.Parameterized):
         self._apply_action(redo_action)
         # Add the action to the list of undo actions
         self._undo_list.append(redo_action)
-    
+
     def cleanup_ds(self, ds):
         # Reset coords will remove the lat lon coords that we moved from data variables to coords
         # drop will remove the dimensions we added
@@ -400,8 +406,8 @@ class ValueChanger(param.Parameterized):
                     self.data_file_id,
                     step=self.step,
                     parameters={
-                        "id": self.data_file_id, 
-                        "undo_list": json.dumps(self._undo_list)
+                        "id": self.data_file_id,
+                        "undo_list": json.dumps(self._undo_list),
                     },
                     up_to_date=True,
                 )

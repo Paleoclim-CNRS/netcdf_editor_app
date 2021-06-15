@@ -31,7 +31,7 @@ class DefaultAuth(object):
                 error = add_user(username, password)
                 if error is None:
                     return redirect(url_for("auth.login"))
-            
+
             flash(error)
 
         return render_template("auth/register.html")

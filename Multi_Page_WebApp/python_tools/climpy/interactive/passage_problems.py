@@ -130,8 +130,8 @@ class PassageProblems(InternalOceans):
                     self.data_file_id,
                     step=self.step,
                     parameters={
-                        "id": self.data_file_id, 
-                        "undo_list": json.dumps(self._undo_list)
+                        "id": self.data_file_id,
+                        "undo_list": json.dumps(self._undo_list),
                     },
                     up_to_date=True,
                 )

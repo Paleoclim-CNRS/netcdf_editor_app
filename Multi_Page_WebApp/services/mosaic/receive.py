@@ -45,7 +45,10 @@ def func_params(func, body):
 def run_function(method, body):
     app = create_app()
     routing_key = method.routing_key
-    print(f" [x] {datetime.now()} Received message from {routing_key} with body: {body.decode()}", flush=True)
+    print(
+        f" [x] {datetime.now()} Received message from {routing_key} with body: {body.decode()}",
+        flush=True,
+    )
     func = routing_key.split(".")[1]
     body = json.loads(body.decode())
     params = func_params(func, body)

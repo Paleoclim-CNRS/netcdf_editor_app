@@ -40,20 +40,20 @@ def init_db():
     with current_app.open_resource("db_schema.sql") as f:
         db.executescript(f.read().decode("utf8"))
 
+
 def get_undo_list(_id, step):
     db = get_db()
 
-    query ="SELECT parameters FROM STEPS WHERE data_file_id = ? AND step = ?"
+    query = "SELECT parameters FROM STEPS WHERE data_file_id = ? AND step = ?"
 
     row = db.execute(query, (_id, step)).fetchone()
     if row is not None:
-        parameters = json.loads(row['parameters'])
+        parameters = json.loads(row["parameters"])
         try:
-            return json.loads(parameters['undo_list'])
+            return json.loads(parameters["undo_list"])
         except KeyError:
             return []
     return []
-    
 
 
 def update_user_password(user_id, password):
@@ -115,10 +115,7 @@ def overwrite_file_nc(_id, ds, file_type=None, revision=-1):
     filepath = get_file_path(_id, file_type=file_type, revision=revision)
     if filepath is None:
         return None
-    ds.to_netcdf(
-        filepath,
-        engine='scipy'
-    )
+    ds.to_netcdf(filepath, engine="scipy")
 
 
 def get_coord_names(_id):
@@ -313,13 +310,17 @@ def save_step(_id, step, parameters, up_to_date=True):
             " VALUES (?, ?, ?, ?)",
             (str(_id), step, parameters, int(up_to_date)),
         )
-        print(f" [*] {datetime.now()} Saving : {(str(_id), step, parameters, int(up_to_date))}")
+        print(
+            f" [*] {datetime.now()} Saving : {(str(_id), step, parameters, int(up_to_date))}"
+        )
     else:  # update parameters and set as up to date
         db.execute(
             "UPDATE steps SET parameters = ?, up_to_date = ? WHERE data_file_id = ? AND step = ?",
             (parameters, int(up_to_date), str(_id), step),
         )
-        print(f" [*] {datetime.now()} Saving : {(parameters, int(up_to_date), str(_id), step)}")
+        print(
+            f" [*] {datetime.now()} Saving : {(parameters, int(up_to_date), str(_id), step)}"
+        )
     db.commit()
     try:
         flash(f" {datetime.now()} Updated Step {step} for {_id}")

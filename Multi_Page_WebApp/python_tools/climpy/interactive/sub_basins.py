@@ -39,7 +39,7 @@ class SubBasins(ValueChanger):
         # If lat and lon are in varaibles move them to coords
         d = {}
         for var in ds.data_vars:
-            if 'lat' in var.lower() or 'lon' in var.lower():
+            if "lat" in var.lower() or "lon" in var.lower():
                 d[var] = var
         ds = ds.set_coords(d)
         self._lat_lon_ori = d
@@ -157,8 +157,8 @@ class SubBasins(ValueChanger):
                     self.data_file_id,
                     step=self.step,
                     parameters={
-                        "id": self.data_file_id, 
-                        "undo_list": json.dumps(self._undo_list)
+                        "id": self.data_file_id,
+                        "undo_list": json.dumps(self._undo_list),
                     },
                     up_to_date=True,
                 )
