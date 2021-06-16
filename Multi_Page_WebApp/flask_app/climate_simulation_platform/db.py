@@ -178,12 +178,21 @@ def upload_file(file, data_file_id=None, file_type="raw", info={}):
 
     return data_file_id
 
+def sanitize_attributes(ds):
+    variables = [*ds.coords, *ds.data_vars]
+    for var in variables:
+        mv = ds[var].encoding.get("missing_value")
+        fv = ds[var].encoding.get("_FillValue")
+        if mv is not None and fv is not None and mv != fv:
+            del ds[var].encoding["missing_value"]
+    return ds
 
 def add_info(_id, file_type, info={}, revision=-1):
     # If the file isnt a data file but a tar for example then return
     if not is_data_file(_id, file_type):
         return
     ds = load_file(_id, file_type, revision)
+    ds = sanitize_attributes(ds)
     for key, value in info.items():
         key = "climate_sim_" + key
         if key in ds.attrs:
