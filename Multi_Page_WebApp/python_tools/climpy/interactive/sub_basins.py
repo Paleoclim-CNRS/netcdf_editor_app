@@ -5,6 +5,8 @@ import xarray as xr
 import numpy
 
 import holoviews as hv
+# Used for selection_expr as string
+from holoviews.util.transform import dim  # noqa: F401
 
 from climate_simulation_platform.db import load_file, save_revision, save_step
 from climate_simulation_platform.message_broker import send_preprocessing_message
@@ -95,6 +97,10 @@ class SubBasins(ValueChanger):
         )
 
     def _set_values(self, value, calculation_type, selection_expr, *args, **kwargs):
+        # If the selection_expr is in string representation then
+        # Convert to object code
+        if isinstance(selection_expr, str):
+            selection_expr = eval(selection_expr)
         hvds = hv.Dataset(
             self.ds.to_dataframe(
                 dim_order=[*list(self.ds[self.attribute.value].dims)]
