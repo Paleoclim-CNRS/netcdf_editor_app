@@ -64,7 +64,10 @@ class InternalOceans(ValueChanger):
         if self.elevation_positif:
             ocean = self.ds[self.attribute.value] <= 0
         else:
-            ocean = self.ds[self.attribute.value] >= 0
+            # 0 if elevation is positif then we are working on bathy files
+            # in this case 0 is land and everything positive is ocean
+            #TODO maybe pass is_bathy in to make this more generic
+            ocean = self.ds[self.attribute.value] > 0
 
         # Use scipy to calculate internal oceans
         labeled_array, num_features = measurements.label(ocean)
