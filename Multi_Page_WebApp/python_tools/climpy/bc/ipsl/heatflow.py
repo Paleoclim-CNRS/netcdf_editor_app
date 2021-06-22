@@ -39,7 +39,7 @@ def create_heatflow(ds_bathy_paleo_orca, bathy_var="Bathymetry"):
     maskbathy = xr.where(ds_bathy_paleo_orca.Bathymetry > 0, 1, 0)
     maskgrad = xr.where((gradxbathy > 500) & (heat > 100), 0, 1)
 
-    void_heat = xr.where(heat * maskgrad > 0, heat * maskgrad, numpy.NaN)
+    void_heat = xr.where(heat * maskgrad > 0, heat * maskgrad, 0)
 
     def fill_xy(arr, mask, nb_passes):
         arr = arr.copy(deep=True)
@@ -61,6 +61,7 @@ def create_heatflow(ds_bathy_paleo_orca, bathy_var="Bathymetry"):
     # Add coordinates
     ds_out["nav_lon"] = ds_bathy_paleo_orca["nav_lon"]
     ds_out["nav_lat"] = ds_bathy_paleo_orca["nav_lat"]
+    ds_out = ds_out.set_coords(['nav_lon', 'nav_lat'])
 
     # Add time_counter
     heatflow_file = os.path.join(
