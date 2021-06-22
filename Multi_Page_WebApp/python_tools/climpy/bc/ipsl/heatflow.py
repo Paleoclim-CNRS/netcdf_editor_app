@@ -1,3 +1,4 @@
+from datetime import datetime
 import numpy
 import xarray as xr
 from scipy.ndimage import median_filter
@@ -55,8 +56,30 @@ def create_heatflow(ds_bathy_paleo_orca, bathy_var="Bathymetry"):
     heatflow = fill_void_heat * maskbathy
     ds_out = xr.Dataset()
     ds_out["heatflow"] = heatflow
-    ds_out["heatflow"].attrs = {
-        "units": "W/m^2",
-        "long_name": "heat flow",
+
+    # Add coordinates
+    ds_out["nav_lon"] = ds_bathy_paleo_orca["nav_lon"]
+    ds_out["nav_lat"] = ds_bathy_paleo_orca["nav_lat"]
+
+    # Add time_counter
+    ds_model = xr.open_dataset("geothermal_heatingLMParaT.nc", decode_times=False)
+    # This adds the time_steps variable and time_counter dim
+    ds_out["time_counter"] = ds_model["time_counter"]
+    ds_out["time_steps"] = ds_model["time_steps"]
+    # Set time_counter on heatflow
+    ds_out["heatflow"] = ds_out["heatflow"].expand_dims("time_counter")
+
+    # Set attributes
+    ds_out.attrs = {
+        'Conventions': 'GDT 1.2',
+        'TimeStamp': datetime.now(),
     }
+    ds_out["heatflow"].attrs = {
+        "units": "mW/m2",
+        "title": "heatflow",
+        "long_name": "heatflow",
+        "Minvalue=": 0.0,
+        "Maxvalue=": 200.0,
+    }
+
     return ds_out
