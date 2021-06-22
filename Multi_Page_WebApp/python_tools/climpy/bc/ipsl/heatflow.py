@@ -1,4 +1,5 @@
 from datetime import datetime
+import os
 import numpy
 import xarray as xr
 from scipy.ndimage import median_filter
@@ -62,17 +63,20 @@ def create_heatflow(ds_bathy_paleo_orca, bathy_var="Bathymetry"):
     ds_out["nav_lat"] = ds_bathy_paleo_orca["nav_lat"]
 
     # Add time_counter
-    ds_model = xr.open_dataset("geothermal_heatingLMParaT.nc", decode_times=False)
+    heatflow_file = os.path.join(
+            os.path.dirname(os.path.abspath(__file__)), "geothermal_heatingLMParaT.nc"
+        )
+    ds_model = xr.open_dataset(heatflow_file, decode_times=False)
     # This adds the time_steps variable and time_counter dim
-    ds_out["time_counter"] = ds_model["time_counter"]
     ds_out["time_steps"] = ds_model["time_steps"]
+    ds_out["time_counter"] = ds_model["time_counter"]
     # Set time_counter on heatflow
     ds_out["heatflow"] = ds_out["heatflow"].expand_dims("time_counter")
 
     # Set attributes
     ds_out.attrs = {
         'Conventions': 'GDT 1.2',
-        'TimeStamp': datetime.now(),
+        'TimeStamp': str(datetime.now()),
     }
     ds_out["heatflow"].attrs = {
         "units": "mW/m2",
@@ -80,6 +84,13 @@ def create_heatflow(ds_bathy_paleo_orca, bathy_var="Bathymetry"):
         "long_name": "heatflow",
         "Minvalue=": 0.0,
         "Maxvalue=": 200.0,
+    }
+    ds_out['time_counter'].attrs = {
+        'units': 'seconds since 0000-12-15 00:00:00 ',
+        'calendar': 'noleap',
+        'title': 'Time',
+        'long_name': 'Time axis',
+        'time_origin': '0000-DEC-15 00:00:00'
     }
 
     return ds_out
