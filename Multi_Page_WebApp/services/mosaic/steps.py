@@ -37,7 +37,7 @@ def calculate_weights(body):
 
     print(f"{datetime.now()} Compressing files to tar", flush=True)
     subprocess.Popen(
-        ["tar", "-cvzf", temp_path, "IGCM"],
+        ["tar", "-cvzf", temp_path, "IGCM", "DOMSK"],
         cwd=os.path.join("/", "home", runner.user_name),
     ).wait()
     # Add file to db
@@ -48,4 +48,5 @@ def calculate_weights(body):
     # Delete Folder
     print(f"{datetime.now()} Cleaning up")
     shutil.rmtree(os.path.join("/", "home", runner.user_name, "IGCM"))
+    shutil.rmtree(os.path.join("/", "home", runner.user_name, "DOMSK"))
     runner.cleanup()

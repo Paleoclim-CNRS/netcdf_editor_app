@@ -71,6 +71,8 @@ class MosaicRunner(object):
         # Wait for process to finish
         proc.wait()
         # rename output files
+        subprocess.Popen(['mkdir', '-p', os.path.join('/home', self.user_name, 'DOMSK')]).wait()
+        subprocess.Popen(['cp', '-r', self.domsk_dir, os.path.join('/home', self.user_name, 'DOMSK')]).wait()
 
     def run_file_generation(self):
         # Setup Architecture
