@@ -34,6 +34,7 @@ services:
       - instance_storage:/usr/src/app/instance
 
   mosaic_worker:
+  image: ceregecl/netcdf_editor_mosaic_worker
     build:
       context: Multi_Page_WebApp
       dockerfile: services/mosaic/Dockerfile
@@ -67,7 +68,6 @@ services:
     env_file: ${PANEL_CONFIG}
     environment: 
       - BROKER_HOSTNAME=message_broker
-    image: netcdf_editor_panel_app:latest
     expose: 
       - 5006
     depends_on: 
