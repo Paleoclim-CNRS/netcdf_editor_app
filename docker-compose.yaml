@@ -34,10 +34,7 @@ services:
       - instance_storage:/usr/src/app/instance
 
   mosaic_worker:
-  image: ceregecl/netcdf_editor_mosaic_worker
-    build:
-      context: Multi_Page_WebApp
-      dockerfile: services/mosaic/Dockerfile
+    image: ceregecl/netcdf_editor_mosaic_worker
     restart: on-failure
     environment: 
       - BROKER_HOSTNAME=message_broker
