@@ -33,6 +33,17 @@
     <div>
       {% if config['AUTH'] == 'basic' %}
         <a href="{{ url_for('auth.register') }}">Register</a>
+
+	<!--
+	TEST_ANTHOG
+	-->
+	<br>
+	<br>
+        <a href="{{ url_for('auth.infos') }}">Informations</a>
+        <!--
+        END_TEST
+        -->
+
       {% elif config["AUTH"] == "logged_in" %}
         <a href="mailto:banfield@cerege.fr; donnadieu@cerege.fr?subject=Climate Sim Account&body=Hello,%0D%0A%0D%0AI would like to open a new account.%0D%0A%0D%0A My name is: %0D%0AI Work at: %0D%0AMy desired username is: %0D%0A%0D%0AThank you">
           Please contact admin for an account

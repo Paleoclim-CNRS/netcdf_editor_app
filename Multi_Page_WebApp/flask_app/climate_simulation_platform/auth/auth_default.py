@@ -60,6 +60,11 @@ class DefaultAuth(object):
             flash(error)
         return render_template("auth/login.html")
 
+    # TEST ANTHOG
+    def infos():
+        return render_template("auth/infos.html")
+    # END TEST
+    
     @staticmethod
     @bp.before_app_request
     def load_logged_in_user():

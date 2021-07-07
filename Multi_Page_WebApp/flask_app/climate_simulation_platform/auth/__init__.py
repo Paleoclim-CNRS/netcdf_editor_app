@@ -47,10 +47,15 @@ elif auth_config == "logged_in":
 def register():
     return obj.register()
 
-
 @bp.route("/login", methods=("GET", "POST"))
 def login():
     return obj.login()
+
+# TEST ANTHOG
+@bp.route("/infos", methods=("GET", "POST"))
+def infos():
+    return obj.infos()
+# END TEST
 
 
 load_logged_in_user = obj.load_logged_in_user
