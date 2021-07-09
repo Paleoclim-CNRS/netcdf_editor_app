@@ -160,4 +160,5 @@ The installation process uses Docker and docker-compose so ensure that they are 
 1. Make sure it is up to date `git reset --hard @{u}` (resets to latest changes on repo)
 1. If there has been a database upgrade you will need to delete the docker volume associated you can see docker volumes with `docker volume ls` either delete the volume with `docker volume rm netcdf_editor_app_instance_storage` or run `docker volume prune` to remove all volumes of stopped containers.
 1. Run `docker-compose -f docker-compose.yaml --env-file ./config/.env.prod up --build -d --scale python_worker=3` to start the containers (lots of info will occur here but dont be scared!).Everything is ready when you see `[X] waiting for messages` in the terminal. `--scale python_worker=3` means we start 3 python_workers to carry out tasks in parallel. 
+1. If this is the first time running the database then you will need to initialize it with the following command `docker exec -it netcdf_editor_app_flask_app_1 python -m flask init-db`
 1. Navigate to `http://localhost:43829` the port is defined in `config/.env.prod` under `NGINX_PORT`
