@@ -1,0 +1,478 @@
+<!doctype html>
+<html>
+
+<head>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+
+	<title>reveal.js</title>
+
+	<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/reveal.js@4.0.2/dist/reveal.min.css">
+	<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/reveal.js@4.0.2/dist/reset.min.css">
+	<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/reveal.js@4.0.2/dist/theme/black.min.css" id=theme>
+
+	<script src="https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.min.js"></script>
+
+	<!-- Theme used for syntax highlighted code -->
+	<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/reveal.js@4.0.2/plugin/highlight/monokai.min.css"
+		id="highlight-theme">
+
+</head>
+
+<body
+	style="background-image: url(https://www.cerege.fr/sites/default/files/logo.png); background-size: 10%; background-repeat: no-repeat; background-position: 3% 96%;">
+	<div class="reveal">
+		<div class="slides">
+			<section>
+				<h3>
+					Climate Simulation Platform
+				</h3>
+				<h4>
+					Wesley Banfield
+				</h4>
+			</section>
+			<section>
+				<h4>
+					Plan
+				</h4>
+				<ol>
+					<li>
+						Introduction
+					</li>
+					<li>
+						Overview of Graphical User interface
+					</li>
+					<li>
+						Project perspectives
+					</li>
+					<li>
+						Technical discussion around implementation
+					</li>
+				</ol>
+			</section>
+			<section>
+				<section>
+					<h3>
+						Introduction
+					</h3>
+				</section>
+				<section>
+					<h3>
+						State of the Art
+					</h3>
+					<h4 style="text-align: start;">
+						Current workflow?
+					</h4>
+					<ul class="fragment fade-up">
+						<li>
+							Collection of Scripts and Routines
+						</li>
+						<li>
+							Have to recompile and run manually in the correct order
+						</li>
+						<li>
+							Multiple versions exist causing inconsistencies between users
+						</li>
+						<li>
+							Cumbersome workflow for editing files
+						</li>
+					</ul>
+				</section>
+				<section>
+					<h3>
+						The idea
+					</h3>
+					<ul class="fragment" data-fragment-index="1">
+						<li>
+							Single source of truth <span class="fragment fade-up"
+								style="color: #5B9EDE; font-size:0.75em">→ Deployed on shared server</span>
+						</li>
+						<li>
+							Interactive file editing <span class="fragment fade-up"
+								style="color: #5B9EDE; font-size:0.75em">→ Uses Javascript for interactivity</span>
+						</li>
+						<li>
+							Automated execution <span class="fragment fade-up"
+								style="color: #5B9EDE; font-size:0.75em">→ Runs scripts in background in correct
+								order</span>
+						</li>
+					</ul>
+					<div class="fragment fade-up" style="color: #5B9EDE; margin-top: 5rem" data-fragment-index="2">
+						<h3 style="color: #5B9EDE;">
+							→ Climate Simulation Platform
+						</h3>
+						<p>
+							A web based tool to setup boundary conditions
+						</p>
+					</div>
+				</section>
+			</section>
+			<section id='gui'>
+				<section>
+					<h3>
+						Graphical User Interface
+					</h3>
+				</section>
+				<section data-auto-animate>
+					<h4>
+						Login → Personalized workspace
+					</h4>
+					<p style="text-align: start;">
+						Two login methods:
+					</p>
+					<ul>
+						<li>
+							Anyone can register → Good for local deployments
+						</li>
+						<li>
+							Only Registered people can add people → Better for cloud deployments
+						</li>
+					</ul>
+				</section>
+				<section data-auto-animate>
+					<h4>
+						Login → Personalized workspace
+					</h4>
+					<img src="img/flask_app.png" style="width: 90vw; height: 60vh;">
+					<!-- <img class="static" src="img/flask_app.png" style="width: 90vw; height: 60vh;"> -->
+					<!-- <iframe class="live" src="https://climate_sim.osupytheas.fr"
+						style="width: 90vw; height: 60vh;"></iframe> -->
+				</section>
+				<section>
+					<h4>
+						Workflow
+					</h4>
+					<img class="static" src="img/Homepage.png" style="width: 90vw; height: 60vh;">
+					<iframe class="live" src="https://climate_sim.osupytheas.fr"
+						style="width: 100vw; height: 80vh;"></iframe>
+				</section>
+				<section>
+					<h4>
+						Additional Features
+					</h4>
+					<ul>
+						<li class="fragment">
+							Chained execution <span class="fragment" style="color: #5B9EDE"> → Always in sync</span>
+						</li>
+						<li class="fragment">
+							Extensible and environment agnostic (containers)
+						</li>
+						<li class="fragment">
+							Easy to deploy to local infrastructure see <a href="https://cerege-cl.github.io/netcdf_editor_app/multi#installation">https://cerege-cl.github.io/netcdf_editor_app/multi#installation</a>
+						</li>
+						<li class="fragment">
+							Publicly accessible thanks to OSUPytheas SIP at <a href="https://climate_sim.osupytheas.fr">https://climate_sim.osupytheas.fr</a> Contact Yannick Donnadieu for an account
+						</li>
+					</ul>
+				</section>
+				<section>
+					<h4>
+						Perspectives
+					</h4>
+					<ul>
+						<li class="fragment">
+							Move current application "up one step" and use interface for different tasks
+						</li>
+						<li class="fragment">
+							Create different Boundary conditions tools (other than CMA5A)
+						</li>
+						<li class="fragment">
+							Add post processing
+						</li>
+					</ul>
+				</section>
+				<section>
+					<h3>
+						Non Technical Questions? 
+					</h3>
+					<p class="fragment">
+						Not interested in the technical stuff?? You are free to go
+					</p>
+				</section>
+			</section>
+			<section>
+				<section>
+					<h3>
+						Under the hood
+					</h3>
+				</section>
+				<section>
+					<h3>
+						Microservice architecture (containers)
+					</h3>
+					<div class="mermaid fragment">
+					  flowchart TD
+					  A[User Interface] <--> F[Reverse Proxy] <--> B[Message Broker / Message Dispatcher]
+					  B <--> C[Worker1 eg. Python] & D[Worker2 eg. Mosaic]  & E[WorkerN eg. ...] 
+					</div>
+				</section>
+				<section>
+					<h3>
+						Docker
+					</h3>
+					<ul>
+						<li class="fragment">
+							Conceptually scriptable Virtual Machine <span class="fragment" style="color: #5B9EDE;"> → Run workflow automatically</span>
+						</li>
+						<li class="fragment">
+							Each containers has its own environment <span class="fragment" style="color: #5B9EDE;">→ Run Python, Fortan, bash, Julia ....</span>
+						</li>
+						<li class="fragment">
+							Run multiple instances of same container <span class="fragment" style="color: #5B9EDE;">→ Scalability</span>
+						</li>
+						<li class="fragment">
+							Relatively simple to deploy <span class="fragment" style="color: #5B9EDE;">→ Facilitated CICD</span>
+						</li>
+					</ul>
+				</section>
+				<section>
+					<h3>
+						Interactive data manipulation (holoviz)
+					</h3>
+					<ul>
+						<li class="fragment">
+							Use pangeo stack eg. xarray + holoviz
+						</li>
+						<li class="fragment">
+							All graphs use Holoviews with Bokeh for interactivity (written in python and translated into javascript)
+						</li>
+						<li class="fragment">
+							Single page webapps (Internal Oceans, Diffusive Passages, ... ) use panel provided by holoviz
+						</li>
+					</ul>
+				</section>
+				<section data-auto-animate="">
+					<h3>
+						Messaging
+					</h3>
+					<h4 style="text-align: start;">
+						Why?
+					</h4>
+					<ul>
+						<li>
+							Communication between the different services
+						</li>
+						<li>
+							Automation of tasks (linked tasks)
+						</li>
+					</ul>
+				</section>
+				<section data-auto-animate="">
+					<h3>
+						Messaging
+					</h3>
+					<h4 style="text-align: start;">
+						How? <span class="fragment" style="color: #5B9EDE;">→ RabbitMQ message broker</span>
+					</h4>
+					<ol style="font-size: 2rem;">
+						<li class="fragment">
+							When a button is clicked a message is sent to RabbitMQ eg. preprocessing.routing
+						</li>
+						<li class="fragment">
+							The message is picked up by the "Dispatcher" and "tagged" with the correct worker. 
+							eg. preprocessing.routing.python
+						</li>
+						<li class="fragment">
+							The correct worker picks up the message from the queue with the parameters and executes the job
+						</li>
+						<li class="fragment">
+							When the job is done the worker sends the message with a .done appended, eg. preprocessing.routing.done
+						</li>
+						<li class="fragment">
+							This is picked up by the dispatcher and the dispatcher sends the dependant tasks
+						</li>
+					</ol>
+				</section>
+				<section>
+					<div class="mermaid">
+						graph TD
+						UI(UI) --> | Task 1 | M(Message Dispatcher)
+						M --> w1(Worker 1)
+						M --> |Correct worker for Task 1 | w2(Worker 2)
+						M --> wn(Worker N)
+						w2 --> |Task1.done | M3(Same Message Dispatcher)
+						M3 --> |Calculates dependant tasks if any | M2(Same Message Dispatcher)
+						M2 --> |Correct worker for Task2 |w21(Worker 1) --> M3
+						M2 --> w22(Worker 2)
+						M2 --> w2n(Worker N)
+					</div>
+				</section>
+				<section>
+					<h3>
+						Storage
+					</h3>
+					<ul>
+						<li>
+							Persistent Storage
+						</li>
+						<li>
+							SQLite file → Simplest
+						</li>
+						<li>
+							Data stored as files rather than binary blobs → Cleaning up needed but faster Database
+						</li>
+					</ul>
+					<div class="mermaid fragment">
+						flowchart TD
+						B[UI] <--> A[SQLite Database]
+						C[Worker1] <--> A
+						D[Worker2] <--> A
+						E[WorkerN] <--> A
+						F[Panel App] <--> A
+					</div>
+					<div class="mermaid fragment">
+						classDiagram
+							class User{
+								id
+								Username
+								Password
+							}
+							class Data_files{
+								id
+								owner_id
+								filename
+								longitude
+								latitude
+								info
+							}
+							class Revisions{
+								id
+								datafile_id
+								created
+								filepath
+								revision
+								file_type
+								info
+							}
+							class Steps{
+								id
+								data_file_id
+								step
+								parameters
+								up_to_date
+							}
+					</div>
+				</section>
+				<section>
+					<h3>
+						Reverse Proxy
+					</h3>
+					There is an nginx reverse proxy to redirect traffic between the flask app (General UI) and the panel apps (interactive editing)
+				</section>
+				<section>
+					<h3>
+						Continuos Integration Continuos Deployment (CICD)
+					</h3>
+					<ul style="font-size: 2rem;">
+						<li class="fragment">
+							Tasks run on certain criterion (see .github folder in source)
+						</li>
+						<li class="fragment">
+							On pull requests:
+							<ul>
+								<li>
+									Run unit tests on Python Code
+								</li>
+								<li>
+									Build Docker containers and Push to DockerHub and OSUPytheas Registry
+								</li>
+							</ul>
+						</li>
+						<li class="fragment">
+							When a new image is pushed to OSUPytheas, Watchtower sees this, stops (gracefully) the current container(s) with the same image, then redeploys the new image with the same command line options
+						</li>
+					</ul>
+				</section>
+				<section>
+					<h3>
+						Portainer
+					</h3>
+					<p>
+						Deployment of the Application Stack to a publicly accessible IP meaning the community can use the tool
+					</p>
+					<p>
+						Graciously put to our disposition by SIP OSUPytheas Person to contact Julien Lecubin
+					</p>
+				</section>
+				<section>
+					<h3>
+						Documentation
+					</h3>
+					Documentation is written on the gh-pages branch and in the docs folder in markdown, this is automatically translated using Jeykll and deployed to <a href="https://cerege-cl.github.io/netcdf_editor_app/">https://cerege-cl.github.io/netcdf_editor_app/</a>
+				</section>
+				<section>
+					<h3>
+						Perspectives
+					</h3>
+					<ul>
+						<li>
+							Create a login using LDAP or CNRS logins
+						</li>
+						<li>
+							Integrate MOSAIX
+						</li>
+						<li>
+							Interact with HPCs to send data to and from the effortlessly
+						</li>
+					</ul>
+				</section>
+				<section>
+					<h2>
+						Thank You
+					</h2>
+					<h4>
+						It's been a blast 🚀
+					</h4>
+				</section>
+				<section>
+					<h3>
+						Questions?
+					</h3>
+				</section>
+			</section>
+		</div>
+	</div>
+
+	<script src="https://cdn.jsdelivr.net/npm/reveal.js@4.0.2/plugin/markdown/markdown.min.js"></script>
+	<script src="https://cdn.jsdelivr.net/npm/reveal.js@4.0.2/dist/reveal.min.js"></script>
+	<script src="https://cdn.jsdelivr.net/npm/reveal.js@4.0.2/plugin/notes/notes.min.js"></script>
+	<script src="https://cdn.jsdelivr.net/npm/reveal.js@4.0.2/plugin/highlight/highlight.min.js"></script>
+	<script>
+
+		view_mode = 'live'
+
+		var objs = document.getElementsByClassName('live')
+		for (var i = 0; i < objs.length; i++) {
+			objs.item(i).style.display = 'none';
+		}
+		var objs = document.getElementsByClassName('static')
+		for (var i = 0; i < objs.length; i++) {
+			objs.item(i).style.display = 'block';
+		}
+		if (view_mode == 'live') {
+			var objs = document.getElementsByClassName('static')
+			for (var i = 0; i < objs.length; i++) {
+				objs.item(i).style.display = 'none';
+			}
+			var objs = document.getElementsByClassName('live')
+			for (var i = 0; i < objs.length; i++) {
+				objs.item(i).style.display = 'block';
+			}
+		}
+
+		// More info about initialization & config:
+		// - https://revealjs.com/initialization/
+		// - https://revealjs.com/config/
+		Reveal.initialize({
+			hash: true,
+			// autoSlide: 1500,
+			loop: true,
+
+			// Learn about plugins: https://revealjs.com/plugins/
+			plugins: [RevealMarkdown, RevealHighlight, RevealNotes]
+		});
+	</script>
+	<script>mermaid.initialize({startOnLoad:true, theme:'dark'});</script>
+</body>
+
+</html>
