@@ -17,6 +17,21 @@
 	<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/reveal.js@4.0.2/plugin/highlight/monokai.min.css"
 		id="highlight-theme">
 
+	<style>
+		ol {
+			font-size: 2.25rem;
+		}
+		ul {
+			font-size: 2.25rem;
+		}
+		ul ul {
+			font-size: 1.5rem;
+		}
+		table td {
+			text-align: center !important;
+		}
+	</style>
+
 </head>
 
 <body
@@ -58,46 +73,84 @@
 				</section>
 				<section>
 					<h3>
+						The <em>Goal</em>
+					</h3>
+					<ul>
+						<li class="fragment">
+							The simulator needs multiple files as inputs
+							<ul style="font-size: 1.5rem; columns: 2;">
+								<li>
+									Topography
+								</li>
+								<li>
+									Routing (flow directions, ...)
+								</li>
+								<li>
+									Plant functional Types
+								</li>
+								<li>
+									Heat Flux
+								</li>
+								<li>
+									Weights between ocean and atmosphere
+								</li>
+								<li>
+									...
+								</li>
+							</ul>
+						</li>
+						<li class="fragment">
+							These files are generated sequentially from one initial file (Paleo Topography)
+							<div style="display: flex; justify-content: center;">
+								<img src="img/paleotopo.png" style="height: 30vh;"/>
+							</div>
+						</li>
+					</ul>
+				</section>
+				<section>
+					<h3>
 						State of the Art
 					</h3>
 					<h4 style="text-align: start;">
 						Current workflow?
 					</h4>
-					<ul class="fragment fade-up">
-						<li>
+					<ul>
+						<li class="fragment">
 							Collection of Scripts and Routines
 						</li>
-						<li>
-							Have to recompile and run manually in the correct order
-						</li>
-						<li>
-							Multiple versions exist causing inconsistencies between users
-						</li>
-						<li>
+						<ul>
+							<li class="fragment">
+								Have to recompile and run manually in the correct order
+							</li>
+							<li class="fragment">
+								Multiple versions exist causing inconsistencies between users
+							</li>
+						</ul>
+						<li class="fragment">
 							Cumbersome workflow for editing files
 						</li>
 					</ul>
 				</section>
 				<section>
 					<h3>
-						The idea
+						The <em>Idea</em>
 					</h3>
-					<ul class="fragment" data-fragment-index="1">
-						<li>
+					<ul>
+						<li class="fragment" data-fragment-index="1">
 							Single source of truth <span class="fragment fade-up"
 								style="color: #5B9EDE; font-size:0.75em">→ Deployed on shared server</span>
 						</li>
-						<li>
+						<li class="fragment" data-fragment-index="2">
 							Interactive file editing <span class="fragment fade-up"
 								style="color: #5B9EDE; font-size:0.75em">→ Uses Javascript for interactivity</span>
 						</li>
-						<li>
+						<li class="fragment" data-fragment-index="3">
 							Automated execution <span class="fragment fade-up"
 								style="color: #5B9EDE; font-size:0.75em">→ Runs scripts in background in correct
 								order</span>
 						</li>
 					</ul>
-					<div class="fragment fade-up" style="color: #5B9EDE; margin-top: 5rem" data-fragment-index="2">
+					<div class="fragment fade-up" style="color: #5B9EDE; margin-top: 5rem" data-fragment-index="4">
 						<h3 style="color: #5B9EDE;">
 							→ Climate Simulation Platform
 						</h3>
@@ -115,23 +168,28 @@
 				</section>
 				<section data-auto-animate>
 					<h4>
-						Login → Personalized workspace
+						Login
 					</h4>
-					<p style="text-align: start;">
-						Two login methods:
-					</p>
 					<ul>
-						<li>
-							Anyone can register → Good for local deployments
+						<li class="fragment">
+							Provides a personalized workspace
 						</li>
-						<li>
-							Only Registered people can add people → Better for cloud deployments
+						<li class="fragment">
+							Two login methods:
+							<ul>
+								<li class="fragment">
+									Anyone can register → Good for local deployments
+								</li>
+								<li class="fragment">
+									Only Registered people can add people → Better for cloud deployments
+								</li>
+							</ul>
 						</li>
 					</ul>
 				</section>
 				<section data-auto-animate>
 					<h4>
-						Login → Personalized workspace
+						Login
 					</h4>
 					<img src="img/flask_app.png" style="width: 90vw; height: 60vh;">
 					<!-- <img class="static" src="img/flask_app.png" style="width: 90vw; height: 60vh;"> -->
@@ -144,7 +202,7 @@
 					</h4>
 					<img class="static" src="img/Homepage.png" style="width: 90vw; height: 60vh;">
 					<iframe class="live" src="https://climate_sim.osupytheas.fr"
-						style="width: 100vw; height: 80vh;"></iframe>
+						style="width: 90vw; height: 80vh;"></iframe>
 				</section>
 				<section>
 					<h4>
@@ -156,6 +214,9 @@
 						</li>
 						<li class="fragment">
 							Extensible and environment agnostic (containers)
+						</li>
+						<li class="fragment">
+							Information carried through and stored inside netcdf files
 						</li>
 						<li class="fragment">
 							Easy to deploy to local infrastructure see <a href="https://cerege-cl.github.io/netcdf_editor_app/multi#installation">https://cerege-cl.github.io/netcdf_editor_app/multi#installation</a>
@@ -243,16 +304,105 @@
 				</section>
 				<section data-auto-animate="">
 					<h3>
+						Algorithms
+					</h3>
+					<ul>
+						<li class="fragment">
+							Routing <span style="font-size: 1.5rem;">(heavily inspired by Jean Baptiste Ladants work) see Multipage_webapp/python_tools/climpy/bc/ipsl/routing.py
+							</span>
+						</li>
+						<ul>
+							<li class="fragment">
+								Cyclicity ensured by padding arrays
+							</li>
+							<li class="fragment">
+								We use skimage.morphology.reconstruction to fill depressions (internal oceans → plains) Always applied even if no internal oceans visible
+							</li>
+							<li class="fragment">
+								Front migration algorithm used to add gradient towards exit points of plains
+							</li>
+							<li class="fragment">
+								Trip calculated with matrix calculations (difference in 4 Directions) and take biggest difference though the 8 2D arrays
+							</li>
+						</ul>
+					</ul>
+				</section>
+				<section data-auto-animate="">
+					<h3>
+						Algorithms
+					</h3>
+					<ul>
+						<li class="fragment">
+							Heatflow <span style="font-size: 1.5rem;">(Rewritten version in python of Fred Fluteau's code) see Multipage_webapp/python_tools/climpy/bc/ipsl/heatflow.py
+							</span>
+						</li>
+						<li class="fragment">
+							Diffusive passages and masks
+							<ul>
+								<li class="fragment">
+									We use convolutions scipy.signal.convolve2d
+								</li>
+								<li class="fragment">
+									Inspired by image processing
+								</li>
+								<li class="fragment">
+									Pass a template (generally small ~ 3x3) over the data to pick out desired patterns
+									<table style="border: white; margin-top: 1em;">
+										<colgroup>
+											<col span="1" style="width: 14%;">
+											<col span="1" style="width: 14%;">
+											<col span="1" style="width: 14%;">
+											<col span="1" style="width: 14%;">
+											<col span="1" style="width: 14%;">
+											<col span="1" style="width: 14%;">
+											<col span="1" style="width: 14%;">
+											<col span="1" style="width: 14%;">
+										 </colgroup>
+										<tr style="border: white;">
+											<td style="background-color: rgb(205, 205, 205);border: none;">?</td>
+											<td style="background-color: rgb(160, 194, 217);border: none;">Water</td>
+											<td style="background-color: rgb(205, 205, 205);border: none;">?</td>
+											<td style="border: none;"></td>
+											<td style="background-color: rgb(205, 205, 205);border: none;">0</td>
+											<td style="background-color: rgb(160, 194, 217);border: none;">1</td>
+											<td style="background-color: rgb(205, 205, 205);border: none;">0</td>
+										</tr>
+										<tr style="border: white;">
+											<td style="background-color: rgb(171, 148, 114);border: none;">Land</td>
+											<td style="background-color: rgb(160, 194, 217);border: none;">Water</td>
+											<td style="background-color: rgb(171, 148, 114);border: none;">Land</td>
+											<td style="border: none;">→</td>
+											<td style="background-color: rgb(171, 148, 114);border: none;">-1</td>
+											<td style="background-color: rgb(160, 194, 217);border: none;">1</td>
+											<td style="background-color: rgb(171, 148, 114);border: none;">-1</td>
+										</tr>
+										<tr style="border: white;">
+											<td style="background-color: rgb(205, 205, 205);border: none;">?</td>
+											<td style="background-color: rgb(160, 194, 217);border: none;">Water</td>
+											<td style="background-color: rgb(205, 205, 205);border: none;">?</td>
+											<td style="border: none;"></td>
+											<td style="background-color: rgb(205, 205, 205);border: none;">0</td>
+											<td style="background-color: rgb(160, 194, 217);border: none;">1</td>
+											<td style="background-color: rgb(205, 205, 205);border: none;">0</td>
+										</tr>
+										</table>
+								</li>
+							</ul>
+						</li>
+					</ul>
+				</section>
+				<section data-auto-animate="">
+					<h3>
 						Messaging
 					</h3>
 					<h4 style="text-align: start;">
 						Why?
 					</h4>
 					<ul>
-						<li>
+						<li class="fragment">
 							Communication between the different services
 						</li>
-						<li>
+						<li class="fragment">
 							Automation of tasks (linked tasks)
 						</li>
 					</ul>
@@ -301,7 +451,7 @@
 					<h3>
 						Storage
 					</h3>
-					<ul>
+					<ul class="fragment">
 						<li>
 							Persistent Storage
 						</li>
