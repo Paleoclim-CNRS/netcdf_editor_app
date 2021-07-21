@@ -6,8 +6,8 @@
 
 
 
-- Single Page netcdf editor app can be found here: https://netcdf.osupytheas.com/
-- Multi Page Climate simulation tool can be found here: https://climate_sim.osupytheas.com/
+- Single Page netcdf editor app can be found here: https://netcdf.osupytheas.fr/
+- Multi Page Climate simulation tool can be found here: https://climate_sim.osupytheas.fr/
 
 ## Introduction
 
