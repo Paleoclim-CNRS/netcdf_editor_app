@@ -636,12 +636,19 @@ def calculate_weights(_id):
         error = ""
 
         file = _validate_file(request)
-        # TODO validate that the correct variables are in the file
-        upload_file(file, data_file_id=_id, file_type="weight_coords")
 
         if not len(error):
             body = {"id": _id, **request.form}
-            send_preprocessing_message("calculate_weights", body)
+            if request['engine'] == 'mosaic':
+                send_preprocessing_message("calculate_weights_mosaic", body)
+                # TODO validate that the correct variables are in the file
+                upload_file(file, data_file_id=_id, file_type="weight_coords_mosaic")
+            elif request['engine'] == 'mosaix':
+                send_preprocessing_message("calculate_weights_mosaix", body)
+                # TODO validate that the correct variables are in the file
+                upload_file(file, data_file_id=_id, file_type="weight_coords_mosaix")
+            else:
+                error = "Unknown engine method, known methods are mosaic and mosaix"
 
             return redirect(url_for("app.steps", _id=_id))
 

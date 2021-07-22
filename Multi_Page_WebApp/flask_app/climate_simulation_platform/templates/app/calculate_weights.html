@@ -39,7 +39,15 @@
 {% endif %}
 
 <form name="form" method=post enctype=multipart/form-data>
-    <label for="coordsfile">Coordiantes File:</label>
+    <label for="engine">Engine :</label>
+    <div>
+        <input type="radio" name="engine" id="engine" value="mosaic" checked>
+        <label for="engine">Mosaic</label>
+
+        <input type="radio" name="engine" id="engine" value="mosaix">
+        <label for="engine">Mosaix</label>
+    </div>
+    <label for="coordsfile">Coordinates File:</label>
     <div id='uploadcoords' class="alert alert-warning" role="alert">
         <p>
             Please ensure the file has "XXX" and "YYY" coorindates in curvilinear format.
@@ -83,7 +91,7 @@
         $('#coordsFileUpload').change(function () {
             updateProcessing();
         })
-        $('#submit').attr('disabled', true)
+        $('#submit').attr('disabled', false)
     })
 </script>
 {% endblock %}
