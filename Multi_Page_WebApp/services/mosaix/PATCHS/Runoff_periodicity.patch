@@ -1,0 +1,35 @@
+--- RunoffWeights.py.old	2021-07-22 08:40:32.498408447 +0000
++++ RunoffWeights.py	2021-07-22 08:42:34.079436494 +0000
+@@ -67,6 +67,7 @@
+ parser.add_argument ('--o2a'   , help='o2a file name'  , default='o2a.nc'   )
+ parser.add_argument ('--output', help='output rmp file name', default='rmp_tlmd_to_torc_runoff.nc' )
+ parser.add_argument ('--fmt'   , help='NetCDF file format, using nco syntax', default='netcdf4', choices=['classic', 'netcdf3', '64bit', '64bit_data', '64bit_data', 'netcdf4', 'netcdf4_classsic'] )
++parser.add_argument ('--ocePerio'   , help='periodicity of ocean grid', type=int, default=0 )
+ 
+ # Parse command line
+ myargs = parser.parse_args()
+@@ -100,6 +101,9 @@
+ 
+ print ('atmQuantity : ' + str (myargs.atmQuantity) )
+ print ('oceQuantity : ' + str (myargs.oceQuantity) )
++
++# Ocean grid periodicity
++oce_perio=myargs.ocePerio
+     
+ ### Read coordinates of all models
+ ###
+@@ -140,9 +144,11 @@
+ oce_grid_area       = areaFile['torc.srf'][:].ravel()
+ oce_grid_imask      = 1-maskFile['torc.msk'][:].ravel()
+ oce_grid_dims       = gridFile['torc.lat'][:].shape
+-if oce_jpi ==  182 : oce_perio = 4 # ORCA 2
+-if oce_jpi ==  362 : oce_perio = 6 # ORCA 1
+-if oce_jpi == 1442 : oce_perio = 6 # ORCA 025
++if oce_perio == 0 :
++    if oce_jpi ==  182 : oce_perio = 4 # ORCA 2
++    if oce_jpi ==  362 : oce_perio = 6 # ORCA 1
++    if oce_jpi == 1442 : oce_perio = 6 # ORCA 025
++print(f"oce_perio = {oce_perio}")
+ oce_grid_pmask = nemo.lbc_mask (np.reshape(oce_grid_imask, (oce_jpj,oce_jpi)), 'T', oce_perio).ravel()
+ oce_address = np.arange(oce_jpj*oce_jpi)
+ 

@@ -1,0 +1,22 @@
+--- MOSAIX_ori/CreateWeightsMask.bash	2021-03-29 13:30:01.000000000 +0200
++++ MOSAIX_docker/CreateWeightsMask.bash	2021-03-29 13:35:47.000000000 +0200
+@@ -66,10 +66,10 @@
+ #
+ echo ${Titre}"Defines model"${Norm}
+ # =================================
+-#CplModel=ORCA2.3xLMD9695
++CplModel=ORCA2.3xLMD9695
+ #CplModel=ORCA2.3xICO30
+ #CplModel=ORCA2.3xICO40
+-CplModel=eORCA1.2xLMD144142
++#CplModel=eORCA1.2xLMD144142
+ #CplModel=eORCA1.2xLMD256256
+ #CplModel=eORCA1.2xICO40
+ #CplModel=eORCA1.2xICO450
+@@ -270,7 +270,6 @@
+     MpiRun="/opt/local/bin/mpirun -n 4"
+     PyRun="time"
+     ;; 
+-    ( * ) exit -1 ;;
+ esac
+

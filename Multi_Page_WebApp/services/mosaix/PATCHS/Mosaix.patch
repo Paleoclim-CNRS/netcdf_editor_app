@@ -1,0 +1,20 @@
+--- CreateWeightsMask.bash.old	2021-07-22 08:48:03.483342474 +0000
++++ CreateWeightsMask.bash	2021-07-22 08:51:24.280777193 +0000
+@@ -293,7 +293,7 @@
+ esac
+ 
+ case ${OCE} in # Periodicity type of ORCA grid
+-    ( ORCA2*               ) OcePerio=4 ;;
++    ( ORCA2*               ) OcePerio=6 ;; # Periodicity 6 for PaleoGrid not 4 
+     ( ORCA1*   | eORCA1*   ) OcePerio=6 ;;
+     ( ORCA025* | eORCA025* ) OcePerio=6 ;;
+ esac
+@@ -791,7 +791,7 @@
+ 	      --grids=grids_${CplModel}.nc --areas=areas_${CplModel}.nc --masks=masks_${CplModel}.nc \
+ 	      --o2a=${ATM}_grid_maskFrom_${OCE}.nc --output=rmp_t${atm}_to_t${oce}_runoff_${runOff_atmQuantity}_to_${runOff_oceQuantity}.nc \
+               --fmt=${FMT_XIOS} \
+-	      --atmQuantity=${runOff_atmQuantity} --oceQuantity=${runOff_oceQuantity}
++	      --atmQuantity=${runOff_atmQuantity} --oceQuantity=${runOff_oceQuantity} --ocePerio=${OcePerio}
+ fi
+ 
+ ##

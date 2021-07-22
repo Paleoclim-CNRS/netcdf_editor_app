@@ -1,0 +1,524 @@
+   !!----------------------------------------------------------------------
+   !!                      ***  ldfdyn_c2d.h90  ***
+   !!----------------------------------------------------------------------
+   !!   ldf_dyn_c2d  : set the lateral viscosity coefficients
+   !!   ldf_dyn_c2d_orca : specific case for orca r2 and r4
+   !!----------------------------------------------------------------------
+
+   !!----------------------------------------------------------------------
+   !! NEMO/OPA 3.3 , NEMO Consortium (2010)
+   !! $Id: ldfdyn_c2d.h90 5400 2015-06-10 15:29:08Z cbricaud $ 
+   !! Software governed by the CeCILL licence (NEMOGCM/NEMO_CeCILL.txt)
+   !!----------------------------------------------------------------------
+
+   SUBROUTINE ldf_dyn_c2d( ld_print )
+      !!----------------------------------------------------------------------
+      !!                 ***  ROUTINE ldf_dyn_c2d  ***
+      !!                  
+      !! ** Purpose :   initializations of the horizontal ocean physics
+      !!
+      !! ** Method :
+      !!      2D eddy viscosity coefficients ( longitude, latitude )
+      !!
+      !!       harmonic operator   : ahm1 is defined at t-point
+      !!                             ahm2 is defined at f-point
+      !!           + isopycnal     : ahm3 is defined at u-point
+      !!           or geopotential   ahm4 is defined at v-point
+      !!           iso-model level : ahm3, ahm4 not used
+      !!
+      !!       biharmonic operator : ahm3 is defined at u-point
+      !!                             ahm4 is defined at v-point
+      !!                           : ahm1, ahm2 not used
+      !!
+      !!----------------------------------------------------------------------
+      LOGICAL, INTENT (in) :: ld_print   ! If true, output arrays on numout
+      !
+      INTEGER  ::   ji, jj
+      REAL(wp) ::   za00, zd_max, zetmax, zeumax, zefmax, zevmax
+      !!----------------------------------------------------------------------
+
+      IF(lwp) WRITE(numout,*)
+      IF(lwp) WRITE(numout,*) 'ldf_dyn_c2d : 2d lateral eddy viscosity coefficient'
+      IF(lwp) WRITE(numout,*) '~~~~~~~~~~~'
+
+      ! harmonic operator (ahm1, ahm2) : ( T- and F- points) (used for laplacian operators
+      ! ===============================                       whatever its orientation is)
+      IF( ln_dynldf_lap ) THEN
+         ! define ahm1 and ahm2 at the right grid point position
+         ! (USER: modify ahm1 and ahm2 following your desiderata)
+
+         zd_max = MAX( MAXVAL( e1t(:,:) ), MAXVAL( e2t(:,:) ) )
+         IF( lk_mpp )   CALL mpp_max( zd_max )   ! max over the global domain
+
+         IF(lwp) WRITE(numout,*) '              laplacian operator: ahm proportional to e1'
+         IF(lwp) WRITE(numout,*) '              maximum grid-spacing = ', zd_max, ' maximum value for ahm = ', ahm0
+
+         za00 = ahm0 / zd_max
+         DO jj = 1, jpj
+            DO ji = 1, jpi
+               zetmax = MAX( e1t(ji,jj), e2t(ji,jj) )
+               zefmax = MAX( e1f(ji,jj), e2f(ji,jj) )
+               ahm1(ji,jj) = za00 * zetmax
+               ahm2(ji,jj) = za00 * zefmax
+            END DO
+         END DO
+
+         IF( ln_dynldf_iso ) THEN
+            IF(lwp) WRITE(numout,*) '              Caution, as implemented now, the isopycnal part of momentum'
+            IF(lwp) WRITE(numout,*) '                 mixing use aht0 as eddy viscosity coefficient. Thus, it is'
+            IF(lwp) WRITE(numout,*) '                 uniform and you must be sure that your ahm is greater than'
+            IF(lwp) WRITE(numout,*) '                 aht0 everywhere in the model domain.'
+         ENDIF
+
+         ! Special case for ORCA R1, R2 and R4 configurations (overwrite the value of ahm1 ahm2)
+         ! ==============================================
+         IF( ( cp_cfg == "orca" .OR. cp_cfg == "paleorca" ) .AND. ( jp_cfg == 2 .OR. jp_cfg == 4 ) )   CALL ldf_dyn_c2d_orca( ld_print )
+         IF( cp_cfg == "orca" .AND.   jp_cfg == 1)                       CALL ldf_dyn_c2d_orca_R1( ld_print )
+
+         ! Control print
+         IF( lwp .AND. ld_print ) THEN
+            WRITE(numout,*)
+            WRITE(numout,*) 'inildf: 2D ahm1 array'
+            CALL prihre(ahm1,jpi,jpj,1,jpi,1,1,jpj,1,1.e-3,numout)
+            WRITE(numout,*)
+            WRITE(numout,*) 'inildf: 2D ahm2 array'
+            CALL prihre(ahm2,jpi,jpj,1,jpi,1,1,jpj,1,1.e-3,numout)
+         ENDIF
+      ENDIF
+
+      ! biharmonic operator (ahm3, ahm4) : at U- and V-points (used for bilaplacian operator
+      ! =================================                      whatever its orientation is)
+      IF( ln_dynldf_bilap ) THEN
+         ! (USER: modify ahm3 and ahm4 following your desiderata)
+         ! Here: ahm is proportional to the cube of the maximum of the gridspacing
+         !       in the to horizontal direction
+
+         zd_max = MAX( MAXVAL( e1u(:,:) ), MAXVAL( e2u(:,:) ) )
+         IF( lk_mpp )   CALL mpp_max( zd_max )   ! max over the global domain
+
+         IF(lwp) WRITE(numout,*) '              bi-laplacian operator: ahm proportional to e1**3 '
+         IF(lwp) WRITE(numout,*) '              maximum grid-spacing = ', zd_max, ' maximum value for ahm = ', ahm0
+
+         za00 = ahm0_blp / ( zd_max * zd_max * zd_max )
+         DO jj = 1, jpj
+            DO ji = 1, jpi
+               zeumax = MAX( e1u(ji,jj), e2u(ji,jj) )
+               zevmax = MAX( e1v(ji,jj), e2v(ji,jj) )
+               ahm3(ji,jj) = za00 * zeumax * zeumax * zeumax
+               ahm4(ji,jj) = za00 * zevmax * zevmax * zevmax
+            END DO
+         END DO
+
+         ! Control print
+         IF( lwp .AND. ld_print ) THEN
+            WRITE(numout,*)
+            WRITE(numout,*) 'inildf: ahm3 array'
+            CALL prihre(ahm3,jpi,jpj,1,jpi,1,1,jpj,1,1.e-3,numout)
+            WRITE(numout,*)
+            WRITE(numout,*) 'inildf: ahm4 array'
+            CALL prihre(ahm4,jpi,jpj,1,jpi,1,1,jpj,1,1.e-3,numout)
+         ENDIF
+      ENDIF
+      !
+   END SUBROUTINE ldf_dyn_c2d
+
+
+   SUBROUTINE ldf_dyn_c2d_orca( ld_print )
+      !!----------------------------------------------------------------------
+      !!                 ***  ROUTINE ldf_dyn_c2d  ***
+      !!
+      !!                   **** W A R N I N G ****
+      !!
+      !!                ORCA R2 and R4 configurations
+      !!                  
+      !!                   **** W A R N I N G ****
+      !!                  
+      !! ** Purpose :   initializations of the lateral viscosity for orca R2
+      !!
+      !! ** Method  :   blah blah blah...
+      !!
+      !!----------------------------------------------------------------------
+      USE ldftra_oce, ONLY:   aht0
+      USE iom
+      !
+      LOGICAL, INTENT (in) ::   ld_print   ! If true, output arrays on numout
+      !
+      INTEGER  ::   ji, jj, jn   ! dummy loop indices
+      INTEGER  ::   inum, iim, ijm            ! local integers
+      INTEGER  ::   ifreq, il1, il2, ij, ii
+      INTEGER  ::   ijpt0,ijpt1, ierror
+      REAL(wp) ::   zahmeq, zcoft, zcoff, zmsk
+      CHARACTER (len=15) ::   clexp
+      INTEGER,     POINTER, DIMENSION(:,:)  :: icof
+      REAL(wp), DIMENSION(:,:), ALLOCATABLE :: ztemp2d  ! temporary array to read ahmcoef file
+      !!----------------------------------------------------------------------
+      !                                
+      CALL wrk_alloc( jpi   , jpj   , icof  )
+      !
+      IF(lwp) WRITE(numout,*)
+      IF(lwp) WRITE(numout,*) 'inildf: 2d eddy viscosity coefficient'
+      IF(lwp) WRITE(numout,*) '~~~~~~  --'
+      IF(lwp) WRITE(numout,*) '        orca ocean configuration'
+
+      IF( ( cp_cfg == "orca" .OR. cp_cfg == "paleorca" ) .AND. cp_cfz == "antarctic" ) THEN
+!
+! 1.2 Modify ahm
+! --------------
+         IF(lwp)WRITE(numout,*) ' inildf: Antarctic ocean'
+         IF(lwp)WRITE(numout,*) '         no tropics, no reduction of ahm'
+         IF(lwp)WRITE(numout,*) '         north boundary increase'
+
+         ahm1(:,:) = ahm0
+         ahm2(:,:) = ahm0
+
+         ijpt0=max(1,min(49 -njmpp+1,jpj))
+         ijpt1=max(0,min(49-njmpp+1,jpj-1))
+         DO jj=ijpt0,ijpt1
+            ahm2(:,jj)=ahm0*2.
+            ahm1(:,jj)=ahm0*2.
+         END DO
+         ijpt0=max(1,min(48 -njmpp+1,jpj))
+         ijpt1=max(0,min(48-njmpp+1,jpj-1))
+         DO jj=ijpt0,ijpt1
+            ahm2(:,jj)=ahm0*1.9
+            ahm1(:,jj)=ahm0*1.75
+         END DO
+         ijpt0=max(1,min(47 -njmpp+1,jpj))
+         ijpt1=max(0,min(47-njmpp+1,jpj-1))
+         DO jj=ijpt0,ijpt1
+            ahm2(:,jj)=ahm0*1.5
+            ahm1(:,jj)=ahm0*1.25
+         END DO
+         ijpt0=max(1,min(46 -njmpp+1,jpj))
+         ijpt1=max(0,min(46-njmpp+1,jpj-1))
+         DO jj=ijpt0,ijpt1
+            ahm2(:,jj)=ahm0*1.1
+         END DO
+
+      ! Add PALEORCA2 configuration -- JBL 08.02.2017
+      ELSE IF( ( cp_cfg == "orca" .OR. cp_cfg == "paleorca" ) .AND. cp_cfz == "arctic" ) THEN
+! 1.2 Modify ahm 
+! --------------
+         IF(lwp)WRITE(numout,*) ' inildf: Arctic ocean'
+         IF(lwp)WRITE(numout,*) '         no tropics, no reduction of ahm'
+         IF(lwp)WRITE(numout,*) '         south and west boundary increase'
+
+
+         ahm1(:,:) = ahm0
+         ahm2(:,:) = ahm0
+
+         ijpt0=max(1,min(98-jpjzoom+1-njmpp+1,jpj))
+         ijpt1=max(0,min(98-jpjzoom+1-njmpp+1,jpj-1))
+         DO jj=ijpt0,ijpt1
+            ahm2(:,jj)=ahm0*2.
+            ahm1(:,jj)=ahm0*2.
+         END DO
+         ijpt0=max(1,min(99-jpjzoom+1-njmpp+1,jpj))
+         ijpt1=max(0,min(99-jpjzoom+1-njmpp+1,jpj-1))
+         DO jj=ijpt0,ijpt1
+            ahm2(:,jj)=ahm0*1.9
+            ahm1(:,jj)=ahm0*1.75
+         END DO
+         ijpt0=max(1,min(100-jpjzoom+1-njmpp+1,jpj))
+         ijpt1=max(0,min(100-jpjzoom+1-njmpp+1,jpj-1))
+         DO jj=ijpt0,ijpt1
+            ahm2(:,jj)=ahm0*1.5
+            ahm1(:,jj)=ahm0*1.25
+         END DO
+         ijpt0=max(1,min(101-jpjzoom+1-njmpp+1,jpj))
+         ijpt1=max(0,min(101-jpjzoom+1-njmpp+1,jpj-1))
+         DO jj=ijpt0,ijpt1
+            ahm2(:,jj)=ahm0*1.1
+         END DO
+      ELSE
+         ! Read 2d integer array to specify western boundary increase in the
+         ! ===================== equatorial strip (20N-20S) defined at t-points
+         !
+         ALLOCATE( ztemp2d(jpi,jpj) )
+         ztemp2d(:,:) = 0.
+         CALL iom_open ( 'ahmcoef.nc', inum )
+         CALL iom_get  ( inum, jpdom_data, 'icof', ztemp2d)
+         icof(:,:)  = NINT(ztemp2d(:,:))
+         CALL iom_close( inum )
+         DEALLOCATE(ztemp2d)
+
+         ! Set ahm1 and ahm2  ( T- and F- points) (used for laplacian operator)
+         ! =================
+         ! define ahm1 and ahm2 at the right grid point position
+         ! (USER: modify ahm1 and ahm2 following your desiderata)
+
+
+         ! Decrease ahm to zahmeq m2/s in the tropics
+         ! (from 90 to 20 degre: ahm = constant
+         ! from 20 to  2.5 degre: ahm = decrease in (1-cos)/2
+         ! from  2.5 to  0 degre: ahm = constant
+         ! symmetric in the south hemisphere)
+
+         zahmeq = aht0
+
+         DO jj = 1, jpj
+            DO ji = 1, jpi
+               IF( ABS( gphif(ji,jj) ) >= 20. ) THEN
+                  ahm2(ji,jj) =  ahm0
+               ELSEIF( ABS( gphif(ji,jj) ) <= 2.5 ) THEN
+                  ahm2(ji,jj) =  zahmeq
+               ELSE
+                  ahm2(ji,jj) = zahmeq + (ahm0-zahmeq)/2.   &
+                     * ( 1. - COS( rad * ( ABS(gphif(ji,jj))-2.5 ) * 180. / 17.5 ) )
+               ENDIF
+               IF( ABS( gphit(ji,jj) ) >= 20. ) THEN
+                  ahm1(ji,jj) =  ahm0
+               ELSEIF( ABS( gphit(ji,jj) ) <= 2.5 ) THEN
+                  ahm1(ji,jj) =  zahmeq
+               ELSE
+                  ahm1(ji,jj) = zahmeq + (ahm0-zahmeq)/2.   &
+                     * ( 1. - COS( rad * ( ABS(gphit(ji,jj))-2.5 ) * 180. / 17.5 ) )
+               ENDIF
+            END DO
+         END DO
+
+         ! increase along western boundaries of equatorial strip
+         ! t-point
+         DO jj = 1, jpjm1
+            DO ji = 1, jpim1
+               zcoft = FLOAT( icof(ji,jj) ) / 100.
+               ahm1(ji,jj) = zcoft * ahm0 + (1.-zcoft) * ahm1(ji,jj) 
+            END DO
+         END DO
+         ! f-point
+         icof(:,:) = icof(:,:) * tmask(:,:,1)
+         DO jj = 1, jpjm1
+            DO ji = 1, jpim1   ! NO vector opt.
+               zmsk = tmask(ji,jj+1,1) + tmask(ji+1,jj+1,1) + tmask(ji,jj,1) + tmask(ji,jj+1,1)
+               IF( zmsk == 0. ) THEN
+                  zcoff = 1.
+               ELSE
+                  zcoff = FLOAT( icof(ji,jj+1) + icof(ji+1,jj+1) + icof(ji,jj) + icof(ji,jj+1) )   &
+                     / (zmsk * 100.)
+               ENDIF
+               ahm2(ji,jj) = zcoff * ahm0 + (1.-zcoff) * ahm2(ji,jj)
+            END DO
+         END DO
+      ENDIF
+      
+      ! Lateral boundary conditions on ( ahm1, ahm2 )
+      !                                ==============
+      CALL lbc_lnk( ahm1, 'T', 1. )   ! T-point, unchanged sign
+      CALL lbc_lnk( ahm2, 'F', 1. )   ! F-point, unchanged sign
+
+      ! Control print
+      IF( lwp .AND. ld_print ) THEN
+         WRITE(numout,*)
+         WRITE(numout,*) 'inildf: 2D ahm1 array'
+         CALL prihre(ahm1,jpi,jpj,1,jpi,1,1,jpj,1,1.e-3,numout)
+         WRITE(numout,*)
+         WRITE(numout,*) 'inildf: 2D ahm2 array'
+         CALL prihre(ahm2,jpi,jpj,1,jpi,1,1,jpj,1,1.e-3,numout)
+      ENDIF
+      !
+      CALL wrk_dealloc( jpi   , jpj   , icof  )
+      !
+   END SUBROUTINE ldf_dyn_c2d_orca
+
+
+   SUBROUTINE ldf_dyn_c2d_orca_R1( ld_print )
+      !!----------------------------------------------------------------------
+      !!                 ***  ROUTINE ldf_dyn_c2d  ***
+      !!
+      !!                   **** W A R N I N G ****
+      !!
+      !!                ORCA R1 configuration
+      !!                  
+      !!                   **** W A R N I N G ****
+      !!                  
+      !! ** Purpose :   initializations of the lateral viscosity for orca R1
+      !!
+      !! ** Method  :   blah blah blah...
+      !!
+      !!----------------------------------------------------------------------
+      USE ldftra_oce, ONLY:   aht0
+      USE iom
+      !
+      LOGICAL, INTENT (in) ::   ld_print   ! If true, output arrays on numout
+      !
+      INTEGER ::   ji, jj, jn      ! dummy loop indices
+      INTEGER ::   inum            ! temporary logical unit
+      INTEGER ::   iim, ijm
+      INTEGER ::   ifreq, il1, il2, ij, ii
+      INTEGER ::   ijpt0,ijpt1, ierror
+      REAL(wp) ::   zahmeq, zcoft, zcoff, zmsk, zam20s
+      CHARACTER (len=15) ::   clexp
+      INTEGER,     POINTER, DIMENSION(:,:)  :: icof
+      REAL(wp), DIMENSION(:,:), ALLOCATABLE :: ztemp2d  ! temporary array to read ahmcoef file
+      !!----------------------------------------------------------------------
+      !                                
+      CALL wrk_alloc( jpi   , jpj   , icof  )
+      !                                
+      IF(lwp) WRITE(numout,*)
+      IF(lwp) WRITE(numout,*) 'inildf: 2d eddy viscosity coefficient'
+      IF(lwp) WRITE(numout,*) '~~~~~~  --'
+      IF(lwp) WRITE(numout,*) '        orca_r1 configuration'
+
+      IF( cp_cfg == "orca" .AND. cp_cfz == "antarctic" ) THEN
+!
+! 1.2 Modify ahm
+! --------------
+         IF(lwp)WRITE(numout,*) ' inildf: Antarctic ocean'
+         IF(lwp)WRITE(numout,*) '         no tropics, no reduction of ahm'
+         IF(lwp)WRITE(numout,*) '         north boundary increase'
+
+         ahm1(:,:) = ahm0
+         ahm2(:,:) = ahm0
+
+         ijpt0=max(1,min(49 -njmpp+1,jpj))
+         ijpt1=max(0,min(49-njmpp+1,jpj-1))
+         DO jj=ijpt0,ijpt1
+            ahm2(:,jj)=ahm0*2.
+            ahm1(:,jj)=ahm0*2.
+         END DO
+         ijpt0=max(1,min(48 -njmpp+1,jpj))
+         ijpt1=max(0,min(48-njmpp+1,jpj-1))
+         DO jj=ijpt0,ijpt1
+            ahm2(:,jj)=ahm0*1.9
+            ahm1(:,jj)=ahm0*1.75
+         END DO
+         ijpt0=max(1,min(47 -njmpp+1,jpj))
+         ijpt1=max(0,min(47-njmpp+1,jpj-1))
+         DO jj=ijpt0,ijpt1
+            ahm2(:,jj)=ahm0*1.5
+            ahm1(:,jj)=ahm0*1.25
+         END DO
+         ijpt0=max(1,min(46 -njmpp+1,jpj))
+         ijpt1=max(0,min(46-njmpp+1,jpj-1))
+         DO jj=ijpt0,ijpt1
+            ahm2(:,jj)=ahm0*1.1
+         END DO
+
+      ELSE IF( cp_cfg == "orca" .AND. cp_cfz == "arctic" ) THEN
+! 1.2 Modify ahm 
+! --------------
+         IF(lwp)WRITE(numout,*) ' inildf: Arctic ocean'
+         IF(lwp)WRITE(numout,*) '         no tropics, no reduction of ahm'
+         IF(lwp)WRITE(numout,*) '         south and west boundary increase'
+
+
+         ahm1(:,:) = ahm0
+         ahm2(:,:) = ahm0
+
+         ijpt0=max(1,min(98-jpjzoom+1-njmpp+1,jpj))
+         ijpt1=max(0,min(98-jpjzoom+1-njmpp+1,jpj-1))
+         DO jj=ijpt0,ijpt1
+            ahm2(:,jj)=ahm0*2.
+            ahm1(:,jj)=ahm0*2.
+         END DO
+         ijpt0=max(1,min(99-jpjzoom+1-njmpp+1,jpj))
+         ijpt1=max(0,min(99-jpjzoom+1-njmpp+1,jpj-1))
+         DO jj=ijpt0,ijpt1
+            ahm2(:,jj)=ahm0*1.9
+            ahm1(:,jj)=ahm0*1.75
+         END DO
+         ijpt0=max(1,min(100-jpjzoom+1-njmpp+1,jpj))
+         ijpt1=max(0,min(100-jpjzoom+1-njmpp+1,jpj-1))
+         DO jj=ijpt0,ijpt1
+            ahm2(:,jj)=ahm0*1.5
+            ahm1(:,jj)=ahm0*1.25
+         END DO
+         ijpt0=max(1,min(101-jpjzoom+1-njmpp+1,jpj))
+         ijpt1=max(0,min(101-jpjzoom+1-njmpp+1,jpj-1))
+         DO jj=ijpt0,ijpt1
+            ahm2(:,jj)=ahm0*1.1
+         END DO
+      ELSE
+         
+         ! Read 2d integer array to specify western boundary increase in the
+         ! ===================== equatorial strip (20N-20S) defined at t-points
+         ALLOCATE( ztemp2d(jpi,jpj) )
+         ztemp2d(:,:) = 0.
+         CALL iom_open ( 'ahmcoef.nc', inum )
+         CALL iom_get  ( inum, jpdom_data, 'icof', ztemp2d)
+         icof(:,:)  = NINT(ztemp2d(:,:))
+         CALL iom_close( inum )
+         DEALLOCATE(ztemp2d)
+
+         ! Set ahm1 and ahm2  ( T- and F- points) (used for laplacian operator)
+         ! =================
+         ! define ahm1 and ahm2 at the right grid point position
+         ! (USER: modify ahm1 and ahm2 following your desiderata)
+
+
+         ! Decrease ahm to zahmeq m2/s in the tropics
+         ! (from 90   to 20   degrees: ahm = scaled by local metrics
+         !  from 20   to  2.5 degrees: ahm = decrease in (1-cos)/2
+         !  from  2.5 to  0   degrees: ahm = constant
+         ! symmetric in the south hemisphere)
+
+         zahmeq = aht0
+         zam20s = ahm0*COS( rad * 20. )
+
+         DO jj = 1, jpj
+            DO ji = 1, jpi
+               IF( ABS( gphif(ji,jj) ) >= 20. ) THEN
+                  !              leave as set in ldf_dyn_c2d
+               ELSEIF( ABS( gphif(ji,jj) ) <= 2.5 ) THEN
+                  ahm2(ji,jj) =  zahmeq
+               ELSE
+                  ahm2(ji,jj) =  zahmeq + (zam20s-zahmeq)/2.   &
+                     * ( 1. - COS( rad * ( ABS(gphif(ji,jj))-2.5 ) * 180. / 17.5 ) )
+               ENDIF
+               IF( ABS( gphit(ji,jj) ) >= 20. ) THEN
+                  !             leave as set in ldf_dyn_c2d
+               ELSEIF( ABS( gphit(ji,jj) ) <= 2.5 ) THEN
+                  ahm1(ji,jj) =  zahmeq
+               ELSE
+                  ahm1(ji,jj) =  zahmeq + (zam20s-zahmeq)/2.   &
+                     * ( 1. - COS( rad * ( ABS(gphit(ji,jj))-2.5 ) * 180. / 17.5 ) )
+               ENDIF
+            END DO
+         END DO
+
+         ! increase along western boundaries of equatorial strip
+         ! t-point
+         DO jj = 1, jpjm1
+            DO ji = 1, jpim1
+               IF( ABS( gphit(ji,jj) ) < 20. ) THEN
+                  zcoft = FLOAT( icof(ji,jj) ) / 100.
+                  ahm1(ji,jj) = zcoft * ahm0 + (1.-zcoft) * ahm1(ji,jj) 
+               ENDIF
+            END DO
+         END DO
+         ! f-point
+         icof(:,:) = icof(:,:) * tmask(:,:,1)
+         DO jj = 1, jpjm1
+            DO ji = 1, jpim1
+               IF( ABS( gphif(ji,jj) ) < 20. ) THEN
+                  zmsk = tmask(ji,jj+1,1) + tmask(ji+1,jj+1,1) + tmask(ji,jj,1) + tmask(ji,jj+1,1)
+                  IF( zmsk == 0. ) THEN
+                     zcoff = 1.
+                  ELSE
+                     zcoff = FLOAT( icof(ji,jj+1) + icof(ji+1,jj+1) + icof(ji,jj) + icof(ji,jj+1) )   &
+                        / (zmsk * 100.)
+                  ENDIF
+                  ahm2(ji,jj) = zcoff * ahm0 + (1.-zcoff) * ahm2(ji,jj)
+               ENDIF
+            END DO
+         END DO
+      ENDIF
+      
+      ! Lateral boundary conditions on ( ahm1, ahm2 )
+      !                                ==============
+      CALL lbc_lnk( ahm1, 'T', 1. )   ! T-point, unchanged sign
+      CALL lbc_lnk( ahm2, 'F', 1. )   ! F-point, unchanged sign
+
+      ! Control print
+      IF( lwp .AND. ld_print ) THEN
+         WRITE(numout,*)
+         WRITE(numout,*) 'inildf: 2D ahm1 array'
+         CALL prihre(ahm1,jpi,jpj,1,jpi,1,1,jpj,1,1.e-3,numout)
+         WRITE(numout,*)
+         WRITE(numout,*) 'inildf: 2D ahm2 array'
+         CALL prihre(ahm2,jpi,jpj,1,jpi,1,1,jpj,1,1.e-3,numout)
+      ENDIF
+      !
+      CALL wrk_dealloc( jpi   , jpj   , icof  )
+      !
+   END SUBROUTINE ldf_dyn_c2d_orca_R1
