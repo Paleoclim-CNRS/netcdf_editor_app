@@ -112,9 +112,14 @@ COPY services/mosaix/MODIFIED_MY_SRC/ /tmp/SOURCES
 # COPY DATA/OR2L3P-CLIM-CORE.85237.tar.gz /tmp
 
 # Python messaging and running
+
+# Setup the enviroment
+COPY requirements.*txt /tmp/
+RUN pip3 install --no-cache-dir -r /tmp/requirements.txt
+
 COPY services/mosaix/receive.py services/mosaix/steps.py services/mosaix/mosaix.py /usr/src/app/
 COPY flask_app /usr/src/app/flask_app
-RUN pip3 install /usr/src/app/flask_app && pip3 install pika
+RUN pip3 install /usr/src/app/flask_app
 
 ENV FLASK_APP=/usr/src/app/netcdf_editor_app
 ENTRYPOINT [ "python3", "/usr/src/app/receive.py"]

@@ -307,7 +307,7 @@ def stepsTable(_id):
             if step_up_to_date(_id, step):
                 status = '<i class="fas fa-check-square" style="color:#2ECC40"></i>'
             # if it is a python task then we show it being processed
-            elif step in tasks["python"] + tasks["mosaic"]:
+            elif step in tasks["python"] + tasks["mosaicx"]:
                 status = '<i class="fas fa-cog fa-spin" style="color:#377ba8"></i>'
         step_text = " ".join(step.split("_")).title()
 
@@ -639,14 +639,14 @@ def calculate_weights(_id):
 
         if not len(error):
             body = {"id": _id, **request.form}
-            if request['engine'] == 'mosaic':
-                send_preprocessing_message("calculate_weights_mosaic", body)
+            if request.form['engine'] == 'mosaic':
+                send_preprocessing_message("calculate_weights", body)
                 # TODO validate that the correct variables are in the file
-                upload_file(file, data_file_id=_id, file_type="weight_coords_mosaic")
-            elif request['engine'] == 'mosaix':
-                send_preprocessing_message("calculate_weights_mosaix", body)
+                upload_file(file, data_file_id=_id, file_type="weight_coords")
+            elif request.form['engine'] == 'mosaix':
+                send_preprocessing_message("calculate_weights", body)
                 # TODO validate that the correct variables are in the file
-                upload_file(file, data_file_id=_id, file_type="weight_coords_mosaix")
+                upload_file(file, data_file_id=_id, file_type="weight_coords")
             else:
                 error = "Unknown engine method, known methods are mosaic and mosaix"
 

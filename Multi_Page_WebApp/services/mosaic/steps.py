@@ -11,7 +11,7 @@ from climate_simulation_platform import create_app
 from climate_simulation_platform.db import get_file_path, save_file_to_db
 
 
-def calculate_weights_mosaic(body):
+def calculate_weights(body):
     print(f"{datetime.now()} Calculating weights mosaic", flush=True)
     app = create_app()
 
@@ -20,7 +20,7 @@ def calculate_weights_mosaic(body):
     # Load file
     with app.app_context():
         bathy_file = get_file_path(_id, "bathy", full=True)
-        coords_file = get_file_path(_id, "weight_coords_mosaic", full=True)
+        coords_file = get_file_path(_id, "weight_coords", full=True)
         subbasins_file = get_file_path(_id, "sub_basins", full=True)
 
     print(f"{datetime.now()} Running Mosaic Runner", flush=True)
@@ -43,7 +43,7 @@ def calculate_weights_mosaic(body):
     # Add file to db
     print(f"{datetime.now()} Saving new db file {temp_name} to database", flush=True)
     with app.app_context():
-        save_file_to_db(_id, temp_name, "weights_mosaic")
+        save_file_to_db(_id, temp_name, "weights")
 
     # Delete Folder
     print(f"{datetime.now()} Cleaning up")
