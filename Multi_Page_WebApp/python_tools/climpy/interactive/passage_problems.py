@@ -1,5 +1,5 @@
 import json
-from climate_simulation_platform.db import save_revision, save_step
+from climate_simulation_platform.db import load_file, save_revision, save_step
 from climate_simulation_platform.message_broker import send_preprocessing_message
 from climpy.interactive import InternalOceans
 import panel as pn
@@ -86,6 +86,19 @@ class PassageProblems(InternalOceans):
             label=f"Number Diffusive Passage cells: {number_passage_problems}",
         )
         return passage_problems_image
+    
+    @pn.depends("ds", "attribute.value")
+    def load_coast_overlay(self):
+        # Get the high res topo 
+        with self.app.app_context():
+            ds_topo_high_res = load_file(self.data_file_id, 'topo_high_res')
+        # Calculate coastline
+        contours = hv.operation.contours(hv.Image(ds_topo_high_res.RELIEF > 0, ['longitude', 'latitude']), levels=[0.5])
+        # Display bathy as QuadMesh
+        ds_bathy = self.ds.copy(deep=True)
+        ds_bathy = ds_bathy.set_coords(['nav_lon', 'nav_lat'])
+        quadmesh = hv.QuadMesh(ds_bathy.Bathymetry > 0, ['nav_lon', 'nav_lat'])
+        return quadmesh * contours
 
     def _update_clims(self):
         # Color clipping occurs at min val NOT included
@@ -118,7 +131,20 @@ class PassageProblems(InternalOceans):
                 clipping_colors={"min": "#dedede", "max": "#ffffff"},
             )
         )
-        return default_grpahs + passage_problems
+        coast_line = hv.DynamicMap(self.load_coast_overlay).opts(
+            hv.opts.QuadMesh(
+                clipping_colors={"max": "white", "min": "grey"},
+                clim=(0.2, 0.5),
+                responsive=True,
+                height=400
+            ),
+            hv.opts.Contours(
+                show_legend=False,
+                responsive=True
+            ),
+        )
+        
+        return default_grpahs + passage_problems + coast_line
 
     def save(self, event):
         with self.app.app_context():
