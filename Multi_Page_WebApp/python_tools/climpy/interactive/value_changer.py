@@ -80,8 +80,8 @@ class ValueChanger(param.Parameterized):
         # Absolute => Set to that value
         # Relatif => Base value + new value
         # Percentage => Base value + percentage
-        self.calculation_type = pn.widgets.RadioButtonGroup(
-            options=["Absolute", "Relatif", "Percentage"], align="end"
+        self.calculation_type = pn.widgets.Select(name="Topography modification mode",
+            options=["Absolute", "Relatif", "Percentage", "Rescale"], align="start"
         )
         # Replacement value
         self.spinner = pn.widgets.IntInput(
@@ -278,12 +278,12 @@ class ValueChanger(param.Parameterized):
             if new_vals[1] != old_vals[1]:
                 self.colormap_max.value = int(new_vals[1])
 
-    def _set_values(
-        self, value, calculation_type, selection_expr, land=True, ocean=True
-    ):
+    def _select_values(self, selection_expr, land=True, ocean=True):
         # If the selection_expr is in string representation then
         # Convert to object code
         if isinstance(selection_expr, str):
+            from numpy import array
+            spatial_select = hv.element.selection.spatial_select
             selection_expr = eval(selection_expr)
         hvds = hv.Dataset(
             self.ds.to_dataframe(
@@ -321,6 +321,13 @@ class ValueChanger(param.Parameterized):
                     ].index
                 )
             indexs_to_update.difference_update(ocean_indexs)
+        return (hvds, indexs_to_update)
+
+    def _set_values(
+        self, value, calculation_type, selection_expr, land=True, ocean=True, initial_value=None
+    ):
+        #Get a holoviews dataset and indexes for selecting values
+        hvds, indexs_to_update = self._select_values(selection_expr, land, ocean)
 
         if calculation_type == "Absolute":
             hvds.data[self.attribute.value].loc[indexs_to_update] = value
@@ -330,6 +337,10 @@ class ValueChanger(param.Parameterized):
             hvds.data[self.attribute.value].loc[indexs_to_update] *= (
                 100 + value
             ) / 100.0
+        elif calculation_type == "Rescale":
+            data_array = hvds.data[self.attribute.value].loc[indexs_to_update]
+            data_array = self.rescale_values(data_array, value)
+            hvds.data[self.attribute.value].loc[indexs_to_update]=data_array
         self.ds[self.attribute.value] = tuple(
             (
                 list(self.ds[self.attribute.value].dims),
@@ -367,6 +378,9 @@ class ValueChanger(param.Parameterized):
         elif undo_action["calculation_type"] == "Percentage":
             # Apply the opposite transformation
             undo_action["value"] = ((100 * 100) / (100 + undo_action["value"])) - 100
+            self._apply_action(undo_action)
+        elif undo_action["calculation_type"] == "Rescale":
+            undo_action["value"] = undo_action["initial_value"]
             self._apply_action(undo_action)
         else:
             raise ValueError(
@@ -416,13 +430,14 @@ class ValueChanger(param.Parameterized):
                 )
 
     def _apply_action(self, action):
-        if action["calculation_type"] in ["Absolute", "Percentage", "Relatif"]:
+        if action["calculation_type"] in ["Absolute", "Percentage", "Relatif", "Rescale"]:
             self._set_values(
                 value=action["value"],
                 calculation_type=action["calculation_type"],
                 selection_expr=action["selection_expr"],
                 land=action["land"],
                 ocean=action["ocean"],
+                initial_value = action["initial_value"],
             )
         else:
             raise ValueError(
@@ -434,13 +449,18 @@ class ValueChanger(param.Parameterized):
     def _apply_values(self, event):
         if self.selection.selection_expr is None:
             return
+        #Get a holoviews dataset and indexes for selecting values
+        hvds, indexs_to_update = self._select_values(self.selection.selection_expr)
+        initial_value = hvds.data[self.attribute.value].loc[indexs_to_update].max()
         action = {
             "selection_expr": str(self.selection.selection_expr),
             "calculation_type": self.calculation_type.value,
             "value": self.spinner.value,
             "land": self.land.value,
             "ocean": self.ocean.value,
+            "initial_value": initial_value,
         }
+
         # Apply the action
         self._apply_action(action)
 
@@ -692,7 +712,7 @@ class ValueChanger(param.Parameterized):
 
     def plot(self):
         template = pn.template.MaterialTemplate(
-            title="NetCDF Editor App",
+            title="Variable explorer",
             logo="https://raw.githubusercontent.com/CEREGE-CL/CEREGE-CL.github.io/main/logo.png",
             favicon="https://raw.githubusercontent.com/CEREGE-CL/CEREGE-CL.github.io/main/logo.png",
             header_background="#42a5f5",
@@ -703,6 +723,37 @@ class ValueChanger(param.Parameterized):
         template.main.append(self.description)
         template.main.append(self.save_button)
         return template
+
+    def rescale_values(self, in_array:numpy.ndarray, max:int, reverse = False) -> numpy.ndarray:
+        """
+        Modifies the elevation values based on the current and provided
+        minimum and maximum values.
+        This is basically flattening and roughening.
+
+        :param in_array: input numpy array for modification.
+        :type in_array: numpy.ndarray
+        :param max: final maximum value of elevation
+        :type max: int
+        :param revers: If reverse is true the last rescsle action will reversed
+        :type reverse: bool
+
+        :return: numpy.ndarray
+        :rtype: numpy.ndarray
+        """
+
+
+        # Define the initial minimum and maximum values of the array
+        if in_array.size>0 and numpy.isfinite(in_array).size>0:
+            imax = in_array[numpy.isfinite(in_array)].max()
+            imin = in_array[numpy.isfinite(in_array)].min()
+        else:
+            raise ValueError("The input Array is empty.")
+        if reverse:
+            out_array = (imax - imin) * (in_array - imin) / (max - imin) + imin
+        else:
+            out_array = (max - imin) * (in_array - imin) / (imax - imin) + imin
+
+        return out_array
 
 
 if "bokeh_app" in __name__:

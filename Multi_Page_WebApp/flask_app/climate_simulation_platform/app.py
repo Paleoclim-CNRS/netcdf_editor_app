@@ -472,7 +472,6 @@ def variable_explorer(_id, file_type):
     # And hence through panel.state.curdoc.session_context.request.arguments
     return render_template(
         "app/panel_app.html",
-        title="Variable Explorer",
         panel_app_name="value_changer",
         arguments=arguments,
     )
