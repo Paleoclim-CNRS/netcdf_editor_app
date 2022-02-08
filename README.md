@@ -11,7 +11,7 @@
 
 ## Introduction
 
-Checkout the [Documentation](https://cerege-cl.github.io/netcdf_editor_app/) for more info.
+Checkout the [Documentation](https://paleoclim-cnrs.github.io/netcdf_editor_app/) for more info.
 
 ## Deploying to local server
 
