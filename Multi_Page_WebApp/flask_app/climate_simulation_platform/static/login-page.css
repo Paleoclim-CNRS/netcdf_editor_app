@@ -13,6 +13,7 @@ html {
   }
 
   #banner-container {
+    top: 0px;
     position: absolute;
     text-align: left;
     color: black;
