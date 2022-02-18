@@ -31,13 +31,14 @@ jobs:
       working-directory: ./Multi_Page_WebApp
       run: |
         docker build . --file services/message_dispatcher/Dockerfile \
-          --tag registry.osupytheas.fr:443/netcdf_editor_message_dispatcher:$(date +%s) \
+          --tag registry.osupytheas.fr:443/netcdf_editor_message_dispatcher:$(git log -1 --format=%h) \
           --tag registry.osupytheas.fr:443/netcdf_editor_message_dispatcher:latest \
           --tag ceregecl/netcdf_editor_message_dispatcher:latest
     - name: Docker Push
       run: |
-        docker push ceregecl/netcdf_editor_message_dispatcher
+        docker push registry.osupytheas.fr:443/netcdf_editor_message_dispatcher:$(git log -1 --format=%h)
         docker push registry.osupytheas.fr:443/netcdf_editor_message_dispatcher
+        docker push ceregecl/netcdf_editor_message_dispatcher
 
   nginx:
 
@@ -59,13 +60,14 @@ jobs:
       working-directory: ./Multi_Page_WebApp/services/nginx
       run: |
         docker build . --file Dockerfile \
-          --tag registry.osupytheas.fr:443/netcdf_editor_nginx:$(date +%s) \
+          --tag registry.osupytheas.fr:443/netcdf_editor_nginx:$(git log -1 --format=%h) \
           --tag registry.osupytheas.fr:443/netcdf_editor_nginx:latest \
           --tag ceregecl/netcdf_editor_nginx:latest
     - name: Docker Push
       run: |
+        docker push registry.osupytheas.fr:443/netcdf_editor_nginx:$(git log -1 --format=%h)
+        docker push registry.osupytheas.fr:443/netcdf_editor_nginx
         docker push ceregecl/netcdf_editor_nginx
-        docker push registry.osupytheas.fr:443/netcdf_editor_nginx:latest
 
   flask_app:
 
@@ -93,11 +95,12 @@ jobs:
         echo "FROM ceregecl/netcdf_editor_flask_app:latest" > Dockerfile
         echo "ENV THANKS=CEREGE" >> Dockerfile
         echo "ENV AUTH=logged_in" >> Dockerfile
-        docker build . --tag registry.osupytheas.fr:443/netcdf_editor_flask_app:$(date +%s) \
+        docker build . --tag registry.osupytheas.fr:443/netcdf_editor_flask_app:$(git log -1 --format=%h) \
           --tag registry.osupytheas.fr:443/netcdf_editor_flask_app:latest 
     - name: Docker Push
       run: |
         docker push ceregecl/netcdf_editor_flask_app
+        docker push registry.osupytheas.fr:443/netcdf_editor_flask_app:$(git log -1 --format=%h)
         docker push registry.osupytheas.fr:443/netcdf_editor_flask_app
 
   python_worker:
@@ -119,13 +122,14 @@ jobs:
       working-directory: ./Multi_Page_WebApp
       run: |
         docker build . --file services/python_worker/Dockerfile \
-          --tag registry.osupytheas.fr:443/netcdf_editor_python_worker:$(date +%s) \
+          --tag registry.osupytheas.fr:443/netcdf_editor_python_worker:$(git log -1 --format=%h) \
           --tag registry.osupytheas.fr:443/netcdf_editor_python_worker:latest \
           --tag ceregecl/netcdf_editor_python_worker:latest
     - name: Docker Push
       run: |
-        docker push ceregecl/netcdf_editor_python_worker
+        docker push registry.osupytheas.fr:443/netcdf_editor_python_worker:$(git log -1 --format=%h)
         docker push registry.osupytheas.fr:443/netcdf_editor_python_worker
+        docker push ceregecl/netcdf_editor_python_worker
 
   mosaic_worker:
 
@@ -147,13 +151,14 @@ jobs:
       working-directory: ./Multi_Page_WebApp
       run: |
         docker build . --file services/mosaic/Dockerfile \
-          --tag registry.osupytheas.fr:443/netcdf_editor_mosaic_worker:$(date +%s) \
+          --tag registry.osupytheas.fr:443/netcdf_editor_mosaic_worker:$(git log -1 --format=%h) \
           --tag registry.osupytheas.fr:443/netcdf_editor_mosaic_worker:latest \
           --tag ceregecl/netcdf_editor_mosaic_worker:latest
     - name: Docker Push
       run: |
-        docker push ceregecl/netcdf_editor_mosaic_worker
+        docker push registry.osupytheas.fr:443/netcdf_editor_mosaic_worker:$(git log -1 --format=%h)
         docker push registry.osupytheas.fr:443/netcdf_editor_mosaic_worker
+        docker push ceregecl/netcdf_editor_mosaic_worker
 
   panel_app:
 
@@ -180,9 +185,9 @@ jobs:
           --tag ceregecl/netcdf_editor_panel_app:latest
     - name: Docker Push
       run: |
-        docker push ceregecl/netcdf_editor_panel_app
         docker push registry.osupytheas.fr:443/netcdf_editor_panel_app:$(git log -1 --format=%h)
         docker push registry.osupytheas.fr:443/netcdf_editor_panel_app:latest
+        docker push ceregecl/netcdf_editor_panel_app
 
   single_page_app:
 
@@ -204,10 +209,11 @@ jobs:
       working-directory: ./Single_Page_WebApp
       run: |
         docker build . --file single_page_webapp.Dockerfile \
-          --tag registry.osupytheas.fr:443/netcdf_editor:$(date +%s) \
+          --tag registry.osupytheas.fr:443/netcdf_editor:$(git log -1 --format=%h) \
           --tag registry.osupytheas.fr:443/netcdf_editor:latest \
           --tag ceregecl/netcdf_editor:latest
     - name: Docker Push
       run: |
-        docker push ceregecl/netcdf_editor
+        docker push registry.osupytheas.fr:443/netcdf_editor:$(git log -1 --format=%h)
         docker push registry.osupytheas.fr:443/netcdf_editor
+        docker push ceregecl/netcdf_editor
