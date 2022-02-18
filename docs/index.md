@@ -18,7 +18,7 @@ There is no current developpement on this
 </div>
 
 #### Multi Page
-However the multipage web app allows maniplating files on the fly as well as well as a number of other tasks:
+However the multipage web app allows manipulating files on the fly as well as a number of other tasks:
 - Regridding
 - Run Routing Code to generate routing files, Bathymetry file (Paleorca), ...
 - Generate PFT files
@@ -26,10 +26,10 @@ However the multipage web app allows maniplating files on the fly as well as wel
 
 The Multipage web is built using flask and stores your files in a local database meaning you can come back to your work later.
 
-Also the Multi page app is built with scalability and flexibility in mind, for example it is _trivial_ to add routines to the interface that use multiple langauges (Python, Fortran, ...)
+Also the Multi page app is built with scalability and flexibility in mind, for example it is _trivial_ to add routines to the interface that use multiple languages (Python, Fortran, ...)
 
 This tool also has aspirations of being the turn table in simulation workflows allowing not only the creation of boundary conditions but also more broader tasks such as post processing or simulation lookups.
 
 The source code can be found [here](https://github.com/CEREGE-CL/netcdf_editor_app).
 
-See [installtion instructions](/netcdf_editor_app/multi#installation) for using the app.
+See [installation instructions](/netcdf_editor_app/multi#installation) for using the app.
