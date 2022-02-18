@@ -109,7 +109,7 @@ class SubBasins(ValueChanger):
         land_indexs = hvds[self.attribute.value] == 0
         hvds.data[self.attribute.value].loc[
             hvds.select(selection_expr).data.index
-        ] = value 
+        ] = value
         hvds.data[self.attribute.value].loc[
             hvds.select(selection_expr).data.index
         ] = value
