@@ -175,8 +175,8 @@ jobs:
       working-directory: ./Multi_Page_WebApp
       run: |
         docker build . --file services/panel/Dockerfile \
-          --tag registry.osupytheas.fr:443/netcdf_editor_panel_app:TEST \
           --tag registry.osupytheas.fr:443/netcdf_editor_panel_app:latest \
+          --tag registry.osupytheas.fr:443/netcdf_editor_panel_app:TEST \
           --tag ceregecl/netcdf_editor_panel_app:latest
     - name: Docker Push
       run: |
