@@ -302,7 +302,7 @@ class ValueChanger(param.Parameterized):
             else:
                 land_indexs = set(
                     hvds.data[self.attribute.value][
-                        hvds.data[self.attribute.value] < 0
+                        hvds.data[self.attribute.value] <= 0
                     ].index
                 )
             indexs_to_update.difference_update(land_indexs)
@@ -317,7 +317,7 @@ class ValueChanger(param.Parameterized):
             else:
                 ocean_indexs = set(
                     hvds.data[self.attribute.value][
-                        hvds.data[self.attribute.value] >= 0
+                        hvds.data[self.attribute.value] > 0
                     ].index
                 )
             indexs_to_update.difference_update(ocean_indexs)
