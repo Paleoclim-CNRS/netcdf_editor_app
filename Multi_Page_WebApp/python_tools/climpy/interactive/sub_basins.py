@@ -34,7 +34,7 @@ class SubBasins(ValueChanger):
         self.loaded = False
         with self.app.app_context():
             ds = load_file(_id, self.file_type)
-        assert ds.Bathymetry.shape == (149, 182)
+        # assert ds.Bathymetry.shape == (149, 182) # generates error if ds.Bathymetry.shape has dim ~= (149,182)
         ds.Bathymetry.values = self._default_ocean_values(ds.Bathymetry.values)
         ds = ds.rename({"Bathymetry": "Oceans"})
 
