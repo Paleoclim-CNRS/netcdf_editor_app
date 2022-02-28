@@ -1,3 +1,4 @@
+from cProfile import label
 import json
 from climpy.interactive import ValueChanger
 import panel as pn
@@ -33,11 +34,22 @@ class SubBasins(ValueChanger):
     def _load_ds(self, _id):
         self.loaded = False
         with self.app.app_context():
-            ds = load_file(_id, self.file_type)
-        # assert ds.Bathymetry.shape == (149, 182) # generates error if ds.Bathymetry.shape has dim ~= (149,182)
-        ds.Bathymetry.values = self._default_ocean_values(ds.Bathymetry.values)
-        ds = ds.rename({"Bathymetry": "Oceans"})
-
+            ds_sub_basins = load_file(_id, "sub_basins") # load sub_basins file
+        if type(ds_sub_basins) == type(None): # if sub_basins file has not been created yet, then initiate with default config
+            with self.app.app_context():
+                ds = load_file(_id, self.file_type)
+            # assert ds.Bathymetry.shape == (149, 182) # generates error if ds.Bathymetry.shape has dim ~= (149,182)
+            ds.Bathymetry.values = self._default_ocean_values(ds.Bathymetry.values)
+            ds = ds.rename({"Bathymetry": "Oceans"})
+        else: # else if sub_basins file has been created, then use its data
+            ds_sub_basins["pacmsk"] = (('y', 'x'), numpy.where(ds_sub_basins.pacmsk == 1, 2, 0))
+            ds_sub_basins["indmsk"] = (('y', 'x'), numpy.where(ds_sub_basins.indmsk == 1, 3, 0))
+            ds = xr.Dataset({})
+            ds['Oceans'] = (ds_sub_basins.atlmsk + 
+                            ds_sub_basins.pacmsk + 
+                            ds_sub_basins.indmsk).astype(numpy.float64)
+            ds['nav_lon'] = ds_sub_basins.navlon
+            ds['nav_lat'] = ds_sub_basins.navlat
         # If lat and lon are in varaibles move them to coords
         d = {}
         for var in ds.data_vars:
