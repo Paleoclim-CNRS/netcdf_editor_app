@@ -18,14 +18,18 @@ class SubBasins(ValueChanger):
     file_type = "bathy"
     step = "subbasins"
 
-    def _default_ocean_values(self, bathy):
+    def _default_ocean_values(self, bathy, dims):
         # Atlantic = 1
         # Pacific = 2
         # Indian = 3
         arr = numpy.zeros(bathy.shape)
-        arr[:, 0:93] = 2
-        arr[:, 93:145] = 1
-        arr[:, 145:183] = 3
+        # Define x indices that will delimit the default sub basin areas
+        ind_1 = numpy.rint(dims[1] * (1/3)).astype(numpy.int64)
+        ind_2 = numpy.rint(dims[1] * (2/3)).astype(numpy.int64)
+        # generate sub basin areas
+        arr[:, 0 : ind_1] = 2
+        arr[:, ind_1 : ind_2] = 1
+        arr[:, ind_2 : dims[1]] = 3
         # bathy values of 0 -> Land
         arr[bathy <= 0] = 0
         return arr
@@ -38,7 +42,7 @@ class SubBasins(ValueChanger):
             with self.app.app_context():
                 ds = load_file(_id, self.file_type)
             # assert ds.Bathymetry.shape == (149, 182) # generates error if ds.Bathymetry.shape has dim ~= (149,182)
-            ds.Bathymetry.values = self._default_ocean_values(ds.Bathymetry.values)
+            ds.Bathymetry.values = self._default_ocean_values(ds.Bathymetry.values, ds.Bathymetry.shape)
             ds = ds.rename({"Bathymetry": "Oceans"})
         else: # else if sub_basins file has been created, then use its data
             ds_sub_basins["pacmsk"] = (('y', 'x'), numpy.where(ds_sub_basins.pacmsk == 1, 2, 0))
