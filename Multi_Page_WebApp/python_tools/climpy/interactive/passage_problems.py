@@ -118,6 +118,7 @@ class PassageProblems(InternalOceans):
                 clipping_colors={"min": "#dedede", "max": "#ffffff"},
             )
         )
+        self.spinner.start = 0 # Only allow values >= 0
         return default_grpahs + passage_problems
 
     def save(self, event):
