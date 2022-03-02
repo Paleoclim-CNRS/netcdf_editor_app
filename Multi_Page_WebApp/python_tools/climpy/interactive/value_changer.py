@@ -78,10 +78,10 @@ class ValueChanger(param.Parameterized):
     def __init__(self, **params):
         # How we are going to modify the values
         # Absolute => Set to that value
-        # Relatif => Base value + new value
+        # Relative => Base value + new value
         # Percentage => Base value + percentage
         self.calculation_type = pn.widgets.RadioButtonGroup(
-            options=["Absolute", "Relatif", "Percentage"], align="end"
+            options=["Absolute", "Relative", "Percentage"], align="end"
         )
         # Replacement value
         self.spinner = pn.widgets.IntInput(
@@ -324,7 +324,7 @@ class ValueChanger(param.Parameterized):
 
         if calculation_type == "Absolute":
             hvds.data[self.attribute.value].loc[indexs_to_update] = value
-        elif calculation_type == "Relatif":
+        elif calculation_type == "Relative":
             hvds.data[self.attribute.value].loc[indexs_to_update] += value
         elif calculation_type == "Percentage":
             hvds.data[self.attribute.value].loc[indexs_to_update] *= (
@@ -360,7 +360,7 @@ class ValueChanger(param.Parameterized):
             for action in self._undo_list:
                 self._apply_action(action)
 
-        elif undo_action["calculation_type"] == "Relatif":
+        elif undo_action["calculation_type"] == "Relative":
             # Apply the opposite transformation
             undo_action["value"] *= -1
             self._apply_action(undo_action)
@@ -416,7 +416,7 @@ class ValueChanger(param.Parameterized):
                 )
 
     def _apply_action(self, action):
-        if action["calculation_type"] in ["Absolute", "Percentage", "Relatif"]:
+        if action["calculation_type"] in ["Absolute", "Percentage", "Relative"]:
             self._set_values(
                 value=action["value"],
                 calculation_type=action["calculation_type"],

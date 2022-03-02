@@ -78,7 +78,7 @@ The single page webapp has been slightly refactored and then reused notably for:
 - Sub basins
 - Complex Viewer (The complex viewer is a port of the single page web app and can be used to quickly and easily modify any file)
 
-The source code for these fiels are in `Multi_Page_WebApp/netcdf_editor_app/holoviews`
+The source code for these fields are in `Multi_Page_WebApp/python_tools/climpy/interactive`
 
 <div class='alert alert-info'>
 Pro Tip: If you want to modify a file simply upload as usual (the workflow doesnt expect anything in particular for Raw files) and then you can edit it.
