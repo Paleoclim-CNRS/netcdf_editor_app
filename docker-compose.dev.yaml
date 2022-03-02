@@ -62,6 +62,8 @@ services:
       - 5000
     depends_on: 
       - message_broker
+    cap_add:
+      - SYS_PTRACE
     entrypoint: flask run
     volumes:
       - ./Multi_Page_WebApp:/usr/src/app
