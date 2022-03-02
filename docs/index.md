@@ -9,7 +9,7 @@ There have already been a succession of iterations of the tool, starting out as 
 
 
 #### Single Page
-To be able to quickly manipulate a one file on the fly the single page web app is the preferred method see the installtion [instructions](/netcdf_editor_app/single#deployements).
+To be able to quickly manipulate a one file on the fly the single page web app is the preferred method see the installation [instructions](/netcdf_editor_app/single#deployements).
 
 The source code can be found [here](https://github.com/CEREGE-CL/netcdf_editor_app/tree/main/Single_Page_WebApp).
 
