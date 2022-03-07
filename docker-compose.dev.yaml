@@ -71,7 +71,7 @@ services:
   panel_app:
     build:
       context: Multi_Page_WebApp
-      dockerfile: services/panel/Dockerfile
+      dockerfile: services/panel/Dockerfile.dev
     env_file: ${PANEL_CONFIG}
     environment: 
       - BROKER_HOSTNAME=message_broker
