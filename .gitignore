@@ -135,6 +135,8 @@ docs/_site/*
 
 # Mac
 .DS_STORE
+.vscode
+.devcontainer
 
 # Dev
 settings.json
