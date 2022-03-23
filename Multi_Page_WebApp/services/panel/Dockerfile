@@ -4,6 +4,8 @@ FROM python:3.8
 COPY requirements.*txt /tmp/
 RUN pip install --no-cache-dir -r /tmp/requirements.txt
 
+RUN apt-get update && apt-get install -y libgeos-dev
+
 COPY flask_app /usr/src/app/flask_app
 RUN pip install /usr/src/app/flask_app
 COPY python_tools /usr/src/app/python_tools
