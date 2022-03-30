@@ -1,9 +1,9 @@
 # Netcdf Editor App
-[![Generic badge](https://img.shields.io/badge/Docs-up-green.svg)](https://cerege-cl.github.io/netcdf_editor_app/)
+[![Generic badge](https://img.shields.io/badge/Docs-up-green.svg)](https://paleoclim-cnrs.github.io/netcdf_editor_app/)
 [![Gitter chat](https://badges.gitter.im/gitterHQ/gitter.png)](https://gitter.im/netcdf_editor_app/community)
-[![Docker Image CI](https://github.com/CEREGE-CL/netcdf_editor_app/actions/workflows/docker-image.yml/badge.svg)](https://github.com/CEREGE-CL/netcdf_editor_app/actions/workflows/docker-image.yml)
-[![Python Tests](https://github.com/CEREGE-CL/netcdf_editor_app/actions/workflows/python-app-flask-test.yml/badge.svg)](https://github.com/CEREGE-CL/netcdf_editor_app/actions/workflows/python-app-flask-test.yml)
-
+[![Docker Image CI](https://github.com/Paleoclim-CNRS/netcdf_editor_app/actions/workflows/docker-image.yml/badge.svg)](https://github.com/Paleoclim-CNRS/netcdf_editor_app/actions/workflows/docker-image.yml)
+[![Python Tests](https://github.com/Paleoclim-CNRS/netcdf_editor_app/actions/workflows/python-app-flask-test.yml/badge.svg)](https://github.com/Paleoclim-CNRS/netcdf_editor_app/actions/workflows/python-app-flask-test.yml)
+[![Issue tracker](https://img.shields.io/github/issues/Paleoclim-CNRS/netcdf_editor_app)](https://github.com/Paleoclim-CNRS/netcdf_editor_app/issues)
 
 
 - Single Page netcdf editor app can be found here: https://netcdf.osupytheas.fr/
