@@ -10,6 +10,7 @@ from bokeh.models import FixedTicker
 import panel as pn
 from holoviews import opts
 from holoviews.selection import link_selections
+from holoviews.element.selection import spatial_select
 
 # Used for selection_expr as string
 from holoviews.util.transform import dim  # noqa: F401
@@ -17,6 +18,7 @@ from holoviews.util.transform import dim  # noqa: F401
 import xarray as xr
 import param
 import numpy
+from numpy import array
 import json
 
 from scipy.ndimage import measurements
