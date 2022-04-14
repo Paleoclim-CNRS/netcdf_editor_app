@@ -12,4 +12,5 @@ scipy
 requests
 spatialpandas
 scikit-image # reconstruction used for filling DEMS
+jupyter
 jinja2 == 3.0.2
