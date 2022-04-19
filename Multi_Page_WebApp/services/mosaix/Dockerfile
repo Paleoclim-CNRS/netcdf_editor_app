@@ -46,7 +46,7 @@ COPY services/mosaix/ARCH/arch-linux_ubuntu* XIOS/arch/
 RUN cd XIOS && \
      ./make_xios --arch linux_ubuntu --jobs 8
 
-RUN svn co http://forge.ipsl.jussieu.fr/igcmg/svn/TOOLS/MOSAIX MOSAIX
+RUN svn co http://forge.ipsl.jussieu.fr/igcmg/svn/TOOLS/MOSAIX MOSAIX --username icmc_users --password icmc2022
 RUN sed -i '/-L%{XIOS_DIR}\/lib/c\%LD_FLAGS         -L%{XIOS_DIR}/lib -lxios %BASE_LD %ARCH_LD' MOSAIX/bld.cfg
 RUN apt update && apt install -y fcm
 RUN cd MOSAIX && ./make_mosaix
@@ -63,11 +63,14 @@ ENV NETCDFC_INCDIR=${NCDIR}/include \
     SUBMIT_DIR=$(pwd) \
     MpiRun="/usr/bin/mpirun -n 1" \
     PyRun=""
-COPY services/mosaix/PATCHS/create_weights.patch services/mosaix/PATCHS/Runoff.patch services/mosaix/PATCHS/Runoff_periodicity.patch services/mosaix/PATCHS/Mosaix.patch /src/MOSAIX/
-RUN cd MOSAIX && patch < Runoff.patch \
-    && patch < create_weights.patch \
-    && patch < Runoff_periodicity.patch \
-    && patch < Mosaix.patch
+# COPY services/mosaix/PATCHS/create_weights.patch services/mosaix/PATCHS/Runoff.patch services/mosaix/PATCHS/Runoff_periodicity.patch services/mosaix/PATCHS/Mosaix.patch /src/MOSAIX/
+# RUN cd MOSAIX && patch < Runoff.patch \
+#     && patch < create_weights.patch \
+#     && patch < Runoff_periodicity.patch \
+#     && patch < Mosaix.patch
+
+COPY services/mosaix/PATCHS/CreateWeightsMask.patch /src/MOSAIX/
+RUN cd MOSAIX && patch < CreateWeightsMask.patch
 
 COPY services/mosaix/DATA/ORCA2.3_coordinates_mask.nc ${HOME}/Scratch/IGCM/OCE/NEMO/ORCA2.3/
 COPY services/mosaix/DATA/LMD9695_grid.nc ${HOME}/Scratch/IGCM/ATM/GRID/
@@ -77,7 +80,7 @@ WORKDIR /src/NEMO
 
 # Download Modipsl
 
-COPY services/mosaix/MODIFIED_MY_SRC/ /tmp/SOURCES
+# COPY services/mosaix/MODIFIED_MY_SRC/ /tmp/SOURCES
 
 # RUN svn co http://forge.ipsl.jussieu.fr/igcmg/svn/modipsl/trunk modipsl \
 #     && cd modipsl/util \
