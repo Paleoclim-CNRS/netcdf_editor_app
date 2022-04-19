@@ -138,3 +138,6 @@ docs/_site/*
 
 # Dev
 settings.json
+
+# VSCode
+.vscode
