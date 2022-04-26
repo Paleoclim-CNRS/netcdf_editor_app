@@ -1,4 +1,4 @@
-FROM ubuntu
+FROM ubuntu:focal-20220415
 
 # Needed for mpich so doesnt prompt questions
 ENV DEBIAN_FRONTEND noninteractive \
@@ -44,7 +44,7 @@ RUN svn co http://forge.ipsl.jussieu.fr/ioserver/svn/XIOS/trunk XIOS
 COPY services/mosaix/ARCH/arch-linux_ubuntu* XIOS/arch/
 
 RUN cd XIOS && \
-     ./make_xios --arch linux_ubuntu --jobs 8
+    ./make_xios --arch linux_ubuntu --jobs 8
 
 RUN svn co http://forge.ipsl.jussieu.fr/igcmg/svn/TOOLS/MOSAIX MOSAIX --username icmc_users --password icmc2022
 RUN sed -i '/-L%{XIOS_DIR}\/lib/c\%LD_FLAGS         -L%{XIOS_DIR}/lib -lxios %BASE_LD %ARCH_LD' MOSAIX/bld.cfg
@@ -75,8 +75,11 @@ RUN cd MOSAIX && patch < CreateWeightsMask.patch
 COPY services/mosaix/DATA/ORCA2.3_coordinates_mask.nc ${HOME}/Scratch/IGCM/OCE/NEMO/ORCA2.3/
 COPY services/mosaix/DATA/LMD9695_grid.nc ${HOME}/Scratch/IGCM/ATM/GRID/
 
-RUN mkdir -p /src/NEMO
-WORKDIR /src/NEMO
+COPY services/mosaix/DATA/bathy_meter_ORCA2_LIM3_PISCES.nc /src/MOSAIX/
+COPY services/mosaix/DATA/coordinates_ORCA2_LIM3_PISCES.nc /src/MOSAIX/
+
+#RUN mkdir -p /src/NEMO
+#WORKDIR /src/NEMO
 
 # Download Modipsl
 

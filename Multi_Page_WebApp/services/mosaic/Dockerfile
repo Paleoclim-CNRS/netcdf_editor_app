@@ -1,4 +1,4 @@
-FROM ubuntu
+FROM ubuntu:focal-20220415
 
 # Needed for mpich so doesnt prompt questions
 ENV DEBIAN_FRONTEND noninteractive
