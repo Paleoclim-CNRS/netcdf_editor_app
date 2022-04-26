@@ -1,16 +1,16 @@
-matplotlib
-panel ~=0.10.0
-bokeh < 2.3
-holoviews <1.14
-datashader
-hvplot
-shapely
-xarray > 0.16.1
-h5netcdf
-netcdf4
-scipy
-requests
-spatialpandas
-palettable
-scikit-image # reconstruction used for filling DEMS
+matplotlib == 3.5.1
+panel == 0.10.3
+bokeh == 2.2.3
+holoviews == 1.13.5
+datashader == 0.14.0
+hvplot == 0.7.3
+shapely == 1.8.1.post1
+xarray == 2022.3.0
+h5netcdf == 1.0.0
+netcdf4 == 1.5.8
+scipy == 1.8.0
+requests == 2.27.1
+spatialpandas == 0.4.3
+palettable == 3.3.0
+scikit-image == 0.19.2 # reconstruction used for filling DEMS
 jinja2 == 3.0.3 # added because older version of Panel needs to load Markup from Jinja2 which is not supported anymore by newer versions of Jinja2 (3.1.0)
