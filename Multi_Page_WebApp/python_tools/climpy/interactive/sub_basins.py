@@ -45,12 +45,18 @@ class SubBasins(ValueChanger):
             ds.Bathymetry.values = self._default_ocean_values(ds.Bathymetry.values, ds.Bathymetry.shape)
             ds = ds.rename({"Bathymetry": "Oceans"})
         else: # else if sub_basins file has been created, then use its data
+            
+            # Load bathy file to extract mask
+            with self.app.app_context():
+                ds_bathy = load_file(_id, self.file_type)
+            mask = numpy.where(ds_bathy.Bathymetry.values <= 0, 0, 1)
+
             ds_sub_basins["pacmsk"] = (('y', 'x'), numpy.where(ds_sub_basins.pacmsk == 1, 2, 0))
             ds_sub_basins["indmsk"] = (('y', 'x'), numpy.where(ds_sub_basins.indmsk == 1, 3, 0))
             ds = xr.Dataset({})
             ds['Oceans'] = (ds_sub_basins.atlmsk + 
                             ds_sub_basins.pacmsk + 
-                            ds_sub_basins.indmsk).astype(numpy.float64)
+                            ds_sub_basins.indmsk).astype(numpy.float64)* mask
             ds['nav_lon'] = ds_sub_basins.navlon
             ds['nav_lat'] = ds_sub_basins.navlat
         # If lat and lon are in varaibles move them to coords
