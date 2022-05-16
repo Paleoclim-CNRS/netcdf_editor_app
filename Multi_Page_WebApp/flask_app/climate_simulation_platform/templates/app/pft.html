@@ -42,252 +42,34 @@ Routing file not found in Database please perform Routing step first
         </tr>
     </thead>
     <tbody>
+
+        {% for bound in bounds %}
         <tr class="data">
+
+            {% if not loop.last %}
             <td>
                 <div style="display: flex; align-items: baseline;">
-                    Up to: <input id="lat" type="number" min=0 max=90 step=5 value=15>
+                    Up to: <input id="lat" type="number" min=0 max=90 step=5 value="{{ bound }}">
                     <button class="btn btn-outline-danger btnDelete" id="delrow" style="margin-left: auto;"> <i
                             class="fas fa-trash"></i> </button>
                 </div>
             </td>
+            {% elif loop.last %}
+                <td>
+                    Up to: <input id="lat" type="number" min=90 max=90 step=5 value="{{ bound }}" disabled>
+                </td>
+            {% endif %}
+
+            {% for elem in percentVeget[loop.index0] %}
             <td>
-                <input id="PFT1" type="number" min=0 max=100 step=10 value=0>
+                <input id="PFT{{ loop.index }}" type="number" min=0 max=100 step=10 value="{{ elem }}">
             </td>
-            <td>
-                <input id="PFT2" type="number" min=0 max=100 step=10 value=75>
-            </td>
-            <td>
-                <input id="PFT3" type="number" min=0 max=100 step=10 value=25>
-            </td>
-            <td>
-                <input id="PFT4" type="number" min=0 max=100 step=10 value=0>
-            </td>
-            <td>
-                <input id="PFT5" type="number" min=0 max=100 step=10 value=0>
-            </td>
-            <td>
-                <input id="PFT6" type="number" min=0 max=100 step=10 value=0>
-            </td>
-            <td>
-                <input id="PFT7" type="number" min=0 max=100 step=10 value=0>
-            </td>
-            <td>
-                <input id="PFT8" type="number" min=0 max=100 step=10 value=0>
-            </td>
-            <td>
-                <input id="PFT9" type="number" min=0 max=100 step=10 value=0>
-            </td>
-            <td>
-                <input id="PFT10" type="number" min=0 max=100 step=10 value=0>
-            </td>
-            <td>
-                <input id="PFT11" type="number" min=0 max=100 step=10 value=0>
-            </td>
-            <td>
-                <input id="PFT12" type="number" min=0 max=100 step=10 value=0>
-            </td>
-            <td>
-                <input id="PFT13" type="number" min=0 max=100 step=10 value=0>
-            </td>
-            <td class="total" id="total1">
+            {% endfor %}
+            <td class="total" id="total{{ loop.index }}">
             </td>
         </tr>
-        <tr class="data">
-            <td>
-                <div style="display: flex; align-items: baseline;">
-                    Up to: <input id="lat" type="number" min=0 max=90 step=5 value=35>
-                    <button class="btn btn-outline-danger btnDelete" id="delrow" style="margin-left: auto;"> <i
-                            class="fas fa-trash"></i> </button>
-                </div>
-            </td>
-            <td>
-                <input id="PFT1" type="number" min=0 max=100 step=10 value=0>
-            </td>
-            <td>
-                <input id="PFT2" type="number" min=0 max=100 step=10 value=15>
-            </td>
-            <td>
-                <input id="PFT3" type="number" min=0 max=100 step=10 value=55>
-            </td>
-            <td>
-                <input id="PFT4" type="number" min=0 max=100 step=10 value=0>
-            </td>
-            <td>
-                <input id="PFT5" type="number" min=0 max=100 step=10 value=0>
-            </td>
-            <td>
-                <input id="PFT6" type="number" min=0 max=100 step=10 value=0>
-            </td>
-            <td>
-                <input id="PFT7" type="number" min=0 max=100 step=10 value=0>
-            </td>
-            <td>
-                <input id="PFT8" type="number" min=0 max=100 step=10 value=0>
-            </td>
-            <td>
-                <input id="PFT9" type="number" min=0 max=100 step=10 value=0>
-            </td>
-            <td>
-                <input id="PFT10" type="number" min=0 max=100 step=10 value=30>
-            </td>
-            <td>
-                <input id="PFT11" type="number" min=0 max=100 step=10 value=0>
-            </td>
-            <td>
-                <input id="PFT12" type="number" min=0 max=100 step=10 value=0>
-            </td>
-            <td>
-                <input id="PFT13" type="number" min=0 max=100 step=10 value=0>
-            </td>
-            <td class="total" id="total2">
-            </td>
-        </tr>
-        <tr class="data">
-            <td>
-                <div style="display: flex; align-items: baseline;">
-                    Up to: <input id="lat" type="number" min=0 max=90 step=5 value=50>
-                    <button class="btn btn-outline-danger btnDelete" id="delrow" style="margin-left: auto;"> <i
-                            class="fas fa-trash"></i> </button>
-                </div>
-            </td>
-            <td>
-                <input id="PFT1" type="number" min=0 max=100 step=10 value=0>
-            </td>
-            <td>
-                <input id="PFT2" type="number" min=0 max=100 step=10 value=0>
-            </td>
-            <td>
-                <input id="PFT3" type="number" min=0 max=100 step=10 value=0>
-            </td>
-            <td>
-                <input id="PFT4" type="number" min=0 max=100 step=10 value=0>
-            </td>
-            <td>
-                <input id="PFT5" type="number" min=0 max=100 step=10 value=70>
-            </td>
-            <td>
-                <input id="PFT6" type="number" min=0 max=100 step=10 value=30>
-            </td>
-            <td>
-                <input id="PFT7" type="number" min=0 max=100 step=10 value=0>
-            </td>
-            <td>
-                <input id="PFT8" type="number" min=0 max=100 step=10 value=0>
-            </td>
-            <td>
-                <input id="PFT9" type="number" min=0 max=100 step=10 value=0>
-            </td>
-            <td>
-                <input id="PFT10" type="number" min=0 max=100 step=10 value=0>
-            </td>
-            <td>
-                <input id="PFT11" type="number" min=0 max=100 step=10 value=0>
-            </td>
-            <td>
-                <input id="PFT12" type="number" min=0 max=100 step=10 value=0>
-            </td>
-            <td>
-                <input id="PFT13" type="number" min=0 max=100 step=10 value=0>
-            </td>
-            <td class="total" id="total3">
-            </td>
-        </tr>
-        <tr class="data">
-            <td>
-                <div style="display: flex; align-items: baseline;">
-                    Up to: <input id="lat" type="number" min=0 max=90 step=5 value=80>
-                    <button class="btn btn-outline-danger btnDelete" id="delrow" style="margin-left: auto;"> <i
-                            class="fas fa-trash"></i> </button>
-                </div>
-            </td>
-            <td>
-                <input id="PFT1" type="number" min=0 max=100 step=10 value=0>
-            </td>
-            <td>
-                <input id="PFT2" type="number" min=0 max=100 step=10 value=0>
-            </td>
-            <td>
-                <input id="PFT3" type="number" min=0 max=100 step=10 value=0>
-            </td>
-            <td>
-                <input id="PFT4" type="number" min=0 max=100 step=10 value=0>
-            </td>
-            <td>
-                <input id="PFT5" type="number" min=0 max=100 step=10 value=40>
-            </td>
-            <td>
-                <input id="PFT6" type="number" min=0 max=100 step=10 value=30>
-            </td>
-            <td>
-                <input id="PFT7" type="number" min=0 max=100 step=10 value=0>
-            </td>
-            <td>
-                <input id="PFT8" type="number" min=0 max=100 step=10 value=30>
-            </td>
-            <td>
-                <input id="PFT9" type="number" min=0 max=100 step=10 value=0>
-            </td>
-            <td>
-                <input id="PFT10" type="number" min=0 max=100 step=10 value=0>
-            </td>
-            <td>
-                <input id="PFT11" type="number" min=0 max=100 step=10 value=0>
-            </td>
-            <td>
-                <input id="PFT12" type="number" min=0 max=100 step=10 value=0>
-            </td>
-            <td>
-                <input id="PFT13" type="number" min=0 max=100 step=10 value=0>
-            </td>
-            <td class="total" id="total4">
-            </td>
-        </tr>
-        <tr class="data">
-            <td>
-                Up to: <input id="lat" type="number" min=90 max=90 step=5 value=90 disabled>
-            </td>
-            <td>
-                <input id="PFT1" type="number" min=0 max=100 step=10 value=0>
-            </td>
-            <td>
-                <input id="PFT2" type="number" min=0 max=100 step=10 value=0>
-            </td>
-            <td>
-                <input id="PFT3" type="number" min=0 max=100 step=10 value=0>
-            </td>
-            <td>
-                <input id="PFT4" type="number" min=0 max=100 step=10 value=0>
-            </td>
-            <td>
-                <input id="PFT5" type="number" min=0 max=100 step=10 value=0>
-            </td>
-            <td>
-                <input id="PFT6" type="number" min=0 max=100 step=10 value=30>
-            </td>
-            <td>
-                <input id="PFT7" type="number" min=0 max=100 step=10 value=0>
-            </td>
-            <td>
-                <input id="PFT8" type="number" min=0 max=100 step=10 value=0>
-            </td>
-            <td>
-                <input id="PFT9" type="number" min=0 max=100 step=10 value=40>
-            </td>
-            <td>
-                <input id="PFT10" type="number" min=0 max=100 step=10 value=30>
-            </td>
-            <td>
-                <input id="PFT11" type="number" min=0 max=100 step=10 value=0>
-            </td>
-            <td>
-                <input id="PFT12" type="number" min=0 max=100 step=10 value=0>
-            </td>
-            <td>
-                <input id="PFT13" type="number" min=0 max=100 step=10 value=0>
-            </td>
-            <td class="total" id="total5">
-            </td>
-        </tr>
+        {% endfor %}
+
     </tbody>
 </table>
 <button class="btn btn-outline-success btn-lg" id="addrow" class="addnew" style="margin: 2em;"> Add </button>

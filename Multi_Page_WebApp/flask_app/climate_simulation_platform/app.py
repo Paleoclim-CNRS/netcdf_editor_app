@@ -53,6 +53,8 @@ from climate_simulation_platform.db import (
 )
 from climate_simulation_platform.message_broker import send_preprocessing_message
 
+from climpy.bc.ipsl.pft import load_pft
+
 bp = Blueprint("app", __name__)
 
 
@@ -612,7 +614,10 @@ def pft(_id):
     if "routing" not in seen_file_types:
         not_seen = True
 
-    return render_template("app/pft.html", _id=_id, not_seen=not_seen)
+    ds_pft_nc = load_file(_id, "pft")
+    bounds, percentVeget = load_pft(ds_pft_nc)
+    
+    return render_template("app/pft.html", _id=_id, not_seen=not_seen, bounds=bounds, percentVeget=percentVeget)
 
 
 @bp.route("/<int:_id>/sub_basins")

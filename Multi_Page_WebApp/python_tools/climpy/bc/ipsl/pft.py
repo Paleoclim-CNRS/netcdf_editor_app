@@ -2,6 +2,79 @@ import numpy
 import xarray as xr
 
 
+def load_pft(ds):
+    # This function checks if data for PFTs has already been saved in db. 
+    # IF NOT: generates a default configuration
+    # IF YES: loads data in variables provided into html to render PFT table 
+
+    if type(ds) == type(None): # If dataset ds doesn't exist
+        percentVegetArrayClean = numpy.array([[0, 75, 25,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0],
+                                                [0, 15, 55,  0,  0,  0,  0,0,  0, 30,  0,  0,  0],
+                                                [0,  0,  0,  0, 70, 30,  0,0,  0,  0,  0,  0,  0],
+                                                [0,  0,  0,  0, 40, 30,  0,30,  0,  0,  0,  0,  0],
+                                                [0,  0,  0,  0,  0, 30,  0,  0, 40, 30,  0,  0,  0]])
+        boundsClean = numpy.array([15, 35, 50, 80, 90])
+
+    else: # If dataset ds exist
+        lenPFT = len(ds["veget"])
+        lenLat = int(len(ds["lat"])/2)
+
+        # From nc file, the 2 important data to retrieve are percent values for the different
+        # PFTs and their locations that we define by extracting latitudinal bounds.
+        
+        percentVegetArray = numpy.zeros(shape=(18, lenPFT))  # 18 being max of bounds we can create in PFT step
+        boundsVegetArray = numpy.zeros(shape=(18, lenPFT))
+        percentVegetArray[:] = numpy.nan
+        boundsVegetArray[:] = numpy.nan
+
+        # Retrieve informations on percentages and bounds from netcdf pft file 
+        # and store them in percentVegetArray and boundsVegetArray
+        for indPFT in numpy.arange(0, lenPFT):
+            percentVegetVect = numpy.zeros(shape=(lenLat))
+            for j in numpy.arange(0, lenLat):
+                percentVegetRaw = numpy.unique(ds["maxvegetfrac"][0, indPFT, j, :])
+                percentVegetVect[j] = percentVegetRaw[~numpy.isnan(
+                    percentVegetRaw)]  # get rid of nans
+                if j == 1:
+                    percentVeget = numpy.array([percentVegetVect[j]])
+                    boundsVeget = numpy.array([90])
+                elif j > 0 and percentVegetVect[j] != percentVegetVect[j-1]:
+                    percentVeget = numpy.append(percentVeget, percentVegetVect[j])
+                    boundsVeget = numpy.append(boundsVeget, ds["lat"][j]+0.25)
+            for indBound in numpy.arange(0, len(boundsVeget)):
+                percentVegetArray[indBound, indPFT] = percentVeget[indBound]
+                boundsVegetArray[indBound, indPFT] = boundsVeget[indBound]
+
+        # Create variable boundsClean containing the bounds and that will be provided in pft.html
+        boundsClean = numpy.unique(boundsVegetArray)
+        boundsClean = boundsClean[~numpy.isnan(boundsClean)].astype(int)
+
+        lenBounds = len(boundsClean)
+
+        # Truncate arrays to remove unecessary parts
+        percentVegetArray = percentVegetArray[0:lenBounds, :]
+        boundsVegetArray = boundsVegetArray[0:lenBounds, :]
+
+        # Initialize final array percentVegetArrayClean
+        percentVegetArrayClean = numpy.zeros(shape=(lenBounds, lenPFT))
+        percentVegetArrayClean[:] = numpy.nan
+
+        # From boundsVegetArray, percentVegetArray and boundsClean, reconstruct table of percentages 
+        # percentVegetArrayClean that will be provided in pft.html
+        for j in numpy.arange(0, lenPFT):
+            for i in numpy.arange(0, lenBounds):
+                if ~numpy.isnan(boundsVegetArray[i, j]):
+                    ind = int(numpy.where(numpy.flip(boundsClean) == boundsVegetArray[i, j])[0])
+                    percentVegetArrayClean[ind, j] = percentVegetArray[i, j]
+            for ii in numpy.arange(0, lenBounds):
+                if numpy.isnan(percentVegetArrayClean[ii, j]):
+                    percentVegetArrayClean[ii, j] = percentVegetArrayClean[ii-1, j]
+
+        percentVegetArrayClean = numpy.flipud(percentVegetArrayClean*100).astype(int)
+    
+    return boundsClean, percentVegetArrayClean
+
+
 def generate_pft_netcdf(topo, latitudes, pft_values):
     # Attribute new PFTs. See lookup table to convert the 10 megabiomes of BIOME4 (Herold
     # GMD 2014, Harrison and Prentice Global Change Biology 2003) into the corresponding
