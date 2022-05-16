@@ -642,7 +642,7 @@ def calculate_weights(_id):
 
         file = _validate_file(request)
         # TODO validate that the correct variables are in the file
-        upload_file(file, data_file_id=_id, file_type="weight_coords")
+        upload_file(file, data_file_id=_id, file_type="coords")
 
         if not len(error):
             body = {"id": _id, **request.form}

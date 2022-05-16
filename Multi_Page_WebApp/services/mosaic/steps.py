@@ -20,7 +20,7 @@ def calculate_weights(body):
     # Load file
     with app.app_context():
         bathy_file = get_file_path(_id, "bathy", full=True)
-        coords_file = get_file_path(_id, "weight_coords", full=True)
+        coords_file = get_file_path(_id, "coords", full=True)
         subbasins_file = get_file_path(_id, "sub_basins", full=True)
 
     print(f"{datetime.now()} Running Mosaic Runner", flush=True)
