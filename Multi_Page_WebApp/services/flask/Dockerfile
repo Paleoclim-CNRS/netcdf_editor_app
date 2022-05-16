@@ -8,6 +8,8 @@ RUN pip install gunicorn
 COPY flask_app /usr/src/app/flask_app
 RUN pip install /usr/src/app/flask_app
 ENV FLASK_APP=/usr/src/app/flask_app/climate_simulation_platform
+COPY python_tools /usr/src/app/python_tools
+RUN pip install /usr/src/app/python_tools
 
 WORKDIR /usr/src/app
 RUN python -m flask init-db
