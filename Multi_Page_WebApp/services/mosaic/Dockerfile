@@ -60,6 +60,8 @@ RUN pip3 install --no-cache-dir -r /tmp/requirements.txt
 COPY services/mosaic/receive.py services/mosaic/steps.py services/mosaic/mosaic.py /usr/src/app/
 COPY flask_app /usr/src/app/flask_app
 RUN pip3 install /usr/src/app/flask_app
+COPY python_tools /usr/src/app/python_tools
+RUN pip3 install /usr/src/app/python_tools
 
 ENV FLASK_APP=/usr/src/app/netcdf_editor_app
 ENTRYPOINT [ "python3", "/usr/src/app/receive.py"]
