@@ -547,7 +547,7 @@ def routing(_id):
 
         if request.form["orcafile"] == "custom":
             file = _validate_file(request)
-            upload_file(file, data_file_id=_id, file_type="paleorca")
+            upload_file(file, data_file_id=_id, file_type="coords")
 
         if not len(error):
             body = {"id": _id, **request.form}
@@ -635,20 +635,23 @@ def calculate_weights(_id):
     if request.method == "POST":
         error = ""
 
-        file = _validate_file(request)
+        # file = _validate_file(request)
 
         if not len(error):
             body = {"id": _id, **request.form}
-            if request.form['engine'] == 'mosaic':
+            # if request.form['engine'] == 'mosaic':
+            #     send_preprocessing_message("calculate_weights", body)
+            #     # TODO validate that the correct variables are in the file
+            #     upload_file(file, data_file_id=_id, file_type="weight_coords")
+            # elif request.form['engine'] == 'mosaix':
+            #     send_preprocessing_message("calculate_weights", body)
+            #     # TODO validate that the correct variables are in the file
+            #     upload_file(file, data_file_id=_id, file_type="weight_coords")
+            # else:
+            #     error = "Unknown engine method, known methods are mosaic and mosaix"
+            
+            if request.form['engine'] == 'mosaic' or request.form['engine'] == 'mosaix':
                 send_preprocessing_message("calculate_weights", body)
-                # TODO validate that the correct variables are in the file
-                upload_file(file, data_file_id=_id, file_type="weight_coords")
-            elif request.form['engine'] == 'mosaix':
-                send_preprocessing_message("calculate_weights", body)
-                # TODO validate that the correct variables are in the file
-                upload_file(file, data_file_id=_id, file_type="weight_coords")
-            else:
-                error = "Unknown engine method, known methods are mosaic and mosaix"
 
             return redirect(url_for("app.steps", _id=_id))
 

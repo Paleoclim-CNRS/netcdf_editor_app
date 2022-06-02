@@ -20,7 +20,7 @@ def calculate_weights(body):
     # Load file
     with app.app_context():
         bathy_file = get_file_path(_id, "bathy", full=True)
-        coords_file = get_file_path(_id, "weight_coords", full=True)
+        coords_file = get_file_path(_id, "coords", full=True)
 
     runner = mosaix.MosaixRunner(bathy_file, coords_file)
     runner.run()

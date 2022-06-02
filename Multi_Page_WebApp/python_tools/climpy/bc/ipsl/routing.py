@@ -805,11 +805,29 @@ def create_bathy_paleo_orca(topo, custom_orca=None):
     # Load grid
     if custom_orca is None:
         orca_file = os.path.join(
-            os.path.dirname(os.path.abspath(__file__)), "paleorca2_40Ma_grid.nc"
+            os.path.dirname(os.path.abspath(__file__)), "coordinates_paleorca2_40Ma.nc"
         )
         ds_orca = xr.open_dataset(orca_file)
     else:
         ds_orca = custom_orca
+    # Format default coordinate file or the one provided by user
+    # If ds has no coords defined
+    if not ds_orca.coords:
+        listVar = list(ds_orca.data_vars)
+        # finds lon and lat variable in ds_orca
+        varLon = [var for var in listVar if "lon" in var.lower()]
+        varLat = [var for var in listVar if "lat" in var.lower()]
+        # Ensure there are only one lon and lat variables found and assign them as coords
+        if len(varLon) == 1 and len(varLat) == 1:
+            ds_orca = ds_orca.assign_coords(lon=(ds_orca[varLon[0]]))
+            ds_orca = ds_orca.assign_coords(lat=(ds_orca[varLat[0]]))
+        else:
+            raise NameError(
+                '''
+                Can''t identify coordinates in "Coords" file. Several variables 
+                containing "lon" and/or several variables containing "lat" found !
+                '''
+                )
     # Remove the missing value encoding fields as this causes problems because _FillValues is set to nan
     try:
         del ds_orca.lat.encoding["missing_value"]

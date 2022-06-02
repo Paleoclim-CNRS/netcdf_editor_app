@@ -81,7 +81,7 @@ def routing(body):
     # Load file
     with app.app_context():
         ds = load_file(_id, "raw")
-        ds_orca = load_file(_id, "paleorca")
+        ds_orca = load_file(_id, "coords")
         lon, lat = get_lon_lat_names(_id)
 
     latitudes = ds[lat].values
