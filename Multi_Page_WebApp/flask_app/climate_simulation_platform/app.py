@@ -545,7 +545,13 @@ def routing(_id):
         elif topo_variable not in variable_names:
             error += "Topography Variable not in data set"
 
-        if request.form["orcafile"] == "custom":
+        if request.form["orcafile"] == "default":
+            pathFile = "/usr/src/app/python_tools/climpy/bc/ipsl"
+            fileName = "coordinates_paleorca2_40Ma.nc"
+            with open(os.path.join(pathFile, fileName), 'rb') as fp:
+                file = werkzeug.datastructures.FileStorage(fp, filename=fileName)
+                upload_file(file, data_file_id=_id, file_type="coords")
+        elif request.form["orcafile"] == "custom":
             file = _validate_file(request)
             upload_file(file, data_file_id=_id, file_type="coords")
 

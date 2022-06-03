@@ -803,13 +803,7 @@ def create_bathy_paleo_orca(topo, custom_orca=None):
     bathy[bathy < 0] = 0
     # Remap to nemo grid
     # Load grid
-    if custom_orca is None:
-        orca_file = os.path.join(
-            os.path.dirname(os.path.abspath(__file__)), "coordinates_paleorca2_40Ma.nc"
-        )
-        ds_orca = xr.open_dataset(orca_file)
-    else:
-        ds_orca = custom_orca
+    ds_orca = custom_orca
     # Format default coordinate file or the one provided by user
     # If ds has no coords defined
     if not ds_orca.coords:
