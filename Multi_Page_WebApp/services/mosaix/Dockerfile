@@ -72,11 +72,11 @@ ENV NETCDFC_INCDIR=${NCDIR}/include \
 COPY services/mosaix/PATCHS/CreateWeightsMask.patch /src/MOSAIX/
 RUN cd MOSAIX && patch < CreateWeightsMask.patch
 
-COPY services/mosaix/DATA/ORCA2.3_coordinates_mask.nc ${HOME}/Scratch/IGCM/OCE/NEMO/ORCA2.3/
 COPY services/mosaix/DATA/LMD9695_grid.nc ${HOME}/Scratch/IGCM/ATM/GRID/
 
-COPY services/mosaix/DATA/bathy_meter_ORCA2_LIM3_PISCES.nc /src/MOSAIX/
-COPY services/mosaix/DATA/coordinates_ORCA2_LIM3_PISCES.nc /src/MOSAIX/
+# COPY services/mosaix/DATA/ORCA2.3_coordinates_mask.nc ${HOME}/Scratch/IGCM/OCE/NEMO/ORCA2.3/
+# COPY services/mosaix/DATA/bathy_meter_ORCA2_LIM3_PISCES.nc /src/MOSAIX/bathy_meter.nc
+# COPY services/mosaix/DATA/coordinates_ORCA2_LIM3_PISCES.nc /src/MOSAIX/coordinates.nc
 
 #RUN mkdir -p /src/NEMO
 #WORKDIR /src/NEMO

@@ -3,6 +3,7 @@ import glob
 import shutil
 import subprocess
 import tempfile
+import sys
 
 # from coords_gen import coordinates_generator
 
@@ -17,19 +18,22 @@ class MosaixRunner(object):
         self.output_dir = next(tempfile._get_candidate_names())
         if not os.path.exists(self.output_dir):
             os.mkdir(os.path.join(self.mosaix_dir, self.output_dir))
+        shutil.copy2(bathy_file, self.mosaix_dir + "/bathy_meter.nc")
+        shutil.copy2(coords_file, self.mosaix_dir + "/coordinates.nc")
 
     def create_coordinates_mask(self):
-        # coordiantes_generator(self.bathy_file, self.coords_file)
         # Create Coordinates mask
-        # set self.coordiantes_mask with the current filename (not necessarily in right location)
-        self.coordinates_mask = "/root/Scratch/IGCM/OCE/NEMO/ORCA2.3/ORCA2.3_coordinates_mask.nc"
+        result = subprocess.run([sys.executable, "Build_coordinates_mask.py", "--model", "paleORCA", "--ocePerio", "6"], cwd=self.mosaix_dir, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, text=True)
+        print(result.stdout)
+        self.coordinates_mask = os.path.join(self.mosaix_dir, "coordinates_mask.nc")
 
     def run_mosaix(self):
         if self.coordinates_mask is None:
             raise AttributeError("Coordinates mask is not set please run self.create_coordinates_mask()")
         # Copy coordinates_xios.nc to coordiantes_mask.nc into Mosaix
         try:
-            shutil.copy2(self.coordinates_mask, os.path.join(os.environ['HOME'], 'Scratch', 'IGCM', 'OCE', 'NEMO', 'ORCA2.3'))
+            os.makedirs(os.path.join(os.environ['HOME'], 'Scratch', 'IGCM', 'OCE', 'NEMO', 'ORCA2.3'), exist_ok=True)
+            shutil.copy2(self.coordinates_mask, os.path.join(os.environ['HOME'], 'Scratch', 'IGCM', 'OCE', 'NEMO', 'ORCA2.3', 'ORCA2.3_coordinates_mask.nc'))
         except shutil.SameFileError:
             pass
         proc = subprocess.Popen("./CreateWeightsMask.bash", cwd=self.mosaix_dir)
@@ -37,7 +41,7 @@ class MosaixRunner(object):
         proc.wait()
 
         files_to_copy = [
-            os.path.join(self.mosaix_dir, 'README_ORCA2.3xLMD9695_MOSAIX_v1.txt'),
+            os.path.join(self.mosaix_dir, 'README_ORCA2.3xLMD9695_MOSAIX_v2.txt'),
             *glob.glob(os.path.join(self.mosaix_dir, 'areas_ORCA2.3*')),
             *glob.glob(os.path.join(self.mosaix_dir, 'grids_ORCA2.3*')),
             *glob.glob(os.path.join(self.mosaix_dir, 'masks_ORCA2.3*')),
