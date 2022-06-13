@@ -11,6 +11,9 @@ from constants import tasks, invalidates, invalidated, no_params
 def send_task(task, body, ch):
     for worker, worker_tasks in tasks.items():
         if task in worker_tasks:
+            if task == 'calculate_weights':
+                if isinstance(body, bytes):
+                    worker = json.loads(body.decode())['engine']
             routing_key = "preprocessing" + "." + task + "." + worker
             ch.basic_publish(
                 exchange="preprocessing",

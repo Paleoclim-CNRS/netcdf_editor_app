@@ -71,13 +71,14 @@ Differences:
             <input type="radio" name="orcafile" value="custom">
             <label for="custom">Custom</label>
         </div>
-        <div id='defaultInfo' class="alert alert-info" role="alert">
-            Using default file paleorca2_40Ma_grid.nc (149 x 182)
-            <!--If you have already uploaded a file then that one will be used-->
+        <div id='defaultInfo' class="alert alert-warning" role="alert">
+            <p>
+                <strong>Warning:</strong> the default file provided is <strong>coordinates_paleorca2_40Ma.nc</strong> (149 x 182). Make sure your geographic configuration matches this file's grid. If not, check the <strong>Custom</strong> option to load an appropriate file. 
+            </p>
         </div>
         <div id='uploadocra' class="alert alert-warning" role="alert">
             <p>
-                Please ensure the file has "lat" and "lon" coorindates in curvilinear format.
+                Please ensure the file has coordinates in curvilinear format. Also make sure these variables contain at least "<strong>lon</strong>" and "<strong>lan</strong>" in their name ("<strong>nav_lon</strong>", "<strong>lon</strong>" or "<strong>longitude</strong>" will work regardless of the character case).
             </p>
             <label for="orcaFileUpload">Orca input file</label>
             <input type="file" name="file" accept=".nc" class="form-control-file" id="orcaFileUpload">

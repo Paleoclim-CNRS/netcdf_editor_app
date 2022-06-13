@@ -49,6 +49,19 @@ services:
       - message_dispatcher
     volumes:
       - ./Multi_Page_WebApp/instance:/usr/src/app/instance
+    
+  mosaix_worker:
+    build:
+      context: Multi_Page_WebApp
+      dockerfile: services/mosaix/Dockerfile
+    restart: on-failure
+    environment: 
+      - BROKER_HOSTNAME=message_broker
+    depends_on: 
+      - message_broker
+      - message_dispatcher
+    volumes:
+      - ./Multi_Page_WebApp/instance:/usr/src/app/instance   
       
   flask_app:
     build:

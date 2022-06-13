@@ -12,7 +12,7 @@ from climate_simulation_platform.db import get_file_path, save_file_to_db
 
 
 def calculate_weights(body):
-    print(f"{datetime.now()} Calculating weights", flush=True)
+    print(f"{datetime.now()} Calculating weights mosaic", flush=True)
     app = create_app()
 
     _id = body["id"]

@@ -6,16 +6,10 @@
 
 {% block content %}
 <div class="alert alert-info">
-    This will run the <a href="https://forge.ipsl.jussieu.fr/igcmg/browser/TOOLS/MOZAIC">Mosaic</a> code to
+    This will run the <a href="https://forge.ipsl.jussieu.fr/igcmg/browser/TOOLS/MOZAIC">Mosaic</a>/
+    <a href="https://forge.ipsl.jussieu.fr/igcmg/browser/TOOLS/MOSAIX">Mosaix</a> code to
     calculate the weights between the ocean and the atmosphere. The results will be saved into a tar File
     that <b>YOU</b> need to copy to your simulateur.
-</div>
-
-<div style="display: flex; align-items: center; justify-content: center;">
-    <div id="loading" style="display: none; padding: 10vh;">
-        <div class="loader"></div>
-        <p style="padding-top: 2em;">Uploading file to server ...</p>
-    </div>
 </div>
 
 {% if not has_subbasins %}
@@ -39,15 +33,15 @@
 {% endif %}
 
 <form name="form" method=post enctype=multipart/form-data>
-    <label for="coordsfile">Coordiantes File:</label>
-    <div id='uploadcoords' class="alert alert-warning" role="alert">
-        <p>
-            Please ensure the file has "XXX" and "YYY" coorindates in curvilinear format.
-        </p>
-        <label for="coordsFileUpload">Coords input file</label>
-        <input type="file" name="file" accept=".nc" class="form-control-file" id="coordsFileUpload">
+    <label for="engine">Engine :</label>
+    <div>
+        <input type="radio" name="engine" id="engine" value="mosaic" checked>
+        <label for="engine">Mosaic</label>
+
+        <input type="radio" name="engine" id="engine" value="mosaix">
+        <label for="engine">Mosaix</label>
     </div>
-    <button id="submit" type="submit" class="btn btn-success btn-lg" onclick="$('#loading').show();$('#proc').hide();">
+    <button id="submit" type="submit" class="btn btn-success btn-lg">
         <i class="fas fa-calculator"></i>
         Start Processing
     </button>
@@ -65,9 +59,6 @@
             {% if not has_bathy %}
                 return false
             {% endif %}
-            if (document.getElementById("coordsFileUpload").files.length < 1) {
-                return false
-            }
             return true
         }
 
@@ -80,10 +71,7 @@
             }
         }
 
-        $('#coordsFileUpload').change(function () {
-            updateProcessing();
-        })
-        $('#submit').attr('disabled', true)
+        updateProcessing()
     })
 </script>
 {% endblock %}

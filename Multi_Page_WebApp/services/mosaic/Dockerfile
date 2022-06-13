@@ -1,7 +1,10 @@
 FROM ubuntu:focal-20220415
 
 # Needed for mpich so doesnt prompt questions
-ENV DEBIAN_FRONTEND noninteractive
+ENV DEBIAN_FRONTEND noninteractive \
+    PYTHONUNBUFFERED="yes" \
+    GFORTRAN_UNBUFFERED_ALL="y"
+
 RUN apt update && apt install -y fcm libnetcdf-dev libnetcdff-dev gcc gfortran make ksh nco netcdf-bin rsync
 
 
