@@ -1,6 +1,5 @@
-# Flask App
-flask
-simplejson
-blinker
-python-dotenv
-pika
+flask == 2.1.2
+simplejson == 3.17.6
+blinker == 1.4
+python-dotenv == 0.20.0
+pika == 1.2.1
