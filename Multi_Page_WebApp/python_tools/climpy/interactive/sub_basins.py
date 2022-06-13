@@ -3,16 +3,17 @@ from climpy.interactive import ValueChanger
 import panel as pn
 import xarray as xr
 import numpy
+from numpy import array
 
 import holoviews as hv
 # Used for selection_expr as string
 from holoviews.util.transform import dim  # noqa: F401
+from holoviews.element.selection import spatial_select
 
 from climate_simulation_platform.db import load_file, save_revision, save_step
 from climate_simulation_platform.message_broker import send_preprocessing_message
 
 colormaps = hv.plotting.list_cmaps()
-
 
 class SubBasins(ValueChanger):
     file_type = "bathy"
