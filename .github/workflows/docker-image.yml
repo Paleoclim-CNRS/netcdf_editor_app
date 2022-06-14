@@ -159,6 +159,35 @@ jobs:
         docker push registry.osupytheas.fr:443/netcdf_editor_mosaic_worker:$(git log -1 --format=%h)
         docker push registry.osupytheas.fr:443/netcdf_editor_mosaic_worker
         docker push ceregecl/netcdf_editor_mosaic_worker
+        
+  mosaix_worker:
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v2
+    - name: docker login
+      env:
+        DOCKER_USER: ${{secrets.DOCKER_USER}}
+        DOCKER_PASSWORD: ${{secrets.DOCKER_PASSWORD}}
+        DOCKER_USER_OSU: ${{secrets.DOCKER_USER_OSU}}
+        DOCKER_PASSWORD_OSU: ${{secrets.DOCKER_PASSWORD_OSU}}
+
+      run: |
+        docker login -u $DOCKER_USER -p $DOCKER_PASSWORD
+        docker login registry.osupytheas.fr -u $DOCKER_USER_OSU -p $DOCKER_PASSWORD_OSU
+    - name: Build the Docker image
+      working-directory: ./Multi_Page_WebApp
+      run: |
+        docker build . --file services/mosaix/Dockerfile \
+          --tag registry.osupytheas.fr:443/netcdf_editor_mosaix_worker:$(git log -1 --format=%h) \
+          --tag registry.osupytheas.fr:443/netcdf_editor_mosaix_worker:latest \
+          --tag ceregecl/netcdf_editor_mosaix_worker:latest
+    - name: Docker Push
+      run: |
+        docker push registry.osupytheas.fr:443/netcdf_editor_mosaix_worker:$(git log -1 --format=%h)
+        docker push registry.osupytheas.fr:443/netcdf_editor_mosaix_worker
+        docker push ceregecl/netcdf_editor_mosaix_worker
 
   panel_app:
 
