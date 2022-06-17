@@ -1,1 +1,1 @@
-Documentation folder that is used to generate the github pages. https://cerege-cl.github.io/netcdf_editor_app/
+Documentation folder that is used to generate the github pages. https://paleoclim-cnrs.github.io/netcdf_editor_app/

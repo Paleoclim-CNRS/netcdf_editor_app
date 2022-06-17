@@ -20,7 +20,7 @@
 
 title: Welcome to NetCDF Editor App Documentation
 baseurl: "/netcdf_editor_app" # the subpath of your site, e.g. /blog
-url: "https://CEREGE-CL.github.io" # the base hostname & protocol for your site, e.g. http://example.com
+url: "https://paleoclim-cnrs.github.io" # the base hostname & protocol for your site, e.g. http://example.com
 
 # Build settings
 theme: jekyll-theme-slate

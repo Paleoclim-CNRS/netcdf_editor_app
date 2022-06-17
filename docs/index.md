@@ -1,5 +1,5 @@
 ## Introduction
-The NetCDF Editor App is maintained by [CEREGE-CL](https://github.com/CEREGE-CL). The goal of the app is to be able to interactively visualize and adjust netcdf files for use for deep time simulations, in particular to setup the boundary condtions for climate simulations models.
+The NetCDF Editor App is maintained by [CEREGE-CL](https://github.com/Paleoclim-CNRS). The goal of the app is to be able to interactively visualize and adjust netcdf files for use for deep time simulations, in particular to setup the boundary condtions for climate simulations models.
 
 There have already been a succession of iterations of the tool, starting out as a [single page web app](/netcdf_editor_app/single) and evolving into a more complex [multi page web based tool](/netcdf_editor_app/multi).
 
@@ -11,7 +11,7 @@ There have already been a succession of iterations of the tool, starting out as 
 #### Single Page
 To be able to quickly manipulate a one file on the fly the single page web app is the preferred method see the [installation instructions](/netcdf_editor_app/single#deployements).
 
-The source code can be found [here](https://github.com/CEREGE-CL/netcdf_editor_app/tree/main/Single_Page_WebApp).
+The source code can be found [here](https://github.com/Paleoclim-CNRS/netcdf_editor_app/tree/main/Single_Page_WebApp).
 
 <div class='alert alert-warning'>
 There is no current developpement on this
@@ -30,6 +30,6 @@ Also the Multi page app is built with scalability and flexibility in mind, for e
 
 This tool also has aspirations of being the turn table in simulation workflows allowing not only the creation of boundary conditions but also more broader tasks such as post processing or simulation lookups.
 
-The source code can be found [here](https://github.com/CEREGE-CL/netcdf_editor_app).
+The source code can be found [here](https://github.com/Paleoclim-CNRS/netcdf_editor_app).
 
 See [installation instructions](/netcdf_editor_app/multi#installation) for using the app.

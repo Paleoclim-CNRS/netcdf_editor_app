@@ -40,64 +40,7 @@ Curvilinear coordinates are supported __HOWEVER__ they are reprojected into _ij_
 
 ### Options
 
-#### Graph tools
-
-![](img/options.png)
-
-Above the graphs on the upper right hand side are a collections of tools, from left to right these are:
-- Box selection
-- Lasso selection
-- Pan
-- Box Zoom
-- Mouse Scroll
-- Save images
-- Refresh / reset all graphs to initial zoom
-- Hover
-
-<p style="background-color: rgb(160, 194, 217);padding-left: 30px;">
-Long holding either type of selection tool allows the user to change the selection type (union, intersection, ...)
-</p>
-
-<p style="background-color: rgb(160, 194, 217);padding-left: 30px;">
-Selections on multiple graphs are the intersection of the selections.
-
-This can be useful for when editing specific values in a region using a combination of map + histogram selection
-</p>
-
-<p style="background-color: rgb(160, 194, 217);padding-left: 30px;">
-Prefer Box selection(s) where possible as the calculations for the selections are quicker
-</p>
-
-#### Apply new values
-
-![](img/apply_values.png)
-
-After point(s) have been selected on the graphs the user has the possibility to change the values in the underlying netcdf file. Three methods have been implemented:
-
-- __Absolute__: The value for all points are set the the given value
-- __Relatif__: The values for all points are increased (or decreased) by the replacement value
-- __Percentage__: The values for all points are increased (or decreased) by the _x_ percent
-
-#### Colormap
-
-![](img/colormap_options.png)
-
-At the top we can choose the variable in this case _Z_.
-
-Next we can choose the colormap and the min and max values of the colormap. Anything below the minimum value will appear light gray and anything above the maximum value will appear black.
-
-Next we can choose the number of color steps in the colormap.
-<p style="background-color: rgb(160, 194, 217);padding-left: 30px;">
-If set to 1 the colormap is continuous
-</p>
-
-
-
-Finally we can choose to use a mask, this colors values below the cutoff to gray and above the cutoff to black. 
-
-<p style="background-color: rgb(160, 194, 217);padding-left: 30px;">
-This is the same as setting the min and max colormap values to the same value
-</p>
+(More details about how to [interact with data](/netcdf_editor_app/interact).
 
 ### Extra Maps
 
