@@ -17,13 +17,13 @@ The Web tool allows a certain number of steps needed to create the boundary cond
 We are greated with a login page. If this is the first time you are connecting (or the database has been reset) then you will first need to register (There are no constraints on username + password -> eg. you can write 1 letter usernames and passwords and also clobber previous entries). This step mainly exists to allow separating files based off from the UI in the future.
 
 <p align="center">
-    <img src='img/Login_page.png' alt="drawing" width="400">
+    <img src='img/Login_page.png' style="width:400px;">
 </p>
 
 Once logged in we can see (all) files on the server that have already been added and also the possibility to upload a new file (top right). Files are order by last modified.
 
 <p align="center">
-    <img src='img/Homepage.png' alt="drawing" width="400">
+    <img src='img/Homepage.png' style="width:400px;">
 </p>
 
 To upload a new file simply:
@@ -35,7 +35,7 @@ To upload a new file simply:
 Once finished the file name should appear at the top of the list.
 
 <p align="center">
-    <img src='img/default_data_file.png' alt="drawing" width="400">
+    <img src='img/default_data_file.png' style="width:400px;">
 </p>
 
 Inside a data file we can see it is separeted into two parts:
@@ -48,7 +48,7 @@ The workflow has links through to the different steps that can be carried out. B
 When processing steps will have a <i class="fas fa-cog fa-spin" style="color:#377ba8"></i> and when completed a <i class="fas fa-check-square" style="color:#2ECC40"></i>. Note that if you update a prior step dependant steps are automatically carried out and the state is updated automatically, see image below. Certains steps notably [panel steps](#panel) can not be automatically updated and will be given a <i class="fas fa-times-circle" style="color:#FF4136"></i> to show they are no longer in sync.
 
 <p align="center">
-    <img src='img/Steps.png' alt="drawing" width="400">
+    <img src='img/Steps.png' style="width:400px;">
 </p>
 
 ##### Regrid
@@ -56,12 +56,12 @@ The regrid step allows to interpolate the uploaded topo/bathy data over a regula
 
 ##### Internal oceans
 
-(More details about how to [interact with data](/netcdf_editor_app/interact). This concerns only [panel steps](#panel)).
+More details about how to [interact with data](/netcdf_editor_app/interact). (This concerns only [Internal Oceans](#internal-oceans), [Passage Problems](#passage-problems) and [Sub basins](#sub-basins) steps).
 
 First figure is a representation of the data.
 
 <p align="center">
-    <img src='img/Figure_topo_bathy.png' alt="drawing" width="400">
+    <img src='img/Figure_topo_bathy.png' style="width:400px;">
 </p>
 
 The next figure highlights the internal oceans (area of water surrounded by land) in red. The total is shown at the top right corner of the figure. They need to be removed for water mass conservation reasons that won't be satisfied in the model. There are two ways to perform this:
@@ -69,12 +69,12 @@ The next figure highlights the internal oceans (area of water surrounded by land
 - or by replacing the closed water area by land points
 
 <div class='alert alert-info'>
-    Land points are cells with value > 0
+    Land points are cells with value > 0 <br>
     Water points are cells with value <= 0
 </div>
 
 <p align="center">
-    <img src='img/Figure_internal_oceans.png' alt="drawing" width="400">
+    <img src='img/Figure_internal_oceans.png' style="width:400px;">
 </p>
 
 The next figure depict the fact that:
@@ -84,14 +84,14 @@ The next figure depict the fact that:
 All the cells not matching these requirements will be highlighted in red. User must remove them.
 
 <p align="center">
-    <img src='img/Figure_ensure_poles.png' alt="drawing" width="400">
+    <img src='img/Figure_ensure_poles.png' style="width:400px;">
 </p>
 
 Finally last figure is an histogram showing the topo/bathy value distribution.
 
 
 <p align="center">
-    <img src='img/Histogram.png' alt="drawing" width="400">
+    <img src='img/Histogram.png' style="width:400px;">
 </p>
 
 ##### Routing
@@ -116,24 +116,30 @@ User can generate a plant functional type file in this step by selecting percent
 
 ##### Passage Problems
 
-This step allows to deal with once again internal oceans because of the **Internal oceans** step that might have created new internal oceans from the interpolation process.
+(See [interact with data](/netcdf_editor_app/interact) for more details).
+
+
+This step allows to deal once again with internal oceans because of the [Routing](#routing) step that might have created new internal oceans with the interpolation process.
 
 The next figure will highlight diffusive passages which are inlets of one water cell wide. Due to the way that the simulation code is written, water passages will only have diffusive properties and no advection, whilst this may be desired in certain locations this can be undesirable in certain areas (Strait of Gibraltar, Panama, ... ). The total is shown at the top right corner of the figure.
 
 <div class='alert alert-info'>
-    Land points are cells with value = 0
+    Land points are cells with value = 0 <br>
     Water points are cells with value > 0
 </div>
 
 <p align="center">
-    <img src='img/Figure_diffusive_passages.png' alt="drawing" width="400">
+    <img src='img/Figure_diffusive_passages.png' style="width:400px;"/>
 </p>
 
 Last figure is an histogram showing the bathymetry value distribution.
 
-##### Subbasins
+##### Sub basins
 
-In this step, the user can define 3 subbasins (3 values available 1, 2 and 3). The produced file will then useful for the model to process some average some variables by subbasins.
+(See [interact with data](/netcdf_editor_app/interact) for more details).
+
+
+In this step, the user can define 3 subbasins (3 values available 1, 2 and 3). The produced file will then useful for the model to process some average some variables by sub basin.
 
 ##### Calculate Weights
 
@@ -146,13 +152,13 @@ This last step allow the user to compute weights between ocean and atmosphere gr
 The assets table show the currently available files. You can download them by clicking the download button. The view button will give a basic overview of the file. The complex viewer opens the panel app allowing you to change values inside the file. The Revision comparison does a diff and show this to the previous version of the same file.
 
 <p align="center">
-    <img src='img/Assets.png' alt="drawing" width="400">
+    <img src='img/Assets.png' style="width:400px;">
 </p>
 
 ## Architecture
 
 <p align="center">
-    <img src="img/app_architecture.png" width="500"/>
+    <img src="img/app_architecture.png"/>
 </p>
 
 The App is composed of a multitude of components that interact together. Each microservice has its own task. All the different services can be found in `Multi_Page_WebApp/services`
@@ -172,7 +178,7 @@ This is not a service (container by itself) but shared (via a volume) between th
 ### Flask
 
 <p align="center">
-    <img src="img/flask.png" width="200"/>
+    <img src="img/flask.png" style="width:200px;"/>
 </p>
 
 [Flask](https://flask.palletsprojects.com/en/1.1.x/) is a python library that is used to create multipage web apps. It handles the routing (different endpoints) and requests. Being written in python it can execute python code before rendering HTML templates written in `jinja` template language. 
@@ -182,7 +188,7 @@ The main goal of this container is to display the different webpages, do simple 
 ### Panel
 
 <p align="center">
-    <img src='img/Panel_2.png' alt="drawing" width="400">
+    <img src='img/Panel_2.png' style="width:400px;">
 </p>
 
 [Panel](http://panel.holoviz.org/) is a dashboarding technology for python. It is the tool that is used to create the single page app. It is useful for creating rich in page interactivity and processing easily.

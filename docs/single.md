@@ -40,7 +40,7 @@ Curvilinear coordinates are supported __HOWEVER__ they are reprojected into _ij_
 
 ### Options
 
-(More details about how to [interact with data](/netcdf_editor_app/interact).
+More details about how to [interact with data](/netcdf_editor_app/interact).
 
 ### Extra Maps
 

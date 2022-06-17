@@ -1,5 +1,5 @@
 ## Introduction
-The NetCDF Editor App is maintained by [CEREGE-CL](https://github.com/Paleoclim-CNRS). The goal of the app is to be able to interactively visualize and adjust netcdf files for use for deep time simulations, in particular to setup the boundary condtions for climate simulations models.
+The NetCDF Editor App is maintained by [PaleoClimate](https://github.com/Paleoclim-CNRS) team. The goal of the app is to be able to interactively visualize and adjust netcdf files for use for deep time simulations, in particular to setup the boundary condtions for climate simulations models.
 
 There have already been a succession of iterations of the tool, starting out as a [single page web app](/netcdf_editor_app/single) and evolving into a more complex [multi page web based tool](/netcdf_editor_app/multi).
 

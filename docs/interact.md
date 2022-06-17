@@ -1,11 +1,11 @@
 # Interact with data
 
 <div class='alert alert-info'>
-    This section shows how to use the features of the panel dashboard. It is used by the <strong>Single page web app</strong> and the <em>Internal Oceans</em>, <em>Passage Problems</em> and <em>Sub basins</em> steps of the <strong>Multi page web app</strong>.
+    This section shows how to use the features of the panel dashboard. It is used by the <a href="/netcdf_editor_app/single">Single page web app</a> and the <a href="/netcdf_editor_app/multi#internal-oceans">Internal Oceans</a>, <a href="/netcdf_editor_app/multi#passage-problems">Passage Problems</a> and <a href="/netcdf_editor_app/multi#sub-basins">Sub basins</a> steps of the <a href="/netcdf_editor_app/multi">Multi page web app</a>. 
 </div>
 
 <p align="center">
-    <img src='img/Panel.png' alt="drawing" width="400">
+    <img src='img/Panel.png' >
 </p>
 
 Variable to display can be selected at the top of the *left panel* in **Variable** section.
@@ -15,7 +15,7 @@ Variable to display can be selected at the top of the *left panel* in **Variable
 Options on colormap can be set in the *left panel* in **Colormaps** section.
 
 <p align="center">
-    <img src='img/colormap_options.png' alt="drawing" width="200">
+    <img src='img/colormap_options.png' style="width:200px;">
 </p>
 
 Min and max values can be defined. Anything below the minimum value will appear light gray and anything above the maximum value will appear black.
@@ -36,7 +36,7 @@ Finally a mask can be applied, this colors values below the cutoff to gray and a
 ## Graph tools
 
 <p align="center">
-    <img src='img/options.png' alt="drawing" width="300">
+    <img src='img/options.png' style="width:300px;">
 </p>
 
 At the top right corner of the *figure panel* are a collections of tools, from left to right these are:
@@ -61,8 +61,8 @@ As mentioned, in order to change the values of the data, the user can select dat
     Long holding either type of selection tool allows the user to change the selection type (union, intersection, ...).
 </div>
 <p align="center">
-    <img src='img/Hold_select.png' alt="drawing" height="200">
-    <img src='img/Hold_select_2.png' alt="drawing" height="200">
+    <img src='img/Hold_select.png' style="width:auto; height:200px;">
+    <img src='img/Hold_select_2.png' style="width:auto; height:200px;">
 </p>
 
 <div class='alert alert-info'>
@@ -77,14 +77,14 @@ As mentioned, in order to change the values of the data, the user can select dat
 Then selection can be refined by ticking/unticking boxes in the **Change Values** section in the *left panel*:
 
 <p align="center">
-    <img src='img/Select_land_ocean.png' alt="drawing" width="150">
+    <img src='img/Select_land_ocean.png' style="width:150px;">
 </p>
 
 
 ## Apply new values
 
 <p align="center">
-    <img src='img/apply_values.png' alt="drawing" width="200">
+    <img src='img/apply_values.png' style="width:200px;">
 </p>
 
 After point(s) have been selected on the graphs the user has the possibility to change the values in three different ways by using buttons in the **Change Values** section in the *left panel*.
@@ -93,7 +93,7 @@ If we consider the value in the **Replacement Value** field = `X_value`:
 
 - Absolute (`New_value = X_value`)
 - Relative (`New_value = base_value + X_value`)
-- Percentage (`New_value = base_value + base_value * X_value %` -> value in **Replacement Value** becomes a percentage)
+- Percentage (`New_value = base_value + base_value * X_value %` ➞ `X_value` in **Replacement Value** field refers to a percentage)
 
 Apply button can then be clicked to confirm changes. User can also choose to **Undo** or **Redo** changes he has made.
 
