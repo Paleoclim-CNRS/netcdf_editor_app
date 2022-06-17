@@ -800,7 +800,7 @@ def create_bathy_paleo_orca(topo, custom_orca=None):
     # Ocean values are now positive or equal to 0
     # Any strictly negative value is a continent
     # TODO we could pass omsk in for consitency
-    bathy = numpy.where(bathy < 0, numpy.nan, bathy) # set land points to nans
+    bathy = numpy.where(bathy < 0, numpy.nan, bathy)  # converts land points into nans to keep more accurate coastline after interpolation
     # Remap to nemo grid
     # Load grid
     ds_orca = custom_orca
@@ -837,10 +837,10 @@ def create_bathy_paleo_orca(topo, custom_orca=None):
         data_vars={"Bathymetry": (["lat", "lon"], bathy)},
     )
     ds = ds.interp(ds_orca.coords, method="nearest", kwargs={"fill_value": None})
-    ds.Bathymetry.values[ds.Bathymetry.values == 0] = 10 # set water points from value 0 to 10 in order to not be confused with land points that are nans and will get value 0 in next line
+    ds.Bathymetry.values[ds.Bathymetry.values == 0] = 10 # change water points value from 0 to 10 in order to not be confused with land points that are nans and will be converted into value 0 in next line
     ds.Bathymetry.values = numpy.where(
         numpy.isnan(ds.Bathymetry.values), 0, ds.Bathymetry.values
-    ) # set land points from nans to value 0
+    ) # converts land points which are nans into value 0
     ds = ds.rename({"lat": "nav_lat", "lon": "nav_lon"})
     ds.nav_lat.attrs = {
         "standard_name": "latitude",
