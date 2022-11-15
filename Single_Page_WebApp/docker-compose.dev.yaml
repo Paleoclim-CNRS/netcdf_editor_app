@@ -3,12 +3,10 @@ services:
   panel_app:
     build:
       context: .
-      dockerfile: single_page_webapp.Dockerfile
+      dockerfile: single_page_webapp.Dockerfile.dev
     env_file: ${PANEL_CONFIG}
-    expose: 
-      - 8080
     ports:
-      - "8080:8080"
+      - "8081:8080"
     entrypoint: python -m panel serve --port=8080 --address=0.0.0.0 --allow-websocket-origin=0.0.0.0:8080 --websocket-max-message-size=100000000 app.ipynb
     volumes:
       - .:/usr/src/app
