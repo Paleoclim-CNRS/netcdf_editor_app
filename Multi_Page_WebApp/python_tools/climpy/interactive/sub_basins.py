@@ -16,51 +16,59 @@ from climate_simulation_platform.message_broker import send_preprocessing_messag
 colormaps = hv.plotting.list_cmaps()
 
 class SubBasins(ValueChanger):
-    file_type = "bathy"
+    file_type = "sub_basins"
     step = "subbasins"
 
-    def _default_ocean_values(self, bathy, dims):
+    def _def_subbasin_val(self, bathy):
         # Atlantic = 1
         # Pacific = 2
         # Indian = 3
         arr = numpy.zeros(bathy.shape)
         # Define x indices that will delimit the default sub basin areas
-        ind_1 = numpy.rint(dims[1] * (1/3)).astype(numpy.int64)
-        ind_2 = numpy.rint(dims[1] * (2/3)).astype(numpy.int64)
+        ind_1 = numpy.rint(bathy.shape[1] * (1/3)).astype(int)
+        ind_2 = numpy.rint(bathy.shape[1] * (2/3)).astype(int)
         # generate sub basin areas
         arr[:, 0 : ind_1] = 2
         arr[:, ind_1 : ind_2] = 1
-        arr[:, ind_2 : dims[1]] = 3
+        arr[:, ind_2 : bathy.shape[1]] = 3
         # bathy values of 0 -> Land
         arr[bathy <= 0] = 0
-        return arr
+        return arr.astype(int)
 
     def _load_ds(self, _id):
         self.loaded = False
         with self.app.app_context():
-            ds_sub_basins = load_file(_id, "sub_basins") # load sub_basins file
+            ds_sub_basins = load_file(_id, self.file_type) # load sub_basins file
         if type(ds_sub_basins) == type(None): # if sub_basins file has not been created yet, then initiate with default config
             with self.app.app_context():
-                ds = load_file(_id, self.file_type)
-            # assert ds.Bathymetry.shape == (149, 182) # generates error if ds.Bathymetry.shape has dim ~= (149,182)
-            ds.Bathymetry.values = self._default_ocean_values(ds.Bathymetry.values, ds.Bathymetry.shape)
-            ds = ds.rename({"Bathymetry": "Oceans"})
+                ds_bathy = load_file(_id, "bathy")
+            ds = xr.Dataset(
+                coords={},
+                data_vars={
+                    "nav_lat": (["y", "x"], ds_bathy.nav_lat.values),
+                    "nav_lon": (["y", "x"], ds_bathy.nav_lon.values),
+                    "Oceans" : (["y", "x"], self._def_subbasin_val(ds_bathy.Bathymetry.values)),
+                },
+            )
         else: # else if sub_basins file has been created, then use its data
-            
             # Load bathy file to extract mask
             with self.app.app_context():
-                ds_bathy = load_file(_id, self.file_type)
+                ds_bathy = load_file(_id, "bathy") # Load bathy file to extract mask
             mask = numpy.where(ds_bathy.Bathymetry.values <= 0, 0, 1)
-
-            ds_sub_basins["pacmsk"] = (('y', 'x'), numpy.where(ds_sub_basins.pacmsk == 1, 2, 0))
-            ds_sub_basins["indmsk"] = (('y', 'x'), numpy.where(ds_sub_basins.indmsk == 1, 3, 0))
-            ds = xr.Dataset({})
-            ds['Oceans'] = (ds_sub_basins.atlmsk + 
-                            ds_sub_basins.pacmsk + 
-                            ds_sub_basins.indmsk).astype(numpy.float64)* mask
-            ds['nav_lon'] = ds_sub_basins.navlon
-            ds['nav_lat'] = ds_sub_basins.navlat
-        # If lat and lon are in varaibles move them to coords
+            sub_basins = (numpy.where(ds_sub_basins.atlmsk == 1, 1, 0) +
+                          numpy.where(ds_sub_basins.pacmsk == 1, 2, 0) +
+                          numpy.where(ds_sub_basins.indmsk == 1, 3, 0))
+            # For land pt turned into ocean pt at passage problem step, set them to 1 by default for subbasin
+            sub_basins = numpy.where(sub_basins == 0, 1, sub_basins)
+            ds = xr.Dataset(
+                coords={},
+                data_vars={
+                    "nav_lat": (["y", "x"], ds_bathy.nav_lat.values),
+                    "nav_lon": (["y", "x"], ds_bathy.nav_lon.values),
+                    "Oceans" : (["y", "x"], sub_basins * mask),
+                },
+            )
+        # If lat and lon are in variables move them to coords
         d = {}
         for var in ds.data_vars:
             if "lat" in var.lower() or "lon" in var.lower():
@@ -89,7 +97,7 @@ class SubBasins(ValueChanger):
         self.ds = ds
         attributes = list(ds.keys())
         self.attribute.options = attributes
-        self.attribute.value = attributes[0]
+        self.attribute.value = 'Oceans' # attributes[0]
         self._original_ds = ds.copy(deep=True)
         self.loaded = True
         return True
@@ -179,7 +187,7 @@ class SubBasins(ValueChanger):
         ds["indmsk"].attrs = {}
 
         with self.app.app_context():
-            save_revision(self.data_file_id, ds, "sub_basins")
+            save_revision(self.data_file_id, ds, self.file_type)
             if self.step is not None:
                 save_step(
                     self.data_file_id,
