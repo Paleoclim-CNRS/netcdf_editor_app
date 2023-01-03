@@ -46,7 +46,7 @@ COPY services/mosaix/ARCH/arch-linux_ubuntu* XIOS/arch/
 RUN cd XIOS && \
     ./make_xios --arch linux_ubuntu --jobs 8
 
-RUN svn co http://forge.ipsl.jussieu.fr/igcmg/svn/TOOLS/MOSAIX MOSAIX --username icmc_users --password icmc2022
+RUN svn co -r 6245 http://forge.ipsl.jussieu.fr/igcmg/svn/TOOLS/MOSAIX MOSAIX --username icmc_users --password icmc2022
 RUN sed -i '/-L%{XIOS_DIR}\/lib/c\%LD_FLAGS         -L%{XIOS_DIR}/lib -lxios %BASE_LD %ARCH_LD' MOSAIX/bld.cfg
 RUN apt update && apt install -y fcm
 RUN cd MOSAIX && ./make_mosaix
