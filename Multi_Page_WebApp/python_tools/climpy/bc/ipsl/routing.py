@@ -248,7 +248,7 @@ def _remove_remaining_depressions(topo):
         return topo
 
     # Get coordinates of depressions
-    depression_coord = numpy.array(numpy.where((is_depression is True)))
+    depression_coord = numpy.array(numpy.where((is_depression == True)))
     # Add increment to the altitude of the cell being a depression
     # The increment is the mean of the altitude of the 8 cells surrounding the depression
     increment = numpy.abs(numpy.mean(arrays[:, depression_coord[0], depression_coord[1]], axis=0))
