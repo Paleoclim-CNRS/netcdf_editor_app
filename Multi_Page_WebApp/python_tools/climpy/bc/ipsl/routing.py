@@ -226,6 +226,36 @@ def _add_gradient_to_flats(topo):
 
     return topo
 
+def _remove_remaining_depressions(topo):
+    """
+    Sometimes depressions of 1 cell wide are remaining despite processings done.
+    This function is designed to adress this issue. It looks for those small depressions 
+    and increase the level of the cell so it becomes higher than at least 1 surrounding cell.
+    The function is recursive just in case, because increasing level of a cell could
+    potentially generate other depressions.
+    """
+    arrays = get_differences_with_neighbors(topo, ensure_gradient=True)
+
+    # A depression is a cell which is lower (altitude) than its 8 surrounding cells
+    # A depression is defined by cells where all the difference with surrounding cells is <0
+    is_depression = numpy.sum(arrays < 0, axis=0) == 8
+
+    # Only take land cells
+    is_depression[topo <= 0] = False
+
+    # If there are no depression found, end the function
+    if not is_depression.any():
+        return topo
+
+    # Get coordinates of depressions
+    depression_coord = numpy.array(numpy.where((is_depression is True)))
+    # Add increment to the altitude of the cell being a depression
+    # The increment is the mean of the altitude of the 8 cells surrounding the depression
+    increment = numpy.abs(numpy.mean(arrays[:, depression_coord[0], depression_coord[1]], axis=0))
+    # Add increment to depression cell
+    topo[depression_coord[0], depression_coord[1]] = topo[depression_coord[0], depression_coord[1]] + increment
+
+    return _remove_remaining_depressions(topo)
 
 def _ensure_south_up(topo, latitudes):
     if latitudes[0] < 0:
@@ -244,6 +274,7 @@ def fix_topo(topo, latitudes):
     topo = _ensure_south_up(topo, latitudes)
     topo = _fill_depressions_in_topo(topo)
     topo = _add_gradient_to_flats(topo)
+    topo = _remove_remaining_depressions(topo)
     return topo
 
 
