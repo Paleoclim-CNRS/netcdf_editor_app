@@ -1,5 +1,5 @@
---- CreateWeightsMask.bash.BCKP	2023-01-03 15:51:46.000000000 +0100
-+++ CreateWeightsMask.bash	2023-01-03 15:52:19.000000000 +0100
+--- CreateWeightsMask_ori.bash	2023-01-18 15:50:39.000000000 +0100
++++ CreateWeightsMask.bash	2023-01-18 15:55:42.000000000 +0100
 @@ -305,7 +305,6 @@
      MpiRun="/opt/local/bin/mpirun -n 1"
      PyRun="time"
@@ -17,3 +17,16 @@
      ( eORCA1.2             ) OcePerio=6   ;;
      ( eORCA1.4.0           ) OcePerio=6   ;;
      ( eORCA1.4.2           ) OcePerio=6.2 ;;
+@@ -909,9 +908,9 @@
+ ## ===========================================================================
+ echo ${Titre}"Save results"${Norm}
+ ## ===========================================================================
+-#for File in $(ls dia_*.nc rmp_*.nc ${ATM}_grid_maskFrom_${OCE}*.nc areas_${OCE}x${ATM}*.nc grids_${OCE}x${ATM}*.nc masks_${OCE}x${ATM}*.nc 2> /dev/null ) ; do
+-#    cp ${File} ${SUBMIT_DIR}
+-#done
++for File in $(ls dia_*.nc rmp_*.nc ${ATM}_grid_maskFrom_${OCE}*.nc areas_${OCE}x${ATM}*.nc grids_${OCE}x${ATM}*.nc masks_${OCE}x${ATM}*.nc 2> /dev/null ) ; do
++    cp ${File} ${SUBMIT_DIR}
++done
+ 
+ 
+ ##
