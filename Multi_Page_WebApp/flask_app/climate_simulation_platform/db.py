@@ -250,6 +250,9 @@ def save_revision(_id, ds, file_type, info={}):
 def save_file_to_db(_id, filename, file_type, info={}):
     # ADD the file to the revisions table
     db = get_db()
+
+    db.execute("BEGIN IMMEDIATE")
+    
     # Get latest revision
     query = "SELECT revision FROM revisions WHERE data_file_id = ? ORDER BY revision DESC LIMIT 0, 1"
     revision_nb = db.execute(query, (str(_id),)).fetchone()["revision"] + 1
