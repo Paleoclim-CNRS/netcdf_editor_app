@@ -31,6 +31,7 @@ a {
 hr {
   border: none;
   border-top: 1px solid lightgray;
+  margin: 12px 0px;
 }
 
 nav {
@@ -68,6 +69,7 @@ nav ul li a, nav ul li span, header .action {
 
 .content > header {
   border-bottom: 1px solid lightgray;
+  margin-bottom: 12px;
   display: flex;
   align-items: flex-end;
 }
@@ -86,17 +88,33 @@ nav ul li a, nav ul li span, header .action {
 
 .post > header {
   display: flex;
-  align-items: flex-end;
+  align-items: center;
   font-size: 0.85em;
+  height: 61px;
 }
 
-.post > header > div:first-of-type {
+.post > header > div {
   flex: auto;
+  display: flex;
+  /* align-items: center; */
 }
 
 .post > header h1 {
   font-size: 1.5em;
-  margin-bottom: 0;
+  margin: 0;
+}
+
+.post > header > div > a > .duplicated {
+  margin: 0px; 
+  color:#30a746;
+}
+.post > header > div > a > .received {
+  margin: 0px; 
+  color:#32a2b8;
+}
+
+.post > header > form {
+  margin-left: 5px;
 }
 
 .post .about {

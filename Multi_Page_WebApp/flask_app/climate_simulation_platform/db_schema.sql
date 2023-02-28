@@ -14,6 +14,7 @@ CREATE TABLE data_files (
   longitude TEXT,
   latitude TEXT,
   info TEXT,
+  state TEXT,
   FOREIGN KEY (owner_id) REFERENCES user (id)
 );
 

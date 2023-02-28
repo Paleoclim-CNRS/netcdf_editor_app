@@ -1,0 +1,18 @@
+{% extends 'base.html' %}
+
+{% block header %}
+<h1>{% block title %}Send workflow to another user{% endblock %}</h1>
+{% endblock %}
+
+{% block content %}
+<form method='POST'>
+  <label for="Username">User</label>
+  <select name="Username">
+    {% for name in user_names %}
+        <option value="{{ name }}">{{ name }}</option>
+    {% endfor %}
+  </select>
+  <br><br>
+  <button type="submit" class="btn btn-success btn-lg"><i class="fas fa-paper-plane"></i> Send</button>
+</form>
+{% endblock %}

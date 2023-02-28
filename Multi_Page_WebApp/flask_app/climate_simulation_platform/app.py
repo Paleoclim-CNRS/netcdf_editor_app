@@ -36,6 +36,7 @@ from climate_simulation_platform.db import (
     add_info,
     get_coord_names,
     get_file_path,
+    get_all_usernames,
     get_file_type_counts,
     get_file_types,
     get_filename,
@@ -44,6 +45,9 @@ from climate_simulation_platform.db import (
     get_lon_lat_names,
     is_data_file,
     load_file,
+    duplicate_data_files,
+    duplicate_revisions,
+    duplicate_steps,
     remove_data_file,
     set_data_file_coords,
     steps_seen,
@@ -183,13 +187,40 @@ def download_all(_id):
     )
 
 
+@bp.route("/<int:_id>/send", methods=("GET", "POST"))
+@login_required
+@user_required
+def send(_id):
+    if request.method == "POST":
+        receiver = request.form["Username"]
+        duplicate_data_files(_id, receiver)
+        duplicate_revisions(_id)
+        duplicate_steps(_id)
+        flash("File with id: {} sent to {}".format(_id, receiver), 'info')
+        return redirect(url_for("index"))
+
+    user_names = get_all_usernames()
+    return render_template("app/send.html", _id=_id, user_names=user_names)
+
+
+@bp.route("/<int:_id>/duplicate", methods=("GET", "POST"))
+@login_required
+@user_required
+def duplicate(_id):
+    if request.method == "POST":
+        duplicate_data_files(_id)
+        duplicate_revisions(_id)
+        duplicate_steps(_id)
+        flash("File with id: {} duplicated".format(_id), 'success')
+    return redirect(url_for("index"))
+
 @bp.route("/<int:_id>/delete", methods=("GET", "POST"))
 @login_required
 @user_required
 def delete(_id):
     if request.method == "POST":
         remove_data_file(_id)
-        flash("File deleted with id: {}".format(_id))
+        flash("File with id: {} deleted".format(_id), 'danger')
     return redirect(url_for("index"))
 
 
