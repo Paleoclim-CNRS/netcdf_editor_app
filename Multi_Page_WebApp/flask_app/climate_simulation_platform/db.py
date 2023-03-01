@@ -371,8 +371,8 @@ def get_all_usernames():
     db = get_db()
     query = "SELECT username FROM user WHERE id != ?"
     usernames = db.execute(query, (g.user["id"],)).fetchall()
-    usernames = [username["username"] for username in usernames]
-    return usernames
+    user_names = [username["username"] for username in usernames if username["username"] != 'admin']
+    return user_names
 
 
 def get_latest_file_versions():
