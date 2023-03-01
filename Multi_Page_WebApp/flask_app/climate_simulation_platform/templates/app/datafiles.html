@@ -14,12 +14,22 @@
 <article class="post">
     <header>
         <div>
-            <a class="action" href="{{ url_for('app.steps', _id=df['id']) }}">
-                <h1>{{ df['filename'] }} Last Modified on {{ df['created'].strftime('%Y-%m-%d')
-                    }}</h1>
+            <a class="action" href="{{ url_for('app.steps', _id=df['id']) }}" style="white-space: nowrap">
+                <h1>{{ df['filename'] }} Last Modified on {{ df['created'].strftime('%Y-%m-%d')}}</h1>
+                {% if df['state'] and "DUPLICATED" in df['state'] %}
+                    <p class="duplicated"> [{{ df['state'] }}]</p>
+                {% elif df['state'] and "RECEIVED" in df['state'] %}
+                    <p class="received"> [{{ df['state'] }}] </p>
+                {% endif %}
             </a>
         </div>
         <a class="action" href="{{ url_for('app.set_coords', _id=df['id']) }}">Set Coordinates</a>
+        <form action="{{ url_for('app.send', _id=df['id']) }}">
+            <button type="submit" class="btn btn-info btn-sm"><i class="fas fa-share"></i> SEND</button>
+        </form>
+        <form action="{{ url_for('app.duplicate', _id=df['id']) }}" method="POST">
+            <button type="submit" class="btn btn-success btn-sm"><i class="fas fa-clone"></i> DUPLICATE</button>
+        </form>
         <form action="{{ url_for('app.delete', _id=df['id']) }}" method="POST">
             <button type="submit" class="btn btn-danger btn-sm"><i class="fas fa-trash"></i> DELETE</button>
         </form>

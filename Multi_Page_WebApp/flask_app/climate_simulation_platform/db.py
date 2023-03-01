@@ -3,6 +3,7 @@ import sqlite3
 import os
 import json
 import tempfile
+import shutil
 
 import click
 from climate_simulation_platform.constants import dependant_files
@@ -365,9 +366,18 @@ def get_owner_id(data_file_id):
     return owner_id
 
 
+def get_all_usernames():
+    # Get all usernames except the one who is requesting
+    db = get_db()
+    query = "SELECT username FROM user WHERE id != ?"
+    usernames = db.execute(query, (g.user["id"],)).fetchall()
+    usernames = [username["username"] for username in usernames]
+    return usernames
+
+
 def get_latest_file_versions():
     query = (
-        "SELECT created, filename, df.id FROM"
+        "SELECT created, filename, df.id, state FROM"
         + " (SELECT MAX(revision) as revision, created, data_file_id FROM revisions GROUP BY data_file_id) as r"
         + " JOIN (SELECT * FROM data_files WHERE owner_id = ?) AS df ON r.data_file_id = df.id"
         + " JOIN user u ON df.owner_id = u.id"
@@ -446,6 +456,81 @@ def get_all_file_paths(_id, full=True):
     return [os.path.join(current_app.instance_path, fp) for fp in filepath]
 
 
+def get_latest_id(filename):
+    # For a specific filename get the id of the latest created in data_files table
+    db = get_db()
+    id_last = db.execute(
+        "SELECT MAX(id) FROM data_files WHERE filename = ?",
+        (filename,)).fetchone()["MAX(id)"]
+    return id_last
+
+def duplicate_data_files(_id, username=None):
+    # duplicate concerned row with '_id' in data_files table
+    db = get_db()
+    db.execute("BEGIN IMMEDIATE")
+    query = "SELECT * FROM data_files WHERE id = ?"
+    data_file = db.execute(query, (str(_id),)).fetchone()
+
+    # Duplicated or received case
+    if not username:
+        owner_id = data_file["owner_id"]
+        state = data_file["state"] + ' ' + "DUPLICATED"
+    else:
+        query = "SELECT id FROM user WHERE username = ?"
+        owner_id = db.execute(query, (username,)).fetchone()["id"]
+        state = f"RECEIVED from {g.user['username']}"
+
+    db.execute(
+        "INSERT INTO data_files (owner_id, filename, longitude, latitude, info, state)" " VALUES (?, ?, ?, ?, ?, ?)",
+        (owner_id, data_file["filename"], data_file["longitude"], data_file["latitude"], data_file["info"], state),
+        )
+    db.commit()
+
+
+def duplicate_revisions(_id):
+    # duplicate rows in revisions table where data_file_id = _id
+    db = get_db()
+    db.execute("BEGIN IMMEDIATE")
+    # Table revision to update
+    revisions = db.execute(
+        "SELECT * FROM revisions WHERE data_file_id = ?", (str(_id),)
+    ).fetchall()
+    lst_file_cp = []
+    # Copy all revision files with new temp names
+    for revision in revisions:
+        temp_name = next(tempfile._get_candidate_names()) + ".nc"
+        file_path_ori = os.path.join(current_app.instance_path, revision["filepath"])
+        file_path_cp  = os.path.join(current_app.instance_path, temp_name)
+        shutil.copy2(file_path_ori, file_path_cp)
+        lst_file_cp.append(temp_name)
+    file_name = get_filename(_id)
+    new_id = get_latest_id(file_name) # get id of the newly duplicated/sent workflow
+    # All the duplicated revisions in format list of tuples 
+    # e.g. [(rev_id_1, rev_file_1, ...), (rev_id_2, rev_file_2, ...), ...]
+    dpl_revisions = list(map(lambda x, y: (str(new_id), x["created"], y,
+                                       x["revision"], x["file_type"], x["info"]), revisions, lst_file_cp))
+    db.executemany(
+        "INSERT INTO revisions (data_file_id, created, filepath, revision, file_type, info)" " VALUES (?, ?, ?, ?, ?, ?)", 
+        dpl_revisions)
+    db.commit()
+
+
+def duplicate_steps(_id):
+    # duplicate rows in steps table where data_file_id = _id
+    db = get_db()
+    db.execute("BEGIN IMMEDIATE")
+    steps = db.execute("SELECT * FROM steps WHERE data_file_id = ?", (str(_id),)).fetchall()
+    file_name = get_filename(_id)
+    new_id = get_latest_id(file_name)
+    # All the duplicated steps in format list of tuples 
+    # e.g. [(rev_id_1, rev_file_1, ...), (rev_id_2, rev_file_2, ...), ...]
+    dpl_steps = list(map(lambda x: (str(new_id), x["step"],x["parameters"], x["up_to_date"]), steps))
+    db.executemany(
+        "INSERT INTO steps (data_file_id, step, parameters, up_to_date)" " VALUES (?, ?, ?, ?)",
+        dpl_steps)
+    db.commit()
+
+
 def remove_data_file(_id):
     # Get filepath
     file_paths = get_all_file_paths(_id)
@@ -455,6 +540,7 @@ def remove_data_file(_id):
     db = get_db()
     db.execute("DELETE FROM data_files WHERE id = ?", (str(_id),))
     db.execute("DELETE FROM revisions WHERE data_file_id = ?", (str(_id),))
+    db.execute("DELETE FROM steps WHERE data_file_id = ?", (str(_id),))
     db.commit()
 
 
