@@ -472,9 +472,10 @@ def duplicate_data_files(_id, username=None):
     data_file = db.execute(query, (str(_id),)).fetchone()
 
     # Duplicated or received case
+    init_state = '' if data_file["state"] is None else data_file["state"] + ' '
     if not username:
         owner_id = data_file["owner_id"]
-        state = data_file["state"] + ' ' + "DUPLICATED"
+        state = init_state + "DUPLICATED"
     else:
         query = "SELECT id FROM user WHERE username = ?"
         owner_id = db.execute(query, (username,)).fetchone()["id"]

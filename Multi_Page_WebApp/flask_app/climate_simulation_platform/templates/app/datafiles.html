@@ -15,7 +15,8 @@
     <header>
         <div>
             <a class="action" href="{{ url_for('app.steps', _id=df['id']) }}" style="white-space: nowrap">
-                <h1>{{ df['filename'] }} Last Modified on {{ df['created'].strftime('%Y-%m-%d')}}</h1>
+                <h1 style="">{{ df['filename'] }}</h1>
+                <h1 style="color:#8c4b00 ">Last Edit: {{ df['created'].strftime('%d-%m-%Y - %Hh%M ')}}</h1>
                 {% if df['state'] and "DUPLICATED" in df['state'] %}
                     <p class="duplicated"> [{{ df['state'] }}]</p>
                 {% elif df['state'] and "RECEIVED" in df['state'] %}

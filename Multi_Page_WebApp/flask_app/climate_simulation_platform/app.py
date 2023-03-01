@@ -214,6 +214,7 @@ def duplicate(_id):
         flash("File with id: {} duplicated".format(_id), 'success')
     return redirect(url_for("index"))
 
+
 @bp.route("/<int:_id>/delete", methods=("GET", "POST"))
 @login_required
 @user_required

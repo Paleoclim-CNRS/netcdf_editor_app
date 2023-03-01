@@ -90,7 +90,7 @@ nav ul li a, nav ul li span, header .action {
   display: flex;
   align-items: center;
   font-size: 0.85em;
-  height: 61px;
+  height: 70px;
 }
 
 .post > header > div {
