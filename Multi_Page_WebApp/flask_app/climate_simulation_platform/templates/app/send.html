@@ -8,7 +8,7 @@
 <form method='POST'>
   <label for="Username">User</label>
   <select name="Username" id="Username" required>
-    <option value="" disabled selected value> -- select an option -- </option>
+    <option value="" disabled selected value>-- Select a user --</option>
     {% for name in user_names %}
         <option value="{{ name }}">{{ name }}</option>
     {% endfor %}
