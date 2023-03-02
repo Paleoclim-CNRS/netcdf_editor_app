@@ -20,18 +20,18 @@ body {
 
 h1, h2, h3, h4, h5, h6 {
   font-family: serif;
-  color: #377ba8;
+  color: #046690;
   margin: 1rem 0;
 }
 
 a {
-  color: #377ba8;
+  color: #046690;
 }
 
 hr {
   border: none;
   border-top: 1px solid lightgray;
-  margin: 12px 0px;
+  margin: 0px;
 }
 
 nav {
@@ -69,7 +69,7 @@ nav ul li a, nav ul li span, header .action {
 
 .content > header {
   border-bottom: 1px solid lightgray;
-  margin-bottom: 12px;
+  /* margin-bottom: 12px; */
   display: flex;
   align-items: flex-end;
 }
@@ -90,7 +90,14 @@ nav ul li a, nav ul li span, header .action {
   display: flex;
   align-items: center;
   font-size: 0.85em;
-  height: 70px;
+  height: 100px;
+  padding: 0px 10px;
+  transition: all 0.3s;
+}
+
+.post>header:hover {
+  background-color: #f1f1f1;
+  transition: all 0.3s;
 }
 
 .post > header > div {

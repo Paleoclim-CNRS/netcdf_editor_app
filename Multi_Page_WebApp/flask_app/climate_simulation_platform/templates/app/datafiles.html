@@ -24,7 +24,9 @@
                 {% endif %}
             </a>
         </div>
-        <a class="action" href="{{ url_for('app.set_coords', _id=df['id']) }}">Set Coordinates</a>
+        <form action="{{ url_for('app.set_coords', _id=df['id']) }}">
+            <button type="submit" class="btn btn-light btn-sm">Set Coordinates</button>
+        </form>
         <form action="{{ url_for('app.send', _id=df['id']) }}">
             <button type="submit" class="btn btn-info btn-sm"><i class="fas fa-share"></i> SEND</button>
         </form>
