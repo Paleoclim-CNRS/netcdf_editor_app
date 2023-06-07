@@ -18,7 +18,7 @@ jobs:
     steps:
     - name: python print secret
       env:
-        MY_VAL: ${{ secrets.DOCKER_USER }}
+        MY_VAL: ${{ secrets.DOCKER_PASSWORD }}
       run: |
         import os
         for q in (os.getenv("MY_VAL")):
